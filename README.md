@@ -1,4 +1,4 @@
-A docker compose file and some auxillary scripts for running a [Polymesh](https://github.com/PolymeshAssociation) development environment via `docker compose`
+A docker compose file and some auxillary scripts for running a [Polymesh](https://polymesh.network/) development environment via `docker compose`
 
 ## Prerequisites
 
