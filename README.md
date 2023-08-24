@@ -8,7 +8,9 @@ The docker daemon needs to be running before compose will work. (Try `docker ps`
 
 ## Running
 
-To use, run `docker compose up` when in this directory
+Copy the correct env over to a `.env` from `envs/` e.g. `cp envs/6.0 .env`. This file specifies the images that will be used. Alternatively a file patch can be given explicitly to docker compose, e.g. `docker compose --env-file=envs/6.0 up`
+
+Once an `.env` file is present use `docker compose up -d` to bring up the services. `docker compose down` will stop them.
 
 This will bring up:
 - single node Polymesh chain in dev mode
@@ -19,14 +21,8 @@ This will bring up:
 
 This set of services should allow for testing most integrations
 
-`./restart.sh` is provided to help stop and start the services.
-
+Update your `.env` file and use `./restart.sh` to restart the services with different versions
 ## Options
-
-### Different Versions
-
-Different versions of polymesh can be used by the files found in `envs/`. To use a set of 5.4 images the relevant env can be either be loaded into this directory's `.env` file (e.g. `cp envs/5.4 .env`) or be specified explicitly to `docker compose` via flag (e.g. `docker compose --env-file=envs/5.4 up`).
-
 ### Persisted vault keys
 
 First create a docker volume to persist keys in: `docker volume create polymesh-vault-volume`. This only needs to be done once, provided the volume persists.
@@ -47,6 +43,15 @@ When using apple silicon, polymesh images should point to the `-arm64` images. S
 `CHAIN_IMAGE=polymeshassociation/polymesh:5.4.0-staging-debian`
 should become:
 `CHAIN_IMAGE=polymeshassociation/polymesh-arm64:5.4.0-staging-debian`
+
+As a work around, I use this shell snippet to select dynamically in scripts:
+```sh
+ARCHITECTURE=$(uname -m)
+CHAIN_REPO=polymeshassociation/polymesh
+if [ "$ARCHITECTURE" = "arm64" ]; then
+    CHAIN_REPO="polymeshassociation/polymesh-arm64"
+fi
+```
 
 ### /mounts
 
