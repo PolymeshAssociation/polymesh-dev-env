@@ -53,6 +53,18 @@ if [ "$ARCHITECTURE" = "arm64" ]; then
 fi
 ```
 
+### Polymesh Portal
+
+You can set a custom RPC point on the [Testnet Polymesh Portal](https://portal.polymesh.live/settings) to use the locally running node. By default the settings you will need are:
+
+```
+RPC URL: ws://localhost:9944
+Middleware URL: http://localhost:3001
+```
+
+![setting localhost in polymesh portal settings](/imgs/portal-settings.png)
+
+
 ### /mounts
 
 The `/mounts` directory contains scripts used to setup the containers. e.g. The dev chain needs certain flags, postgres needs btree gist extensions.
