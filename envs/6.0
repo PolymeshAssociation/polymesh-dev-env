@@ -1,6 +1,6 @@
 COMPOSE_PROJECT_NAME=polymesh
 
-CHAIN_IMAGE=polymeshassociation/polymesh:99dc6cc1b2-develop-debian
+CHAIN_IMAGE=polymeshassociation/polymesh:6.0.0-staging-debian
 REST_IMAGE=polymeshassociation/polymesh-rest-api:v4.1.0
 SUBQUERY_IMAGE=polymeshassociation/polymesh-subquery:v9.8.1
 PG_PORT=5432
