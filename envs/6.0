@@ -1,8 +1,8 @@
 COMPOSE_PROJECT_NAME=polymesh
 
 CHAIN_IMAGE=polymeshassociation/polymesh:99dc6cc1b2-develop-debian
-REST_IMAGE=polymeshassociation/polymesh-rest-api:v3.0.0-alpha.6
-SUBQUERY_IMAGE=polymeshassociation/polymesh-subquery:v9.7.0-alpha.11
+REST_IMAGE=polymeshassociation/polymesh-rest-api:v4.1.0
+SUBQUERY_IMAGE=polymeshassociation/polymesh-subquery:v9.8.1
 PG_PORT=5432
 REST_PORT=3004
 SQ_PORT=3001
