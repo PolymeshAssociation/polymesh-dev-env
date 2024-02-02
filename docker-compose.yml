@@ -121,7 +121,7 @@ services:
       - ${VAULT_REST_PORT:-3014}:3000
     environment:
       POLYMESH_NODE_URL: 'ws://chain:9944'
-      POLYMESH_MIDDLEWARE_V2_URL: 'http://graphql-engine:3000'
+      POLYMESH_MIDDLEWARE_V2_URL: 'http://graphql:3000'
       VAULT_URL: 'http://vault:8200/v1/transit'
       VAULT_TOKEN: ${VAULT_TOKEN:-}
       AUTH_STRATEGY: 'open'
