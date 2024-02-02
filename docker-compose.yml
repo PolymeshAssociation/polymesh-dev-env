@@ -26,6 +26,8 @@ services:
 
   rest-api:
     image: ${REST_IMAGE}
+    profiles:
+      - ''
     init: true
     restart: unless-stopped
     depends_on:
@@ -118,7 +120,7 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     ports:
-      - ${VAULT_REST_PORT:-3014}:3000
+      - ${REST_PORT:-3004}:3000
     environment:
       POLYMESH_NODE_URL: 'ws://chain:9944'
       POLYMESH_MIDDLEWARE_V2_URL: 'http://graphql:3000'
