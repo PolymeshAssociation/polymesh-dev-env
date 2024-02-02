@@ -12,10 +12,7 @@ services:
     volumes:
       - './mounts/start-chain.sh:/start-chain.sh'
     entrypoint: '/start-chain.sh'
-    command:
-      [
-        '--alice --chain dev',
-      ]
+    command: ['--alice --chain dev']
 
   postgres:
     image: postgres:12-alpine
@@ -67,6 +64,7 @@ services:
       DB_PORT: '${PG_PORT:-5432}'
       DB_HOST: '${PG_HOST:-postgres}'
       NODE_ENV: local
+      START_BLOCK: 1
     command:
       - --batch-size=500
       - -f=/app
