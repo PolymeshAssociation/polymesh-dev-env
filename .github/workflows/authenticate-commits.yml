@@ -1,0 +1,71 @@
+name: Authenticate Commits
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Import allowed SSH keys
+        env:
+          ALLOWED_SIGNERS: ${{ secrets.MIDDLEWARE_ALLOWED_SIGNERS }}
+        run: |
+          mkdir -p ~/.ssh
+          echo $ALLOWED_SIGNERS > ~/.ssh/allowed_signers
+          git config --global gpg.ssh.allowedSignersFile "~/.ssh/allowed_signers"
+
+      - name: Validate commit signatures
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          # Function to verify a commit
+          verify_commit() {
+            local commit=$1
+            local status=$(git show --pretty="format:%G?" $commit | head -n 1)
+
+            if [ "$status" != "G" ]; then
+              local committer=$(git log -1 --pretty=format:'%cn (%ce)' $commit)
+              echo "Commit $commit from $committer has an invalid signature or is not signed by an allowed key."
+              exit 1
+            fi
+
+          }
+
+          # Get all commits in the PR
+          commits=$(git rev-list $BASE_SHA..$HEAD_SHA)
+
+          # Iterate over all commits in the PR and verify each one
+          for COMMIT in $commits; do
+            verify_commit $COMMIT
+          done
+
+          echo "All commits are signed with allowed keys."
+
+  check-fast-forward:
+    name: Check if fast forwarding is possible
+    runs-on: ubuntu-latest
+    needs: [validate]
+
+    permissions:
+      contents: read
+      # We appear to need write permission for both pull-requests and
+      # issues in order to post a comment to a pull request.
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checking if fast forwarding is possible
+        uses: sequoia-pgp/fast-forward@v1
+        with:
+          merge: false
+          # To reduce the workflow's verbosity, use 'on-error'
+          # to only post a comment when an error occurs, or 'never' to
+          # never post a comment.  (In all cases the information is
+          # still available in the step's summary.)
+          comment: never
