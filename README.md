@@ -8,7 +8,7 @@ The docker daemon needs to be running before compose will work. (Try `docker ps`
 
 ## Running
 
-Copy the correct env over to a `.env` from `envs/` e.g. `cp envs/6.0 .env`. This file specifies the images that will be used. Alternatively a file patch can be given explicitly to docker compose, e.g. `docker compose --env-file=envs/6.0 up`
+Copy the correct env over to a `.env` from `envs/` e.g. `cp envs/7.0 .env`. This file specifies the images that will be used. Alternatively a file patch can be given explicitly to docker compose, e.g. `docker compose --env-file=envs/7.0 up`
 
 Once an `.env` file is present use `docker compose up -d` to bring up the services. `docker compose down` will stop them.
 
@@ -46,9 +46,9 @@ The REST API uses the [Hashicorp Vault Signing Manager](https://github.com/Polym
 
 When using apple silicon, polymesh images should point to the `-arm64` images. Set the appropriate prefix in the `.env` file. e.g.
 
-`CHAIN_IMAGE=polymeshassociation/polymesh:5.4.0-staging-debian`
+`CHAIN_IMAGE=polymeshassociation/polymesh:7.0.0-testnet-debian`
 should become:
-`CHAIN_IMAGE=polymeshassociation/polymesh-arm64:5.4.0-staging-debian`
+`CHAIN_IMAGE=polymeshassociation/polymesh-arm64:7.0.0-testnet-debian`
 
 As a work around, I use this shell snippet to select dynamically in scripts:
 
