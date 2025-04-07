@@ -86,3 +86,23 @@ You can connect the [Testnet Polymesh Portal](https://portal.polymesh.live) to y
 
 ![Setting localhost in Polymesh Portal Settings](/imgs/portal-settings.png)
 *(Image path assumes it's correctly located relative to the README)*
+
+### Basic Examples
+
+### Get the local signer account address
+
+```bash
+curl --silent http://localhost:3004/signer/alice -H 'accept: application/json' | jq
+{
+  "address": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
+}
+```
+
+### Get the vault signer account address
+
+```bash
+curl --silent http://localhost:3005/signer/signer1-1 -H 'accept: application/json' | jq
+{
+  "address": "5Fdg1TDCX5iJarXjEsLn1gffVeddLvcQ7Jzh8gBV6W19yLxK"
+}
+```
