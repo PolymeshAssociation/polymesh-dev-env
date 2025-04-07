@@ -1,0 +1,344 @@
+networks:
+  polymesh:
+
+services:
+  postgres:
+    image: postgres:16.1-alpine
+    networks:
+      - polymesh
+    volumes:
+      - psql-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    configs:
+      - source: psql_extensions
+        target: /docker-entrypoint-initdb.d/btree_extension.sql
+        mode: 0555
+
+  subquery-node:
+    image: ${POLYMESH_SUBQUERY_IMAGE}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      polymesh-node:
+        condition: service_healthy
+    networks:
+      - polymesh
+    restart: on-failure
+    environment:
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_DATABASE: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      START_BLOCK: 1
+      NETWORK_ENDPOINT: "ws://polymesh-node:9944"
+      NETWORK_HTTP_ENDPOINT: "http://polymesh-node:9933"
+      NODE_ENV: local
+    command:
+      - --batch-size=500
+      - -f=/app
+      - --local
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://subquery-node:3000/ready"]
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 80s
+
+  subquery-graphql:
+    image: ${POLYMESH_SUBQUERY_GRAPHQL_IMAGE}
+    depends_on:
+      subquery-node:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - polymesh
+    ports:
+      - ${POLYMESH_SUBQUERY_GRAPHQL_PORT:-3000}:3000
+    restart: on-failure
+    environment:
+      DB_DATABASE: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: postgres
+      PORT: 3000
+      SUBQL_QUERY_INDEXER: http://subquery-node:3000
+      SUBQL_QUERY_NAME: public
+      SUBQL_QUERY_OUTPUT_FMT: json
+      SUBQL_QUERY_PLAYGROUND: true
+      SUBQL_QUERY_LOG_LEVEL: debug
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "subquery-graphql:3000/.well-known/apollo/server-health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  polymesh-node:
+    image: ${POLYMESH_CHAIN_IMAGE}
+    networks:
+      - polymesh
+    ports:
+      - ${POLYMESH_CHAIN_WS_PORT:-9944}:9944
+      - ${POLYMESH_CHAIN_RPC_PORT:-9933}:9933
+      - ${POLYMESH_CHAIN_P2P_PORT:-30333}:30333
+    volumes:
+      - chain-data:/var/lib/polymesh
+    command:
+      # - --dev
+      # - --rpc-external
+      # - --ws-external
+      - --base-path=/var/lib/polymesh
+      - --unsafe-ws-external
+      - --unsafe-rpc-external
+      - --wasm-execution=compiled
+      - --no-prometheus
+      - --no-telemetry
+      - --pruning=archive
+      - --no-mdns
+      - --validator
+      - --rpc-cors=all
+      - --rpc-methods=unsafe
+      - --force-authoring
+      - --port=30333
+      - --alice
+      - --chain=dev
+    configs:
+      - source: polymesh-healthcheck-libp2p
+        target: /usr/local/bin/polymesh-healthcheck-libp2p.sh
+        mode: 0555
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/polymesh-healthcheck-libp2p.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  # Polymesh Rest API with Vault Signer 
+  # https://github.com/PolymeshAssociation/polymesh-rest-api#signing-managers
+  polymesh-rest-api-vault-sm:
+    image: ${POLYMESH_REST_API_IMAGE}
+    depends_on:
+      polymesh-node:
+        condition: service_healthy
+      subquery-graphql:
+        condition: service_healthy
+      vault-init:
+        condition: service_completed_successfully
+    networks:
+      - polymesh
+    ports:
+      - ${POLYMESH_REST_API_VAULT_SM_PORT:-3005}:3000
+    restart: on-failure
+    volumes:
+      - vault-root-token:/vault-token:ro
+    entrypoint: /bin/sh -c "VAULT_TOKEN=$(cat /vault-token/.token) node dist/main.js"
+    environment:
+      PORT: 3000
+      POLYMESH_NODE_URL: "ws://polymesh-node:9944"
+      POLYMESH_MIDDLEWARE_V2_URL: "http://subquery-graphql:3000"
+      AUTH_STRATEGY: "open"
+      DEVELOPER_UTILS: true
+      VAULT_URL: "http://vault:8200/v1/transit"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://polymesh-rest-api-vault-sm:3000/network/latest-block"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  polymesh-rest-api-vault-sm-init:
+    image: alpine:3.19
+    depends_on:
+      polymesh-rest-api-vault-sm:
+        condition: service_healthy
+    restart: no
+    entrypoint: /opt/polymesh-rest-api/init.sh
+    networks:
+      - polymesh
+    environment:
+      PGPASSWORD: postgres
+      PGUSER: postgres
+      PGDATABASE: services_status
+      PGHOST: postgres
+    volumes:
+      - rest-api-accounts-init:/opt/polymesh-rest-api/status
+    configs:
+      - source: rest-api-accounts-init
+        target: /opt/polymesh-rest-api/init.sh
+        mode: 0555
+
+  # Polymesh Rest API with Local Signers
+  # https://github.com/PolymeshAssociation/polymesh-rest-api#signing-managers
+  polymesh-rest-api-local-sm:
+    image: ${POLYMESH_REST_API_IMAGE}
+    depends_on:
+      polymesh-node:
+        condition: service_healthy
+      subquery-graphql:
+        condition: service_healthy
+    networks:
+      - polymesh
+    ports:
+      - ${POLYMESH_REST_API_LOCAL_SM_PORT:-3004}:3000
+    restart: on-failure
+    environment:
+      PORT: 3000
+      POLYMESH_NODE_URL: "ws://polymesh-node:9944"
+      POLYMESH_MIDDLEWARE_V2_URL: "http://subquery-graphql:3000"
+      LOCAL_SIGNERS: "alice,bob,charlie"
+      LOCAL_MNEMONICS: "//Alice,//Bob,//Charlie"
+      AUTH_STRATEGY: "open"
+      DEVELOPER_UTILS: true
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://polymesh-rest-api-local-sm:3000/network/latest-block"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  vault:
+    image: hashicorp/vault:${VAULT_VERSION:-latest}
+    networks:
+      - polymesh
+    restart: unless-stopped
+    ports:
+      - ${VAULT_PORT:-8200}:8200
+    volumes:
+      - vault-volume:/vault/file:rw
+      - vault-log-volume:/vault/logs:rw
+    cap_add:
+      - IPC_LOCK # Prevents secrets from swapping to disk
+    configs:
+      - source: vault-config
+        target: /vault/config/vault.json
+        mode: 0444
+    entrypoint: vault server -config=/vault/config/vault.json
+
+  # This will make sure vault is initialized and unsealed on the first run and unsealed on subsequent runs
+  vault-init:
+    image: hashicorp/vault:${VAULT_VERSION:-latest}
+    networks:
+      - polymesh
+    restart: no
+    depends_on:
+      vault:
+        condition: service_started
+    volumes:
+      - vault-root-token:/vault-token:rw
+    # This will prevent the container from creating additional volumes
+    tmpfs:
+      - /vault/file
+      - /vault/logs
+    environment:
+      VAULT_ADDR: "http://vault:8200"
+      PGPASSWORD: postgres
+      PGUSER: postgres
+      PGDATABASE: services_status
+      PGHOST: postgres
+    configs:
+      - source: vault-init
+        target: /opt/vault/init.sh
+        mode: 0555
+      - source: vault-init-dependencies
+        target: /opt/vault/init-dependencies.sh
+        mode: 0555
+    entrypoint: /opt/vault/init-dependencies.sh
+
+  environment-ready:
+    image: alpine:latest
+    volumes:
+      - rest-api-accounts-init:/status:ro
+    command: >
+      sh -c '
+        start_time=$(date +%s)
+
+        # Check if setup is already complete from a previous run
+        if [ -f /status/.setup-complete ]; then
+          echo "************************************************************************************"
+          echo "*** Environment previously initialized and is ready! *******************************"
+          echo "************************************************************************************"
+          exit 0
+        else
+          # Setup not complete, start the waiting process
+          echo "************************************************************************************"
+          echo "Environment starting... Waiting for initialization script to complete. *************"
+          echo "Usually it takes less than 3 minutes to complete first time.           *************"
+          echo "************************************************************************************"
+          sleep 10
+          # Loop until the marker file created by polymesh-rest-api-vault-sm-init exists
+          while [ ! -f /status/.setup-complete ]; do
+            current_time=$(date +%s)
+            elapsed_time=$((current_time - start_time))
+            # Escape $ for Compose variable substitution
+            echo "Still waiting for initialization... (Elapsed: $${elapsed_time}s)"
+            sleep 10
+          done
+          end_time=$(date +%s)
+          total_duration=$((end_time - start_time))
+          echo "************************************************************************************"
+          echo "*** Polymesh Environment Ready! (Total initialization time: $${total_duration}s)                  ***"
+          echo "************************************************************************************"
+          exit 0
+        fi
+      '
+    restart: "no"
+    networks:
+      - polymesh 
+
+configs:
+  psql_extensions:
+    external: false
+    file: ./scripts/psql_extensions.sql
+  polymesh-healthcheck-libp2p:
+    external: false
+    file: ./scripts/polymesh-healthcheck-libp2p.sh
+  vault-config:
+    external: false
+    file: ./scripts/vault-config.json
+  vault-init:
+    external: false
+    file: ./scripts/vault-init.sh
+  vault-init-dependencies:
+    external: false
+    file: ./scripts/vault-init-dependencies.sh
+  rest-api-accounts-init:
+    external: false
+    file: ./scripts/rest-api-accounts-init.sh
+
+volumes:
+  psql-data:
+    labels:
+      - "network.polymesh.project=polymesh"
+      - "network.polymesh.description=Indexer PostgreSQL data"
+  chain-data: 
+    labels:
+      - "network.polymesh.project=polymesh"
+      - "network.polymesh.description=Polymesh chain data"
+  vault-volume: 
+    labels:
+      - "network.polymesh.project=polymesh"
+      - "network.polymesh.description=Hashicorp Vault data"
+  vault-log-volume: 
+    labels:
+      - "network.polymesh.project=polymesh"
+      - "network.polymesh.description=Hashicorp Vault logs"
+  vault-root-token: 
+    labels:
+      - "network.polymesh.project=polymesh"
+      - "network.polymesh.description=Hashicorp Vault root token"
+  rest-api-accounts-init: 
+    labels:
+      - "network.polymesh.project=polymesh"
+      - "network.polymesh.description=REST API signer init"
