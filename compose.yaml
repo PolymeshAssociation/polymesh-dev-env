@@ -125,7 +125,7 @@ services:
       retries: 10
       start_period: 60s
 
-  # Polymesh Rest API with Vault Signer 
+  # Polymesh Rest API with Vault Signer
   # https://github.com/PolymeshAssociation/polymesh-rest-api#signing-managers
   polymesh-rest-api-vault-sm:
     image: ${POLYMESH_REST_API_IMAGE}
@@ -295,7 +295,7 @@ services:
       '
     restart: "no"
     networks:
-      - polymesh 
+      - polymesh
 
 configs:
   psql_extensions:
@@ -322,23 +322,23 @@ volumes:
     labels:
       - "network.polymesh.project=polymesh"
       - "network.polymesh.description=Indexer PostgreSQL data"
-  chain-data: 
+  chain-data:
     labels:
       - "network.polymesh.project=polymesh"
       - "network.polymesh.description=Polymesh chain data"
-  vault-volume: 
+  vault-volume:
     labels:
       - "network.polymesh.project=polymesh"
       - "network.polymesh.description=Hashicorp Vault data"
-  vault-log-volume: 
+  vault-log-volume:
     labels:
       - "network.polymesh.project=polymesh"
       - "network.polymesh.description=Hashicorp Vault logs"
-  vault-root-token: 
+  vault-root-token:
     labels:
       - "network.polymesh.project=polymesh"
       - "network.polymesh.description=Hashicorp Vault root token"
-  rest-api-accounts-init: 
+  rest-api-accounts-init:
     labels:
       - "network.polymesh.project=polymesh"
       - "network.polymesh.description=REST API signer init"

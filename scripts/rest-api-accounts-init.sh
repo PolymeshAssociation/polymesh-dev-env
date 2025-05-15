@@ -122,7 +122,7 @@ response=$(curl -s -X "POST" \
   \"accounts\": [
     {
       \"address\": \"$admin_address\",
-      \"initialPolyx\": 10000000
+      \"initialPolyx\": 20000000
     }
   ]
 }" | jq -r .results[0].did )
