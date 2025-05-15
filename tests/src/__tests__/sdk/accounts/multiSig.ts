@@ -1,74 +1,111 @@
 import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { MultiSig } from "@polymeshassociation/polymesh-sdk/types";
+import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
+import {
+  Account,
+  MultiSig,
+  TransactionStatus,
+} from "@polymeshassociation/polymesh-sdk/types";
 
 import { TestFactory } from "~/helpers";
-import { runMultiSigExamples } from "~/sdk/accountManagement/multiSig";
 
 let factory: TestFactory;
 const handles = ["creator"];
 
-describe.skip("multiSig", () => {
+describe("multiSig", () => {
   let sdk: Polymesh;
-  let creator: string;
-  let signerOne: string;
-  let signerTwo: string;
+  let signerOne: Account;
+  let signerTwo: Account;
   let multiSig: MultiSig;
 
   beforeAll(async () => {
     factory = await TestFactory.create({ handles });
     sdk = factory.polymeshSdk;
 
-    const creatorId = factory.getSignerIdentity(handles[0]);
-    creator = creatorId.primaryAccount.account.address;
-
     // make unattached accounts to serve as the signers
     const mnemonic = LocalSigningManager.generateAccount();
 
-    signerOne = factory.signingManager.addAccount({
+    const signerOneAddr = factory.signingManager.addAccount({
       mnemonic: `${mnemonic}/one`,
     });
-    signerTwo = factory.signingManager.addAccount({
+    const signerTwoAddr = factory.signingManager.addAccount({
       mnemonic: `${mnemonic}/two`,
     });
+
+    [signerOne, signerTwo] = await Promise.all([
+      sdk.accountManagement.getAccount({ address: signerOneAddr }),
+      sdk.accountManagement.getAccount({ address: signerTwoAddr }),
+    ]);
   });
 
   afterAll(async () => {
     await factory.close();
   });
 
-  it("should execute multiSig without errors", async () => {
-    console.log("signer addresses", { signerOne, signerTwo, creator });
-    await expect(
-      runMultiSigExamples(sdk, creator, signerOne, signerTwo)
-    ).resolves.not.toThrow();
+  it("should create a MultiSig", async () => {
+    const createMultiSig = await sdk.accountManagement.createMultiSigAccount({
+      signers: [signerOne, signerTwo],
+      requiredSignatures: new BigNumber(2),
+      permissions: { assets: null, transactions: null, portfolios: null },
+    });
+
+    const result = await createMultiSig.run();
+
+    console.log("ran");
+
+    expect(result).toEqual(
+      expect.objectContaining({ address: expect.any(String) })
+    );
+  });
+
+  it("should accept becoming the multi sig signers", async () => {
+    const [signerOneAuths, signerTwoAuths] = await Promise.all([
+      signerOne.authorizations.getReceived(),
+      signerTwo.authorizations.getReceived(),
+    ]);
+
+    const [signerOneAccept, signerTwoAccept] = await Promise.all([
+      signerOneAuths[0].accept({ signingAccount: signerOne }),
+      signerTwoAuths[0].accept({ signingAccount: signerTwo }),
+    ]);
+
+    await Promise.all([
+      await signerOneAccept.run(),
+      await signerTwoAccept.run(),
+    ]);
+  });
+
+  it("should create and accept a proposal", async () => {
+    const createPortfolio = await sdk.identities.createPortfolio(
+      {
+        name: "MultiSig Portfolio",
+      },
+      { signingAccount: signerOne }
+    );
+
+    const portfolioProposal = await createPortfolio.runAsProposal();
+
+    expect(createPortfolio.status).toEqual(TransactionStatus.Succeeded);
+
+    const acceptProposal = await portfolioProposal.approve({
+      signingAccount: signerTwo,
+    });
+    expect(acceptProposal.multiSig).toBeNull(); // multiSig should not be set
+    await acceptProposal.run();
+
+    expect(acceptProposal.status).toEqual(TransactionStatus.Succeeded);
   });
 
   it("should be able to fetch the multiSig via signer", async () => {
-    const signerOneAccount = await sdk.accountManagement.getAccount({
-      address: signerOne,
-    });
-    const fetchedMultiSig = await signerOneAccount.getMultiSig();
+    const fetchedMultiSig = await signerOne.getMultiSig();
 
-    if (!fetchedMultiSig) {
-      throw new Error("`signerOne.getMultiSig()` did not return a MultiSig");
-    }
+    expect(fetchedMultiSig).toBeDefined();
 
-    multiSig = fetchedMultiSig;
-
-    console.log("got multiSig", multiSig.address);
+    multiSig = fetchedMultiSig!;
   });
 
   it("should fetch historical proposals from middleware", async () => {
-    const historicalProposals = await multiSig.getHistoricalProposals({});
+    const historicalProposals = await multiSig.getHistoricalProposals();
 
-    expect(historicalProposals.data.length).toEqual(2);
-
-    // expect(
-    //   historicalProposals.data.some(({ status }) => status === ProposalStatus.Successful)
-    // ).toEqual(true);
-    // expect(
-    //   historicalProposals.data.some(({ status }) => status === ProposalStatus.Rejected)
-    // ).toEqual(true);
+    expect(historicalProposals.data.length).toEqual(1);
   });
 });
