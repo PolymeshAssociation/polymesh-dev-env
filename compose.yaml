@@ -40,8 +40,9 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
       START_BLOCK: 1
-      NETWORK_ENDPOINT: "ws://polymesh-node:9944"
-      NETWORK_HTTP_ENDPOINT: "http://polymesh-node:9933"
+      NETWORK_ENDPOINT: ${POLYMESH_CHAIN_WS:-ws://polymesh-node:9944}
+      NETWORK_HTTP_ENDPOINT: http://polymesh-node:9933
+      NETWORK_CHAIN_ID: ${CHAIN_ID:-}
       NODE_ENV: local
     command:
       - --batch-size=500
@@ -96,9 +97,6 @@ services:
     volumes:
       - chain-data:/var/lib/polymesh
     command:
-      # - --dev
-      # - --rpc-external
-      # - --ws-external
       - --base-path=/var/lib/polymesh
       - --unsafe-ws-external
       - --unsafe-rpc-external
@@ -146,7 +144,7 @@ services:
     entrypoint: /bin/sh -c "VAULT_TOKEN=$(cat /vault-token/.token) node dist/main.js"
     environment:
       PORT: 3000
-      POLYMESH_NODE_URL: "ws://polymesh-node:9944"
+      POLYMESH_NODE_URL: ${POLYMESH_CHAIN_WS:-ws://polymesh-node:9944}
       POLYMESH_MIDDLEWARE_V2_URL: "http://subquery-graphql:3000"
       AUTH_STRATEGY: "open"
       DEVELOPER_UTILS: true
@@ -195,7 +193,7 @@ services:
     restart: on-failure
     environment:
       PORT: 3000
-      POLYMESH_NODE_URL: "ws://polymesh-node:9944"
+      POLYMESH_NODE_URL: ${POLYMESH_CHAIN_WS:-ws://polymesh-node:9944}
       POLYMESH_MIDDLEWARE_V2_URL: "http://subquery-graphql:3000"
       LOCAL_SIGNERS: "alice,bob,charlie"
       LOCAL_MNEMONICS: "//Alice,//Bob,//Charlie"
