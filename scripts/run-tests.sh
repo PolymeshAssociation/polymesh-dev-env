@@ -17,5 +17,5 @@ export VAULT_TOKEN=$("${SCRIPT_DIR}/get-vault-token.sh")
 echo "Beginning tests..."
 jest --maxWorkers=8 "$@"
 
-# echo "Cleaning up test env..."
-# docker compose down -v
+echo "Cleaning up the docker environment..."
+docker compose down -v
