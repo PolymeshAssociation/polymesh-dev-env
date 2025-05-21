@@ -10,8 +10,6 @@
 # Note: The script assumes the polymesh-vault-init container has
 # generated a root token in its logs before exiting.
 
-set -eu -o pipefail
-
 VAULT_TOKEN=$(docker logs polymesh-vault-init-1 --tail=10 |
   grep "Vault Root Token:" | cut -d' ' -f4)
 
