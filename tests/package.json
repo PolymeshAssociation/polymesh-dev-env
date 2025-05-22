@@ -4,9 +4,11 @@
   "description": "Polymesh developer environment helper",
   "main": "index.js",
   "scripts": {
-    "test": "../scripts/run-tests.sh",
-    "up": "docker compose up -d",
-    "down": "docker compose down -v"
+    "test": "../scripts/test.sh",
+    "test:start": "../scripts/start-env.sh",
+    "test:run": "../scripts/run-tests.sh",
+    "test:stop": "../scripts/stop-env.sh",
+    "test:vault-token": "../scripts/get-vault-token.sh"
   },
   "author": "Polymesh Association",
   "license": "ISC",
