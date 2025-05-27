@@ -151,7 +151,7 @@ services:
     environment:
       PORT: 3000
       POLYMESH_NODE_URL: ${POLYMESH_CHAIN_WS:-ws://polymesh-node:9944}
-      POLYMESH_MIDDLEWARE_V2_URL: 'http://subquery-graphql:3000'
+      POLYMESH_MIDDLEWARE_V2_URL: ${REST_MIDDLEWARE_URL:-http://subquery-graphql:3000}
       AUTH_STRATEGY: 'open'
       DEVELOPER_UTILS: true
       VAULT_URL: 'http://vault:8200/v1/transit'
@@ -207,7 +207,7 @@ services:
     environment:
       PORT: 3000
       POLYMESH_NODE_URL: ${POLYMESH_CHAIN_WS:-ws://polymesh-node:9944}
-      POLYMESH_MIDDLEWARE_V2_URL: 'http://subquery-graphql:3000'
+      POLYMESH_MIDDLEWARE_V2_URL: ${REST_MIDDLEWARE_URL:-http://subquery-graphql:3000}
       LOCAL_SIGNERS: 'alice,bob,charlie'
       LOCAL_MNEMONICS: '//Alice,//Bob,//Charlie'
       AUTH_STRATEGY: 'open'

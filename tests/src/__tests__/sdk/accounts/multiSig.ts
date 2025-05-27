@@ -50,8 +50,6 @@ describe("multiSig", () => {
 
     const result = await createMultiSig.run();
 
-    console.log("ran");
-
     expect(result).toEqual(
       expect.objectContaining({ address: expect.any(String) })
     );

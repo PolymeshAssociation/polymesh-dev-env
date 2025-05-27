@@ -16,7 +16,6 @@ export const tickerReservation = async (
   assert(identity);
 
   const { account: signingAccount } = await identity.getPrimaryAccount();
-  console.log("ticker reservation with signing account: ", signingAccount);
 
   // Prepare the reservation transaction. Note, this call will validate the ticker is available
   const reserveTx = await sdk.assets.reserveTicker(
