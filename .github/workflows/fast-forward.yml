@@ -24,4 +24,4 @@ jobs:
           # never post a comment.  (In all cases the information is
           # still available in the step's summary.)
           comment: on-error
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }} ## This allows to trigger push action from within this workflow. Read more - https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow
+          GITHUB_TOKEN: ${{ secrets.ASSOCIATION_RELEASE_TOKEN }} ## This allows to trigger push action from within this workflow. Read more - https://docs.github.com/en/actions/using-workflows/triggering-a-workflow#triggering-a-workflow-from-a-workflow
