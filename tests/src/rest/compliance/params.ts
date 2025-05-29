@@ -1,5 +1,5 @@
-import { ClaimType } from "@polymeshassociation/polymesh-sdk/polkadot/polymesh";
 import {
+  ClaimType,
   ConditionTarget,
   ConditionType,
   ScopeType,
@@ -8,7 +8,7 @@ import {
 import { TxBase, TxExtras } from "~/rest/common";
 
 type ClaimParams = {
-  type: ClaimType["type"];
+  type: ClaimType;
   scope?: { type: ScopeType; value: string };
   code?: string;
 };
@@ -16,7 +16,7 @@ type ClaimParams = {
 export type ConditionParams = {
   target: ConditionTarget;
   type: ConditionType;
-  trustedClaimIssuers?: { trustedFor: ClaimType["type"][]; identity: string }[];
+  trustedClaimIssuers?: { trustedFor: ClaimType[]; identity: string }[];
   claim?: ClaimParams;
   claims?: ClaimParams[];
   identity?: string;
@@ -26,40 +26,42 @@ export const bothConditionsRequirements = (
   issuer: string,
   asset: string,
   blockedIdentity: string,
-  blockedJurisdiction: string
+  blockedJurisdiction: string,
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Both,
     type: ConditionType.IsNoneOf,
     claims: [
       {
-        type: "Blocked",
+        type: ClaimType.Blocked,
         scope: { type: ScopeType.Identity, value: blockedIdentity },
       },
       {
-        type: "Jurisdiction",
+        type: ClaimType.Jurisdiction,
         scope: { type: ScopeType.Asset, value: asset },
         code: blockedJurisdiction,
       },
     ],
-    trustedClaimIssuers: [{ trustedFor: ["Blocked"], identity: issuer }],
+    trustedClaimIssuers: [
+      { trustedFor: [ClaimType.Blocked], identity: issuer },
+    ],
   },
 ];
 
 export const kycRequirements = (
   asset: string,
-  trustedIdentity: string
+  trustedIdentity: string,
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
     type: ConditionType.IsPresent,
     claim: {
-      type: "KnowYourCustomer",
+      type: ClaimType.KnowYourCustomer,
       scope: { type: ScopeType.Asset, value: asset },
     },
     trustedClaimIssuers: [
       {
-        trustedFor: ["KnowYourCustomer"],
+        trustedFor: [ClaimType.KnowYourCustomer],
         identity: trustedIdentity,
       },
     ],
@@ -69,19 +71,19 @@ export const kycRequirements = (
 export const blockedJurisdictionRequirements = (
   asset: string,
   trustedIdentity: string,
-  code: string
+  code: string,
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
     type: ConditionType.IsAbsent,
     claim: {
-      type: "Jurisdiction",
+      type: ClaimType.Jurisdiction,
       scope: { type: ScopeType.Asset, value: asset },
       code,
     },
     trustedClaimIssuers: [
       {
-        trustedFor: ["Jurisdiction"],
+        trustedFor: [ClaimType.Jurisdiction],
         identity: trustedIdentity,
       },
     ],
@@ -90,15 +92,18 @@ export const blockedJurisdictionRequirements = (
 
 export const blockedIdentityRequirements = (
   asset: string,
-  targetIdentity: string
+  targetIdentity: string,
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
     type: ConditionType.IsAbsent,
-    claim: { type: "Blocked", scope: { type: ScopeType.Asset, value: asset } },
+    claim: {
+      type: ClaimType.Blocked,
+      scope: { type: ScopeType.Asset, value: asset },
+    },
     trustedClaimIssuers: [
       {
-        trustedFor: ["Blocked"],
+        trustedFor: [ClaimType.Blocked],
         identity: targetIdentity,
       },
     ],
@@ -106,7 +111,7 @@ export const blockedIdentityRequirements = (
 ];
 
 export const receiverConditionsRequirements = (
-  identity: string
+  identity: string,
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
@@ -116,7 +121,7 @@ export const receiverConditionsRequirements = (
 ];
 
 export const senderConditionsRequirements = (
-  identity: string
+  identity: string,
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Sender,
@@ -128,21 +133,21 @@ export const senderConditionsRequirements = (
 export const complianceRequirementsParams = (
   requirements: ConditionParams[][],
   base: TxBase,
-  extras: TxExtras = {}
+  extras: TxExtras = {},
 ) =>
   ({
     requirements,
     ...extras,
     ...base,
-  } as const);
+  }) as const;
 
 export const complianceRequirementParams = (
   conditions: ConditionParams[],
   base: TxBase,
-  extras: TxExtras = {}
+  extras: TxExtras = {},
 ) =>
   ({
     conditions,
     ...extras,
     ...base,
-  } as const);
+  }) as const;
