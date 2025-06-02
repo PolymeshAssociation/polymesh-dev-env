@@ -21,7 +21,6 @@ services:
     configs:
       - source: psql_extensions
         target: /docker-entrypoint-initdb.d/btree_extension.sql
-        mode: 0555
 
   subquery-node:
     image: ${POLYMESH_SUBQUERY_IMAGE}
@@ -121,7 +120,6 @@ services:
     configs:
       - source: polymesh-healthcheck-libp2p
         target: /usr/local/bin/polymesh-healthcheck-libp2p.sh
-        mode: 0555
     healthcheck:
       test: ['CMD', '/usr/local/bin/polymesh-healthcheck-libp2p.sh']
       interval: 10s
@@ -188,7 +186,6 @@ services:
     configs:
       - source: rest-api-accounts-init
         target: /opt/polymesh-rest-api/init.sh
-        mode: 0555
 
   # Polymesh Rest API with Local Signers
   # https://github.com/PolymeshAssociation/polymesh-rest-api#signing-managers
@@ -241,7 +238,6 @@ services:
     configs:
       - source: vault-config
         target: /vault/config/vault.json
-        mode: 0444
     entrypoint: vault server -config=/vault/config/vault.json
 
   # This will make sure vault is initialized and unsealed on the first run and unsealed on subsequent runs
@@ -268,10 +264,8 @@ services:
     configs:
       - source: vault-init
         target: /opt/vault/init.sh
-        mode: 0555
       - source: vault-init-dependencies
         target: /opt/vault/init-dependencies.sh
-        mode: 0555
     entrypoint: /opt/vault/init-dependencies.sh
 
   environment-ready:
