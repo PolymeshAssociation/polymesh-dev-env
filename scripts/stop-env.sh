@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit immediately if a command exits with a non-zero status
+set -e
+
 # This script cleans up the test environment
 
 # Get the directory where this script is located, regardless of where it's called from
@@ -9,3 +12,5 @@ COMPOSE_ENV="${SCRIPT_DIR}/../envs/latest"
 
 echo "Cleaning up the docker environment..."
 docker compose --env-file "$COMPOSE_ENV" down -v
+
+echo "docker env cleaned up"
