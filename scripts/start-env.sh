@@ -1,18 +1,18 @@
 #!/bin/bash
 
-#!/bin/bash
-
-# This script starts up a dev environment via compose and executes a suite of integration tests
+set -e
 
 # Get the directory where this script is located, regardless of where it's called from
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 COMPOSE_ENV="${SCRIPT_DIR}/../envs/latest"
 
-echo "Starting env using $COMPOSE_ENV"
+echo "[ENV START] Starting env using $COMPOSE_ENV"
 docker compose --env-file "$COMPOSE_ENV" up --detach
+echo "[ENV START] Docker env started. Now waiting for ready"
 
-echo "Waiting for a fully initialized environment..."
-docker compose wait environment-ready >/dev/null 2>&1
+echo "[ENV START] Waiting for a fully initialized environment..."
+# `|| true` swallows all errors, but wait exits with non-zero in the expected case
+docker compose --env-file "$COMPOSE_ENV" wait environment-ready >/dev/null || true
 
-echo "Polymesh dev environment started"
+echo "[ENV START] Polymesh dev environment started"
