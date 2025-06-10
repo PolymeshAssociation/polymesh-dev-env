@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 # This script cleans up the test environment
@@ -9,7 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 COMPOSE_ENV="${SCRIPT_DIR}/../envs/latest"
 
-echo "[ENV STOP] Cleaning up the docker environment..."
+echo "[STOP ENV] Cleaning up the docker environment..."
 docker compose --env-file "$COMPOSE_ENV" down -v
 
-echo "[ENV STOP] docker env cleaned up"
+echo "[STOP ENV] docker env cleaned up"

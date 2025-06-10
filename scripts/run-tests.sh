@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 
 # This script runs Polymesh integration tests
@@ -8,9 +7,9 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # Vault token needs to be set so the tests can manage keys
-echo "[ENV RUN] Fetching vault token..."
+echo "[RUN TESTS] Fetching vault token..."
 export VAULT_TOKEN=$("${SCRIPT_DIR}/get-vault-token.sh")
 
 # Run jest with default maxWorkers and any additional arguments passed to this script
-echo "[ENV RUN] Beginning tests..."
+echo "[RUN TESTS] Beginning tests..."
 yarn jest --maxWorkers=8 "$@"
