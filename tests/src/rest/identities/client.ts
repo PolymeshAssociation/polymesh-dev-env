@@ -90,4 +90,8 @@ export class Identities {
   ): Promise<ResultSet<Record<string, unknown>>> {
     return this.client.get(`/identities/${did}/claim-scopes`);
   }
+
+  public async getHeldAssets(did: string): Promise<ResultSet<unknown>> {
+    return this.client.get(`/identities/${did}/held-assets`);
+  }
 }

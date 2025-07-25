@@ -1,9 +1,11 @@
-import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { BigNumber, Polymesh,  } from '@polymeshassociation/polymesh-sdk';
 import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
+
 import assert from 'node:assert';
 
 /*
   This script showcases Checkpoints related functionality. It:
+    - Gets maximum allowed complexity for Schedules
     - Creates a Checkpoint
     - Fetches asset's Checkpoints
     - Fetches Checkpoint details
@@ -11,6 +13,7 @@ import assert from 'node:assert';
     - Fetches asset's Schedules
     - Fetches Schedule details
     - Fetches Checkpoints originated by a Schedule
+    - Fetches a single Schedule for an asset
     - Deletes a Schedule
 */
 export const manageCheckpoints = async (sdk: Polymesh, asset: FungibleAsset): Promise<void> => {
@@ -22,6 +25,11 @@ export const manageCheckpoints = async (sdk: Polymesh, asset: FungibleAsset): Pr
   // prepare and run a create checkpoint transaction
   const createCheckpointTx = await asset.checkpoints.create();
   const newCheckpoint = await createCheckpointTx.run();
+
+  // get maximum allowed complexity for Schedules
+  const maxComplexity = await asset.checkpoints.schedules.maxComplexity();
+  assert(maxComplexity instanceof BigNumber);
+
 
   // fetch checkpoint details
   const [createdAt, totalSupply] = await Promise.all([
@@ -72,9 +80,16 @@ export const manageCheckpoints = async (sdk: Polymesh, asset: FungibleAsset): Pr
   const createdCheckpoints = await newSchedule.getCheckpoints();
   assert(Array.isArray(createdCheckpoints), 'checkpoints should be an array');
 
+
   // fetch active schedules for an asset
   const activeSchedules = await asset.checkpoints.schedules.get();
   assert(activeSchedules.length > 0, `${asset.id} should have at least one active schedule`);
+
+  // fetch a single schedule for an asset
+  const schedule = await asset.checkpoints.schedules.getOne({
+    id: activeSchedules[0].schedule.id,
+  });
+  assert(schedule.schedule.id.eq(activeSchedules[0].schedule.id), 'schedule should be the same as the one fetched');
 
   // A schedule can be removed if its no longer needed
   const removeScheduleTx = await asset.checkpoints.schedules.remove({

@@ -12,6 +12,7 @@ import { Settlements } from "~/rest/settlements";
 import { Subsidy } from "~/rest/subsidy";
 import { TickerReservations } from "~/rest/tickerReservations";
 import { Accounts } from "~/rest/accounts";
+import { Checkpoints } from "./checkpoints";
 
 export class RestClient {
   public accounts: Accounts;
@@ -25,6 +26,7 @@ export class RestClient {
   public portfolios: Portfolios;
   public claims: Claims;
   public network: Network;
+  public checkpoints: Checkpoints;
 
   constructor(public baseUrl: string) {
     this.accounts = new Accounts(this);
@@ -38,6 +40,7 @@ export class RestClient {
     this.portfolios = new Portfolios(this);
     this.claims = new Claims(this);
     this.network = new Network(this);
+    this.checkpoints = new Checkpoints(this);
   }
 
   public async get<T = unknown>(path: string): Promise<T> {

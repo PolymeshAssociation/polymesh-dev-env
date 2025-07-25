@@ -25,6 +25,14 @@ export class Settlements {
     return this.client.post(`/venues/${venueId}/instructions/create`, params);
   }
 
+  public async createDirectInstruction(
+    params:
+      | ReturnType<typeof fungibleInstructionParams>
+      | ReturnType<typeof nftInstructionParams>
+  ): Promise<PostResult> {
+    return this.client.post(`/instructions/create`, params);
+  }
+
   public async affirmInstruction(
     instructionId: string,
     txBase: TxBase

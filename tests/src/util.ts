@@ -149,3 +149,10 @@ export const awaitMiddlewareSyncedForRestApi = async (
     await sleep(delay);
   }
 };
+
+/**
+ * Returns a date in the future by the given number of days
+ * @param days - The number of days to add to the current date
+ * @returns The date in the future
+ */
+export const getDayInFuture = (days: number) => new Date(Date.now() + 1000 * 60 * 60 * 24 * days)
