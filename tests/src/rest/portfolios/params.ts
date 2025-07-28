@@ -1,10 +1,6 @@
-import { TxBase, TxExtras } from "~/rest/common";
+import { TxBase, TxExtras } from '~/rest/common';
 
-export const portfolioParams = (
-  name: string,
-  base: TxBase,
-  extras: TxExtras = {}
-) =>
+export const portfolioParams = (name: string, base: TxBase, extras: TxExtras = {}) =>
   ({
     name,
     ...extras,
@@ -24,8 +20,8 @@ export const moveAssetParams = (
     items: [
       {
         asset,
-        amount: "1000",
-        memo: "Transferring to test redemption",
+        amount: '1000',
+        memo: 'Transferring to test redemption',
       },
     ],
     ...extras,

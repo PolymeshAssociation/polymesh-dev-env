@@ -1,16 +1,10 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import {
-  FungibleAsset,
-  NumberedPortfolio,
-} from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset, NumberedPortfolio } from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { randomNonce } from "~/util";
+import { randomNonce } from '~/util';
 
-export const createPortfolio = async (
-  sdk: Polymesh,
-  nonce: string
-): Promise<NumberedPortfolio> => {
+export const createPortfolio = async (sdk: Polymesh, nonce: string): Promise<NumberedPortfolio> => {
   const signingIdentity = await sdk.getSigningIdentity();
   assert(signingIdentity);
 
@@ -32,10 +26,7 @@ export const createPortfolio = async (
     - Redeems tokens from Portfolio
     - Deletes a Portfolio
 */
-export const managePortfolios = async (
-  sdk: Polymesh,
-  asset: FungibleAsset
-): Promise<void> => {
+export const managePortfolios = async (sdk: Polymesh, asset: FungibleAsset): Promise<void> => {
   const signingIdentity = await sdk.getSigningIdentity();
   assert(signingIdentity);
 
@@ -47,8 +38,7 @@ export const managePortfolios = async (
   assert(renameTx.isSuccess);
 
   // Get the portfolios of the Identity. First element is always the default Portfolio
-  const [defaultPortfolio, examplePortfolio] =
-    await signingIdentity.portfolios.getPortfolios();
+  const [defaultPortfolio, examplePortfolio] = await signingIdentity.portfolios.getPortfolios();
 
   const amount = new BigNumber(3);
   const [{ free: freeBalance }] = await defaultPortfolio.getAssetBalances({

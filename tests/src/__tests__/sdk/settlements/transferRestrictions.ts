@@ -1,13 +1,13 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { transferRestrictions } from "~/sdk/settlements/transferRestrictions";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { transferRestrictions } from '~/sdk/settlements/transferRestrictions';
 
 let factory: TestFactory;
 
-describe("transferRestrictions", () => {
+describe('transferRestrictions', () => {
   let asset: FungibleAsset;
   let sdk: Polymesh;
 
@@ -23,7 +23,7 @@ describe("transferRestrictions", () => {
     await factory.close();
   });
 
-  it("should execute without errors", async () => {
+  it('should execute without errors', async () => {
     await transferRestrictions(sdk, asset);
   });
 });

@@ -1,14 +1,14 @@
-import { expectBasicTxInfo } from "~/__tests__/rest/utils";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { registerCustomClaimTypeParams } from "~/rest/claims/params";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
+import { expectBasicTxInfo } from '~/__tests__/rest/utils';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { registerCustomClaimTypeParams } from '~/rest/claims/params';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer"];
+const handles = ['issuer'];
 let factory: TestFactory;
 
-describe("CustomClaimType", () => {
+describe('CustomClaimType', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -35,7 +35,7 @@ describe("CustomClaimType", () => {
     await factory.close();
   });
 
-  it("should register CustomClaimType", async () => {
+  it('should register CustomClaimType', async () => {
     const params = registerCustomClaimTypeParams(name, {
       options: { signer, processMode: ProcessMode.Submit },
     });
@@ -44,8 +44,8 @@ describe("CustomClaimType", () => {
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "identity.registerCustomClaimType",
-          type: "single",
+          transactionTag: 'identity.registerCustomClaimType',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),
@@ -54,7 +54,7 @@ describe("CustomClaimType", () => {
     txHash = txData.transactions[0].transactionHash;
   });
 
-  it("should return a paginated list of registered CustomClaimTypes", async () => {
+  it('should return a paginated list of registered CustomClaimTypes', async () => {
     await restClient.pingForTransaction(txHash, 10);
 
     const result = await restClient.claims.getCustomClaimTypes();
@@ -71,31 +71,31 @@ describe("CustomClaimType", () => {
     });
   });
 
-  it("should return a registered CustomClaimType by name", async () => {
+  it('should return a registered CustomClaimType by name', async () => {
     await restClient.pingForTransaction(txHash, 10);
 
     const result = await restClient.claims.getCustomClaimType(name);
 
     id = result.id;
     expect(result).toMatchObject(expectGetCustomClaimType);
-    expect(result).toHaveProperty("name", name);
+    expect(result).toHaveProperty('name', name);
   });
 
-  it("should return a registered CustomClaimType by id", async () => {
+  it('should return a registered CustomClaimType by id', async () => {
     await restClient.pingForTransaction(txHash, 10);
 
     const result = await restClient.claims.getCustomClaimType(id);
 
     expect(result).toMatchObject(expectGetCustomClaimType);
-    expect(result).toHaveProperty("name", name);
+    expect(result).toHaveProperty('name', name);
   });
 
-  it("should throw a NotFound for CustomClaimType that does not exit", async () => {
-    const result = await restClient.claims.getCustomClaimType("202102");
+  it('should throw a NotFound for CustomClaimType that does not exit', async () => {
+    const result = await restClient.claims.getCustomClaimType('202102');
 
     expect(result).toMatchObject({
-      error: "Not Found",
-      message: expect.stringContaining("Custom claim type not found"),
+      error: 'Not Found',
+      message: expect.stringContaining('Custom claim type not found'),
       statusCode: 404,
     });
   });

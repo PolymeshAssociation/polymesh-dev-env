@@ -1,21 +1,21 @@
-import { assertTagPresent } from "~/assertions";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { createAssetParams } from "~/rest/assets/params";
-import { ProcessMode, TxBase } from "~/rest/common";
+import { assertTagPresent } from '~/assertions';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams } from '~/rest/assets/params';
+import { ProcessMode, TxBase } from '~/rest/common';
 import {
   bothConditionsRequirements,
   complianceRequirementParams,
   complianceRequirementsParams,
   receiverConditionsRequirements,
   senderConditionsRequirements,
-} from "~/rest/compliance";
-import { Identity } from "~/rest/identities/interfaces";
+} from '~/rest/compliance';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer", "blocked", "investor"];
+const handles = ['issuer', 'blocked', 'investor'];
 let factory: TestFactory;
 
-describe("Compliance Requirements for Fungible Assets", () => {
+describe('Compliance Requirements for Fungible Assets', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -34,27 +34,23 @@ describe("Compliance Requirements for Fungible Assets", () => {
     signer = issuer.signer;
     signerTxBase = { options: { signer, processMode: ProcessMode.Submit } };
 
-    assetId = await restClient.assets.createAndGetAssetId(
-      createAssetParams(signerTxBase)
-    );
+    assetId = await restClient.assets.createAndGetAssetId(createAssetParams(signerTxBase));
   });
 
   afterAll(async () => {
     await factory.close();
   });
 
-  it("should get compliance requirements", async () => {
-    const result = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+  it('should get compliance requirements', async () => {
+    const result = await restClient.compliance.getComplianceRequirements(assetId);
 
     expect(result.requirements).toEqual([]);
   });
 
-  it("should set compliance requirements", async () => {
+  it('should set compliance requirements', async () => {
     const params = complianceRequirementsParams(
       [
-        bothConditionsRequirements(issuer.did, assetId, blocked.did, "Us"),
+        bothConditionsRequirements(issuer.did, assetId, blocked.did, 'Us'),
         senderConditionsRequirements(issuer.did),
         receiverConditionsRequirements(investor.did),
       ],
@@ -62,13 +58,9 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
     const txData = await restClient.compliance.setRequirements(assetId, params);
 
-    expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.replaceAssetCompliance")
-    );
+    expect(txData).toEqual(assertTagPresent(expect, 'complianceManager.replaceAssetCompliance'));
 
-    const requirements = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+    const requirements = await restClient.compliance.getComplianceRequirements(assetId);
 
     expect(requirements).toMatchObject({
       requirements: expect.arrayContaining([
@@ -77,77 +69,50 @@ describe("Compliance Requirements for Fungible Assets", () => {
     });
   });
 
-  it("should pause compliance requirements", async () => {
-    const txData = await restClient.compliance.pauseRequirements(
-      assetId,
-      signerTxBase
-    );
+  it('should pause compliance requirements', async () => {
+    const txData = await restClient.compliance.pauseRequirements(assetId, signerTxBase);
 
-    expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.pauseAssetCompliance")
-    );
+    expect(txData).toEqual(assertTagPresent(expect, 'complianceManager.pauseAssetCompliance'));
     const result = await restClient.compliance.areRequirementsPaused(assetId);
 
     expect(result.arePaused).toBeTruthy();
   });
 
-  it("should unpause compliance requirements", async () => {
-    const txData = await restClient.compliance.unpauseRequirements(
-      assetId,
-      signerTxBase
-    );
+  it('should unpause compliance requirements', async () => {
+    const txData = await restClient.compliance.unpauseRequirements(assetId, signerTxBase);
 
-    expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.resumeAssetCompliance")
-    );
+    expect(txData).toEqual(assertTagPresent(expect, 'complianceManager.resumeAssetCompliance'));
 
     const result = await restClient.compliance.areRequirementsPaused(assetId);
 
     expect(result.arePaused).toBeFalsy();
   });
 
-  it("should delete compliance requirement with specified id", async () => {
-    let requirements = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+  it('should delete compliance requirement with specified id', async () => {
+    let requirements = await restClient.compliance.getComplianceRequirements(assetId);
     const id = requirements.requirements[0].id;
-    const txData = await restClient.compliance.deleteRequirement(
-      id,
-      assetId,
-      signerTxBase
-    );
+    const txData = await restClient.compliance.deleteRequirement(id, assetId, signerTxBase);
 
     expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.removeComplianceRequirement")
+      assertTagPresent(expect, 'complianceManager.removeComplianceRequirement')
     );
 
-    requirements = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+    requirements = await restClient.compliance.getComplianceRequirements(assetId);
 
-    expect(requirements.requirements).not.toContainEqual(
-      expect.objectContaining({ id })
-    );
+    expect(requirements.requirements).not.toContainEqual(expect.objectContaining({ id }));
   });
 
-  it("should delete all compliance requirements", async () => {
-    const txData = await restClient.compliance.deleteRequirements(
-      assetId,
-      signerTxBase
-    );
+  it('should delete all compliance requirements', async () => {
+    const txData = await restClient.compliance.deleteRequirements(assetId, signerTxBase);
 
-    expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.resetAssetCompliance")
-    );
+    expect(txData).toEqual(assertTagPresent(expect, 'complianceManager.resetAssetCompliance'));
 
-    const requirements = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+    const requirements = await restClient.compliance.getComplianceRequirements(assetId);
 
     expect(requirements.requirements).toHaveLength(0);
   });
 
-  it("should add a single compliance requirement", async () => {
+  it('should add a single compliance requirement', async () => {
     const params = complianceRequirementParams(
       senderConditionsRequirements(issuer.did),
 
@@ -156,39 +121,28 @@ describe("Compliance Requirements for Fungible Assets", () => {
 
     const txData = await restClient.compliance.addRequirement(assetId, params);
 
-    expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.addComplianceRequirement")
-    );
+    expect(txData).toEqual(assertTagPresent(expect, 'complianceManager.addComplianceRequirement'));
 
-    const requirements = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+    const requirements = await restClient.compliance.getComplianceRequirements(assetId);
 
     expect(requirements.requirements).toHaveLength(1);
   });
 
-  it("should modify compliance requirement with the specified id", async () => {
-    const requirements = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+  it('should modify compliance requirement with the specified id', async () => {
+    const requirements = await restClient.compliance.getComplianceRequirements(assetId);
     const id = requirements.requirements[0].id;
     const params = complianceRequirementParams(
-      bothConditionsRequirements(issuer.did, assetId, blocked.did, "Us"),
+      bothConditionsRequirements(issuer.did, assetId, blocked.did, 'Us'),
       signerTxBase
     );
 
-    const txData = await restClient.compliance.modifyComplianceRequirement(
-      id,
-      assetId,
-      params
-    );
+    const txData = await restClient.compliance.modifyComplianceRequirement(id, assetId, params);
 
     expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.changeComplianceRequirement")
+      assertTagPresent(expect, 'complianceManager.changeComplianceRequirement')
     );
 
-    const updatedRequirements =
-      await restClient.compliance.getComplianceRequirements(assetId);
+    const updatedRequirements = await restClient.compliance.getComplianceRequirements(assetId);
 
     expect(updatedRequirements.requirements[0]).toMatchObject({
       conditions: params.conditions,

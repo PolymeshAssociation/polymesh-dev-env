@@ -1,6 +1,6 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { KnownAssetType } from "@polymeshassociation/polymesh-sdk/types";
-import assert from "assert";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { KnownAssetType } from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'assert';
 
 /*
   This function showcases ticker reservation related functionality. It:
@@ -8,10 +8,7 @@ import assert from "assert";
     - Fetches its details
     - Creates the Asset
 */
-export const tickerReservation = async (
-  sdk: Polymesh,
-  ticker: string
-): Promise<void> => {
+export const tickerReservation = async (sdk: Polymesh, ticker: string): Promise<void> => {
   const identity = await sdk.getSigningIdentity();
   assert(identity);
 
@@ -37,13 +34,13 @@ export const tickerReservation = async (
   );
   assert(
     expiryDate && expiryDate > new Date(),
-    "The expiry date should be a defined date in the future"
+    'The expiry date should be a defined date in the future'
   );
 
   // Prepare and run the create Asset transaction
   const createAssetTx = await reservation.createAsset(
     {
-      name: "Reservation Demo",
+      name: 'Reservation Demo',
       isDivisible: true,
       assetType: KnownAssetType.EquityCommon,
     },
@@ -54,5 +51,5 @@ export const tickerReservation = async (
 
   // Fetch the Reservation details after the Asset has been created
   const { expiryDate: expiryAfterCreate } = await reservation.details();
-  assert(!expiryAfterCreate, "The expiry after Asset creation should be null");
+  assert(!expiryAfterCreate, 'The expiry after Asset creation should be null');
 };

@@ -1,8 +1,8 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { TargetTreatment } from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { TargetTreatment } from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { wellKnown } from "~/consts";
+import { wellKnown } from '~/consts';
 
 /*
   This script showcases Dividend Distribution related functionality. It:
@@ -30,10 +30,7 @@ export const manageDistributions = async (
 
   // fetch all current distributions for the Asset
   const allDistributions = await asset.corporateActions.distributions.get();
-  assert(
-    Array.isArray(allDistributions),
-    "allDistributions should be an array"
-  );
+  assert(Array.isArray(allDistributions), 'allDistributions should be an array');
 
   const paymentDate = new Date();
   paymentDate.setDate(paymentDate.getDate() + 30);
@@ -55,16 +52,13 @@ export const manageDistributions = async (
       paymentDate,
       declarationDate,
       expiryDate: undefined, // never expire
-      description: "A sample distribution",
+      description: 'A sample distribution',
       // set the default tax rate to withhold
       defaultTaxWithholding: new BigNumber(10),
       // (optional) individuals can be excluded from distributions
       targets: {
         // identities can be specified with an Identity object or DID string
-        identities: [
-          alice,
-          "0x0200000000000000000000000000000000000000000000000000000000000000",
-        ],
+        identities: [alice, '0x0200000000000000000000000000000000000000000000000000000000000000'],
         treatment: TargetTreatment.Exclude,
       },
       // (optional) individual holders can be targeted with a different rate
@@ -80,10 +74,7 @@ export const manageDistributions = async (
 
   // get all participants, their owed amount and whether they have been paid or not. This can be slow with a large number of holders
   const participants = await distribution.getParticipants();
-  assert(
-    participants.length > 0,
-    "The distribution should have at least one participant"
-  );
+  assert(participants.length > 0, 'The distribution should have at least one participant');
 
   // the Checkpoint can be modified before the payment date
   const modifyCheckpointTx = await distribution.modifyCheckpoint({
@@ -94,8 +85,8 @@ export const manageDistributions = async (
 
   // fetch distribution details (whether funds have been reclaimed and the amount of remaining funds)
   const { remainingFunds, fundsReclaimed } = await distribution.details();
-  assert(remainingFunds.gt(0), "There should be remaining funds");
-  assert(!fundsReclaimed, "Funds should not be reclaimed yet");
+  assert(remainingFunds.gt(0), 'There should be remaining funds');
+  assert(!fundsReclaimed, 'Funds should not be reclaimed yet');
 
   // Once the payment date has been reached these actions can be taken
 

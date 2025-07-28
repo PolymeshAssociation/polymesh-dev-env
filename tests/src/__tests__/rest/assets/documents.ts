@@ -1,14 +1,14 @@
-import { expectBasicTxInfo } from "~/__tests__/rest/utils";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { createAssetParams, setAssetDocumentParams } from "~/rest/assets";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
+import { expectBasicTxInfo } from '~/__tests__/rest/utils';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams, setAssetDocumentParams } from '~/rest/assets';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer"];
+const handles = ['issuer'];
 let factory: TestFactory;
 
-describe("AssetDocument", () => {
+describe('AssetDocument', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -32,7 +32,7 @@ describe("AssetDocument", () => {
     await factory.close();
   });
 
-  it("should set Asset Documents", async () => {
+  it('should set Asset Documents', async () => {
     const params = setAssetDocumentParams({
       options: { processMode: ProcessMode.Submit, signer },
     });
@@ -41,29 +41,29 @@ describe("AssetDocument", () => {
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTags: ["asset.removeDocuments", "asset.addDocuments"],
-          type: "batch",
+          transactionTags: ['asset.removeDocuments', 'asset.addDocuments'],
+          type: 'batch',
           ...expectBasicTxInfo,
         },
       ]),
     });
   });
 
-  it("should get an Asset documents", async () => {
+  it('should get an Asset documents', async () => {
     const result = await restClient.assets.getDocuments(asset);
 
     expect(result).toEqual(
       expect.objectContaining({
         results: [
           {
-            name: "Document 1",
-            uri: "https://example.com/document.pdf",
-            type: "PDF",
+            name: 'Document 1',
+            uri: 'https://example.com/document.pdf',
+            type: 'PDF',
           },
           {
-            name: "Document 2",
-            uri: "https://example.com/document2.pdf",
-            type: "PDF",
+            name: 'Document 2',
+            uri: 'https://example.com/document2.pdf',
+            type: 'PDF',
           },
         ],
       })

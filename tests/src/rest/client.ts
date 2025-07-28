@@ -1,18 +1,19 @@
-import fetch from "cross-fetch";
+import fetch from 'cross-fetch';
 
-import { Assets } from "~/rest/assets";
-import { Claims } from "~/rest/claims/client";
-import { TxBase } from "~/rest/common";
-import { Compliance } from "~/rest/compliance";
-import { Identities } from "~/rest/identities";
-import { Network } from "~/rest/network";
-import { Nfts } from "~/rest/nfts";
-import { Portfolios } from "~/rest/portfolios";
-import { Settlements } from "~/rest/settlements";
-import { Subsidy } from "~/rest/subsidy";
-import { TickerReservations } from "~/rest/tickerReservations";
-import { Accounts } from "~/rest/accounts";
-import { Checkpoints } from "./checkpoints";
+import { Accounts } from '~/rest/accounts';
+import { Assets } from '~/rest/assets';
+import { Claims } from '~/rest/claims/client';
+import { TxBase } from '~/rest/common';
+import { Compliance } from '~/rest/compliance';
+import { Identities } from '~/rest/identities';
+import { Network } from '~/rest/network';
+import { Nfts } from '~/rest/nfts';
+import { Portfolios } from '~/rest/portfolios';
+import { Settlements } from '~/rest/settlements';
+import { Subsidy } from '~/rest/subsidy';
+import { TickerReservations } from '~/rest/tickerReservations';
+
+import { Checkpoints } from './checkpoints';
 
 export class RestClient {
   public accounts: Accounts;
@@ -46,29 +47,23 @@ export class RestClient {
   public async get<T = unknown>(path: string): Promise<T> {
     const url = new URL(path, this.baseUrl).href;
 
-    const method = "GET";
+    const method = 'GET';
 
     return this.fetch(url, method) as Promise<T>;
   }
 
-  public async post<T = unknown>(
-    path: string,
-    body: Record<string, unknown>
-  ): Promise<T> {
+  public async post<T = unknown>(path: string, body: Record<string, unknown>): Promise<T> {
     const url = new URL(path, this.baseUrl).href;
-    const method = "POST";
+    const method = 'POST';
     return this.fetch(url, method, body) as Promise<T>;
   }
 
-  public async postDelete<T = unknown>(
-    path: string,
-    txBase: TxBase
-  ): Promise<T> {
+  public async postDelete<T = unknown>(path: string, txBase: TxBase): Promise<T> {
     const url = new URL(
       `${path}?signer=${txBase.options.signer}&processMode=${txBase.options.processMode}`,
       this.baseUrl
     ).href;
-    const method = "POST";
+    const method = 'POST';
     return this.fetch(url, method) as Promise<T>;
   }
 
@@ -80,7 +75,7 @@ export class RestClient {
     const body = JSON.stringify(reqBody ?? undefined);
 
     const response = await fetch(url, {
-      headers: [["Content-Type", "application/json"]],
+      headers: [['Content-Type', 'application/json']],
       method,
       body,
     });
@@ -88,10 +83,7 @@ export class RestClient {
     return response.json();
   }
 
-  public async pingForTransaction(
-    txHash: string,
-    times: number
-  ): Promise<unknown> {
+  public async pingForTransaction(txHash: string, times: number): Promise<unknown> {
     const url = new URL(`/transactions/${txHash}/details`, this.baseUrl).href;
 
     // ping specified times to check if given transaction is in SQ (wait until 200 response)
@@ -99,7 +91,7 @@ export class RestClient {
     let success = false;
 
     while (i < times && !success) {
-      const response = await fetch(url, { method: "GET" });
+      const response = await fetch(url, { method: 'GET' });
       if (response.status === 200) {
         success = true;
       }

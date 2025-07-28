@@ -1,13 +1,13 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { manageComplianceRequirements } from "~/sdk/settlements/manageComplianceRequirements";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { manageComplianceRequirements } from '~/sdk/settlements/manageComplianceRequirements';
 
 let factory: TestFactory;
 
-describe("manageComplianceRequirements", () => {
+describe('manageComplianceRequirements', () => {
   let asset: FungibleAsset;
   let sdk: Polymesh;
 
@@ -22,7 +22,7 @@ describe("manageComplianceRequirements", () => {
     await factory.close();
   });
 
-  it("should execute without errors", async () => {
+  it('should execute without errors', async () => {
     await manageComplianceRequirements(sdk, asset);
   });
 });

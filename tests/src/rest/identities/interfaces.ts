@@ -27,3 +27,8 @@ export interface PendingAuthorizations {
   sent: Authorization[];
   received: Authorization[];
 }
+
+export interface CreateTestAccountParams {
+  address: string;
+  initialPolyx: number;
+}

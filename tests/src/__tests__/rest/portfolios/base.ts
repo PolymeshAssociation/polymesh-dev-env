@@ -1,21 +1,18 @@
-import {
-  AuthorizationType,
-  SignerType,
-} from "@polymeshassociation/polymesh-sdk/types";
+import { AuthorizationType, SignerType } from '@polymeshassociation/polymesh-sdk/types';
 
-import { assertTagPresent } from "~/assertions";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
-import { RestErrorResult } from "~/rest/interfaces";
-import { portfolioParams, setCustodianParams } from "~/rest/portfolios";
-import { randomNonce } from "~/util";
+import { assertTagPresent } from '~/assertions';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
+import { RestErrorResult } from '~/rest/interfaces';
+import { portfolioParams, setCustodianParams } from '~/rest/portfolios';
+import { randomNonce } from '~/util';
 
-const handles = ["issuer", "custodian"];
+const handles = ['issuer', 'custodian'];
 let factory: TestFactory;
 
-describe("Portfolios Controller", () => {
+describe('Portfolios Controller', () => {
   let restClient: RestClient;
   let portfolioCount = 1;
   let signer: string;
@@ -36,8 +33,8 @@ describe("Portfolios Controller", () => {
     await factory.close();
   });
 
-  describe("method: getPortfolios", () => {
-    it("should get all the portfolios of an Identity", async () => {
+  describe('method: getPortfolios', () => {
+    it('should get all the portfolios of an Identity', async () => {
       const result = await restClient.portfolios.getPortfolios(issuer.did);
 
       expect(result).toEqual(
@@ -57,8 +54,8 @@ describe("Portfolios Controller", () => {
     });
   });
 
-  describe("method: createPortfolio", () => {
-    it("should create a portfolio", async () => {
+  describe('method: createPortfolio', () => {
+    it('should create a portfolio', async () => {
       const params = portfolioParams(`TEST-${nonce}`, {
         options: { processMode: ProcessMode.Submit, signer },
       });
@@ -74,9 +71,7 @@ describe("Portfolios Controller", () => {
           }),
         })
       );
-      expect(result).toEqual(
-        assertTagPresent(expect, "portfolio.createPortfolio")
-      );
+      expect(result).toEqual(assertTagPresent(expect, 'portfolio.createPortfolio'));
 
       // Extract the portfolio ID from the result
       portfolioId = result.portfolio.id;
@@ -87,9 +82,7 @@ describe("Portfolios Controller", () => {
       expect(portfolios.results.length).toEqual(portfolioCount);
 
       // Check if the newly created portfolio is present in the results
-      const newPortfolio = portfolios.results.find(
-        (portfolio) => portfolio.id === portfolioId
-      );
+      const newPortfolio = portfolios.results.find((portfolio) => portfolio.id === portfolioId);
       expect(newPortfolio).toEqual(
         expect.objectContaining({
           id: portfolioId,
@@ -101,8 +94,8 @@ describe("Portfolios Controller", () => {
     });
   });
 
-  describe("method: deletePortfolio", () => {
-    it("should delete a portfolio", async () => {
+  describe('method: deletePortfolio', () => {
+    it('should delete a portfolio', async () => {
       const params = portfolioParams(`DELETE-${nonce}`, {
         options: { processMode: ProcessMode.Submit, signer },
       });
@@ -110,22 +103,16 @@ describe("Portfolios Controller", () => {
       const { portfolio } = await restClient.portfolios.createPortfolio(params);
       portfolioCount += 1;
 
-      const result = await restClient.portfolios.deletePortfolio(
-        issuer.did,
-        portfolio.id,
-        params
-      );
+      const result = await restClient.portfolios.deletePortfolio(issuer.did, portfolio.id, params);
 
-      expect(result).toEqual(
-        assertTagPresent(expect, "portfolio.deletePortfolio")
-      );
+      expect(result).toEqual(assertTagPresent(expect, 'portfolio.deletePortfolio'));
 
       portfolioCount -= 1;
     });
   });
 
-  describe("method: modifyPortfolioName", () => {
-    it("should rename a portfolio", async () => {
+  describe('method: modifyPortfolioName', () => {
+    it('should rename a portfolio', async () => {
       const params = portfolioParams(`RENAME-${nonce}`, {
         options: { processMode: ProcessMode.Submit, signer },
       });
@@ -136,12 +123,10 @@ describe("Portfolios Controller", () => {
         params
       );
 
-      expect(result).toEqual(
-        assertTagPresent(expect, "portfolio.renamePortfolio")
-      );
+      expect(result).toEqual(assertTagPresent(expect, 'portfolio.renamePortfolio'));
     });
 
-    it("should return error when renaming to same name", async () => {
+    it('should return error when renaming to same name', async () => {
       const params = portfolioParams(`RENAME-${nonce}`, {
         options: { processMode: ProcessMode.Submit, signer },
       });
@@ -155,21 +140,21 @@ describe("Portfolios Controller", () => {
       expect(result.statusCode).toEqual(400);
     });
 
-    it("should return error when renaming default portfolio", async () => {
+    it('should return error when renaming default portfolio', async () => {
       const params = portfolioParams(`RENAME-${nonce}`, {
         options: { processMode: ProcessMode.Submit, signer },
       });
 
       const result = (await restClient.portfolios.modifyPortfolioName(
         issuer.did,
-        "0",
+        '0',
         params
       )) as RestErrorResult;
 
       expect(result.statusCode).toEqual(400);
     });
 
-    it("should return error when renaming not existing portfolio", async () => {
+    it('should return error when renaming not existing portfolio', async () => {
       const params = portfolioParams(`RENAME-${nonce}`, {
         options: { processMode: ProcessMode.Submit, signer },
       });
@@ -184,12 +169,9 @@ describe("Portfolios Controller", () => {
     });
   });
 
-  describe("method: getPortfolio", () => {
-    it("should get a portfolio", async () => {
-      const result = await restClient.portfolios.getPortfolio(
-        issuer.did,
-        portfolioId
-      );
+  describe('method: getPortfolio', () => {
+    it('should get a portfolio', async () => {
+      const result = await restClient.portfolios.getPortfolio(issuer.did, portfolioId);
 
       expect(result).toEqual(
         expect.objectContaining({
@@ -202,10 +184,10 @@ describe("Portfolios Controller", () => {
     });
   });
 
-  describe("method: setCustodian", () => {
+  describe('method: setCustodian', () => {
     let authId: string;
 
-    it("should transfer custody", async () => {
+    it('should transfer custody', async () => {
       const params = setCustodianParams(
         {
           target: custodian.did,
@@ -214,18 +196,12 @@ describe("Portfolios Controller", () => {
           options: { processMode: ProcessMode.Submit, signer },
         }
       );
-      const result = await restClient.portfolios.setCustodian(
-        issuer.did,
-        portfolioId,
-        params
-      );
+      const result = await restClient.portfolios.setCustodian(issuer.did, portfolioId, params);
 
-      expect(result).toEqual(
-        assertTagPresent(expect, "identity.addAuthorization")
-      );
+      expect(result).toEqual(assertTagPresent(expect, 'identity.addAuthorization'));
     });
 
-    it("should have created an authorization request", async () => {
+    it('should have created an authorization request', async () => {
       const result = await restClient.identities.getPendingAuthorizations(
         custodian.did,
         AuthorizationType.PortfolioCustody
@@ -253,36 +229,26 @@ describe("Portfolios Controller", () => {
       authId = result.received[0].id;
     });
 
-    it("should accept a custody request", async () => {
+    it('should accept a custody request', async () => {
       const params = {
         options: { processMode: ProcessMode.Submit, signer: custodian.signer },
       };
 
-      const result = await restClient.identities.acceptAuthorization(
-        authId,
-        params
-      );
+      const result = await restClient.identities.acceptAuthorization(authId, params);
 
-      expect(result).toEqual(
-        assertTagPresent(expect, "portfolio.acceptPortfolioCustody")
-      );
+      expect(result).toEqual(assertTagPresent(expect, 'portfolio.acceptPortfolioCustody'));
     });
   });
 
-  describe("method: getCustodiedPortfolios", () => {
-    it("get the portfolio should be custodied by the custodian", async () => {
-      const result = await restClient.portfolios.getPortfolio(
-        issuer.did,
-        portfolioId
-      );
+  describe('method: getCustodiedPortfolios', () => {
+    it('get the portfolio should be custodied by the custodian', async () => {
+      const result = await restClient.portfolios.getPortfolio(issuer.did, portfolioId);
 
       expect(result.custodian).toEqual(custodian.did);
     });
 
-    it("should get all portfolios custodied by the custodian and assert the current portfolio exists", async () => {
-      const result = await restClient.portfolios.getCustodiedPortfolios(
-        custodian.did
-      );
+    it('should get all portfolios custodied by the custodian and assert the current portfolio exists', async () => {
+      const result = await restClient.portfolios.getCustodiedPortfolios(custodian.did);
 
       expect(result).toEqual(
         expect.objectContaining({
@@ -294,12 +260,9 @@ describe("Portfolios Controller", () => {
     });
   });
 
-  describe("method: getTransactionHistory", () => {
-    it("should get transaction history for the specified portfolio", async () => {
-      const result = await restClient.portfolios.getTransactionHistory(
-        issuer.did,
-        portfolioId
-      );
+  describe('method: getTransactionHistory', () => {
+    it('should get transaction history for the specified portfolio', async () => {
+      const result = await restClient.portfolios.getTransactionHistory(issuer.did, portfolioId);
 
       expect(result).toEqual(
         expect.objectContaining({
@@ -308,7 +271,7 @@ describe("Portfolios Controller", () => {
       );
     });
 
-    it("should throw an error for not existing portfolio", async () => {
+    it('should throw an error for not existing portfolio', async () => {
       const result = (await restClient.portfolios.getTransactionHistory(
         issuer.did,
         portfolioCount.toString()
@@ -318,52 +281,38 @@ describe("Portfolios Controller", () => {
     });
   });
 
-  describe("method: quitCustody", () => {
-    it("should quit custody via custodian", async () => {
-      const result = await restClient.portfolios.quitCustody(
-        issuer.did,
-        portfolioId,
-        {
-          options: {
-            processMode: ProcessMode.Submit,
-            signer: custodian.signer,
-          },
-        }
-      );
+  describe('method: quitCustody', () => {
+    it('should quit custody via custodian', async () => {
+      const result = await restClient.portfolios.quitCustody(issuer.did, portfolioId, {
+        options: {
+          processMode: ProcessMode.Submit,
+          signer: custodian.signer,
+        },
+      });
 
-      expect(result).toEqual(
-        assertTagPresent(expect, "portfolio.quitPortfolioCustody")
-      );
+      expect(result).toEqual(assertTagPresent(expect, 'portfolio.quitPortfolioCustody'));
     });
 
-    it("should throw an error if portfolio owner tries to quit custody", async () => {
-      const result = (await restClient.portfolios.quitCustody(
-        issuer.did,
-        portfolioId,
-        {
-          options: { processMode: ProcessMode.Submit, signer },
-        }
-      )) as unknown as RestErrorResult;
+    it('should throw an error if portfolio owner tries to quit custody', async () => {
+      const result = (await restClient.portfolios.quitCustody(issuer.did, portfolioId, {
+        options: { processMode: ProcessMode.Submit, signer },
+      })) as unknown as RestErrorResult;
 
       expect(result.statusCode).toEqual(422);
     });
 
-    it("should throw an error", async () => {
-      const result = (await restClient.portfolios.quitCustody(
-        issuer.did,
-        portfolioId,
-        {
-          options: {
-            processMode: ProcessMode.Submit,
-            signer: custodian.signer,
-          },
-        }
-      )) as unknown as RestErrorResult;
+    it('should throw an error', async () => {
+      const result = (await restClient.portfolios.quitCustody(issuer.did, portfolioId, {
+        options: {
+          processMode: ProcessMode.Submit,
+          signer: custodian.signer,
+        },
+      })) as unknown as RestErrorResult;
 
       expect(result.statusCode).toEqual(401);
     });
 
-    it("should throw an error", async () => {
+    it('should throw an error', async () => {
       const result = (await restClient.portfolios.quitCustody(
         issuer.did,
         (portfolioCount + 777).toString(),
@@ -378,22 +327,16 @@ describe("Portfolios Controller", () => {
       expect(result.statusCode).toEqual(404);
     });
 
-    it("the portfolio should be custodied by the original owner", async () => {
-      const result = await restClient.portfolios.getPortfolio(
-        issuer.did,
-        portfolioId
-      );
+    it('the portfolio should be custodied by the original owner', async () => {
+      const result = await restClient.portfolios.getPortfolio(issuer.did, portfolioId);
 
       expect(result.custodian).toBeUndefined();
     });
   });
 
-  describe("method: createdAt", () => {
-    it("should return the creation event", async () => {
-      const result = await restClient.portfolios.createdAt(
-        issuer.did,
-        portfolioId
-      );
+  describe('method: createdAt', () => {
+    it('should return the creation event', async () => {
+      const result = await restClient.portfolios.createdAt(issuer.did, portfolioId);
 
       expect(result).toEqual(
         expect.objectContaining({
@@ -405,7 +348,7 @@ describe("Portfolios Controller", () => {
       );
     });
 
-    it("should throw an error for not existing portfolio", async () => {
+    it('should throw an error for not existing portfolio', async () => {
       const result = await restClient.portfolios.createdAt(
         issuer.did,
         (portfolioCount + 777).toString()

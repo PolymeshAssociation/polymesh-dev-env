@@ -1,16 +1,13 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import {
-  KnownAssetType,
-  SecurityIdentifierType,
-} from "@polymeshassociation/polymesh-sdk/types";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { KnownAssetType, SecurityIdentifierType } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { awaitMiddlewareSynced } from "~/util";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { awaitMiddlewareSynced } from '~/util';
 
 let factory: TestFactory;
 
-describe("createAsset", () => {
+describe('createAsset', () => {
   let ticker: string;
   let sdk: Polymesh;
 
@@ -25,20 +22,20 @@ describe("createAsset", () => {
     await factory.close();
   });
 
-  it("should execute createAsset without errors", async () => {
+  it('should execute createAsset without errors', async () => {
     await expect(
       createAsset(sdk, {
         ticker,
-        name: "test",
+        name: 'test',
         isDivisible: true,
         assetType: KnownAssetType.EquityCommon,
       })
     ).resolves.not.toThrow();
   });
 
-  it("should create asset and get the creation event", async () => {
+  it('should create asset and get the creation event', async () => {
     const params = {
-      name: "FungibleAsset Name",
+      name: 'FungibleAsset Name',
       ticker: factory.nextTicker(),
       isDivisible: false,
       assetType: KnownAssetType.EquityCommon,
@@ -72,38 +69,38 @@ describe("createAsset", () => {
     );
   });
 
-  it("should execute createAsset with a custom type without errors", async () => {
+  it('should execute createAsset with a custom type without errors', async () => {
     await expect(
       createAsset(sdk, {
-        name: "testWithType",
+        name: 'testWithType',
         isDivisible: true,
-        assetType: "customTypeTest",
+        assetType: 'customTypeTest',
       })
     ).resolves.not.toThrow();
   });
 
-  it("should execute createAsset with a initial supply, funding round, security identifiers and documents", async () => {
+  it('should execute createAsset with a initial supply, funding round, security identifiers and documents', async () => {
     await expect(
       createAsset(sdk, {
         ticker: factory.nextTicker(),
-        name: "testWithType",
+        name: 'testWithType',
         isDivisible: true,
-        assetType: "Fund",
+        assetType: 'Fund',
         initialSupply: new BigNumber(100),
         securityIdentifiers: [
           {
             type: SecurityIdentifierType.Cusip,
-            value: "037833100",
+            value: '037833100',
           },
         ],
         documents: [
           {
-            name: "Asset Document",
-            uri: "https://ipfs.io/ipfs/QmfUARYf1VrRYPGEmxaKpdJBEyzkDn2nmk7PAX73TENpCo/41.png",
-            type: "Logo",
+            name: 'Asset Document',
+            uri: 'https://ipfs.io/ipfs/QmfUARYf1VrRYPGEmxaKpdJBEyzkDn2nmk7PAX73TENpCo/41.png',
+            type: 'Logo',
           },
         ],
-        fundingRound: "Funding Round 1",
+        fundingRound: 'Funding Round 1',
       })
     ).resolves.not.toThrow();
   });

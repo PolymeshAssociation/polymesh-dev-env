@@ -1,13 +1,13 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 
-import { env } from "~/environment";
-import { TestFactoryOpts } from "~/helpers/types";
-import { RestClient } from "~/rest";
-import { Identity } from "~/rest/identities";
-import { ResultSet } from "~/rest/interfaces";
-import { alphabet, randomNonce } from "~/util";
-import { VaultClient } from "~/vault";
+import { env } from '~/environment';
+import { TestFactoryOpts } from '~/helpers/types';
+import { RestClient } from '~/rest';
+import { Identity } from '~/rest/identities';
+import { ResultSet } from '~/rest/interfaces';
+import { alphabet, randomNonce } from '~/util';
+import { VaultClient } from '~/vault';
 
 const nonceLength = 9;
 const startingPolyx = 20000;
@@ -21,7 +21,7 @@ export class TestFactory {
 
   public handleToIdentity: Record<string, Identity> = {};
   #alphabetIndex = 0;
-  #adminSigner = "";
+  #adminSigner = '';
   #portfolioIndex = 0;
 
   public static async create(opts: TestFactoryOpts): Promise<TestFactory> {
@@ -29,7 +29,7 @@ export class TestFactory {
 
     const middlewareV2 = {
       link: env.graphqlUrl,
-      key: "",
+      key: '',
     };
 
     const polymesh = await Polymesh.connect({
@@ -58,9 +58,7 @@ export class TestFactory {
    */
   public nextTicker(): string {
     const a = this.#alphabetIndex % alphabet.length;
-    const b = Math.floor(
-      (this.#alphabetIndex / alphabet.length) % alphabet.length
-    );
+    const b = Math.floor((this.#alphabetIndex / alphabet.length) % alphabet.length);
     const c = Math.floor(this.#alphabetIndex / alphabet.length ** 2);
     this.#alphabetIndex += 1;
     return this.prefixNonce(`${alphabet[c]}${alphabet[b]}${alphabet[a]}`);
@@ -71,14 +69,10 @@ export class TestFactory {
    */
   public nextPortfolio(): string {
     const a = this.#portfolioIndex % alphabet.length;
-    const b = Math.floor(
-      (this.#portfolioIndex / alphabet.length) % alphabet.length
-    );
+    const b = Math.floor((this.#portfolioIndex / alphabet.length) % alphabet.length);
     const c = Math.floor(this.#portfolioIndex / alphabet.length ** 2);
     this.#portfolioIndex += 1;
-    const randomName = this.prefixNonce(
-      `${alphabet[c]}${alphabet[b]}${alphabet[a]}`
-    );
+    const randomName = this.prefixNonce(`${alphabet[c]}${alphabet[b]}${alphabet[a]}`);
     return `PF-${randomName}`;
   }
 
@@ -92,9 +86,7 @@ export class TestFactory {
 
     for (const handle of handles) {
       const vaultKeyName = this.prefixNonce(handle);
-      const { address, signer } = await this.vaultClient.createKey(
-        vaultKeyName
-      );
+      const { address, signer } = await this.vaultClient.createKey(vaultKeyName);
       addresses.push(address);
       signers.push(signer);
     }
@@ -119,18 +111,13 @@ export class TestFactory {
     return handles.map((handle) => this.getSignerIdentity(handle));
   }
 
-  public async createIdentityForAddresses(
-    addresses: string[]
-  ): Promise<ResultSet<Identity>> {
+  public async createIdentityForAddresses(addresses: string[]): Promise<ResultSet<Identity>> {
     const accounts = addresses.map((address) => ({
       address,
       initialPolyx: startingPolyx,
     }));
 
-    return this.restClient.identities.createTestAccounts(
-      accounts,
-      this.readAdminSigner()
-    );
+    return this.restClient.identities.createTestAccounts(accounts, this.readAdminSigner());
   }
 
   public getSignerIdentity(handle: string): Identity {
@@ -143,10 +130,7 @@ export class TestFactory {
   }
 
   public async close(): Promise<void> {
-    await Promise.all([
-      this.cleanupIdentities(),
-      this.polymeshSdk.disconnect(),
-    ]);
+    await Promise.all([this.cleanupIdentities(), this.polymeshSdk.disconnect()]);
   }
 
   private setCachedSigner(signer: string, identity: Identity) {
@@ -154,7 +138,7 @@ export class TestFactory {
   }
 
   private readAdminSigner(): string {
-    if (this.#adminSigner === "") {
+    if (this.#adminSigner === '') {
       const workerId = Number(process.env.JEST_WORKER_ID);
       this.#adminSigner = `${workerId}-admin-1`;
     }
@@ -163,8 +147,7 @@ export class TestFactory {
   }
 
   public get signingManager(): LocalSigningManager {
-    if (!this.#signingManager)
-      throw new Error("factory signing manager was not set");
+    if (!this.#signingManager) throw new Error('factory signing manager was not set');
     return this.#signingManager;
   }
 
@@ -184,10 +167,7 @@ export class TestFactory {
     }));
 
     // note this is inefficient and should be batched with given identities to be made
-    await this.restClient.identities.createTestAccounts(
-      accounts,
-      this.readAdminSigner()
-    );
+    await this.restClient.identities.createTestAccounts(accounts, this.readAdminSigner());
   }
 
   private async cleanupIdentities(): Promise<void> {

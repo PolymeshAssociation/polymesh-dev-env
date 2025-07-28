@@ -1,14 +1,14 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { manageCAA } from "~/sdk/assets/manageCAA";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { manageCAA } from '~/sdk/assets/manageCAA';
 
 let factory: TestFactory;
 
-describe("manageCAA", () => {
+describe('manageCAA', () => {
   let asset: FungibleAsset;
   let targetDid: string;
   let sdk: Polymesh;
@@ -33,7 +33,7 @@ describe("manageCAA", () => {
     await factory.close();
   });
 
-  it("should execute without errors", async () => {
+  it('should execute without errors', async () => {
     await manageCAA(sdk, targetDid, asset);
   });
 });

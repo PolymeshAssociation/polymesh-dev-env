@@ -1,10 +1,6 @@
-import { TxBase, TxExtras } from "~/rest/common";
+import { TxBase, TxExtras } from '~/rest/common';
 
-export const reserveTickerParams = (
-  ticker: string,
-  base: TxBase,
-  extras: TxExtras = {}
-) =>
+export const reserveTickerParams = (ticker: string, base: TxBase, extras: TxExtras = {}) =>
   ({
     ticker,
     ...extras,
@@ -18,7 +14,7 @@ export const transferTickerReservationParams = (
 ) =>
   ({
     target,
-    expiry: "2100-01-23T00:00:00.000Z",
+    expiry: '2100-01-23T00:00:00.000Z',
     ...extras,
     ...base,
   } as const);

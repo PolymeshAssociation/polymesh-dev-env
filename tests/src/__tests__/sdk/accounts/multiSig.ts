@@ -1,17 +1,13 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import {
-  Account,
-  MultiSig,
-  TransactionStatus,
-} from "@polymeshassociation/polymesh-sdk/types";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { Account, MultiSig, TransactionStatus } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
+import { TestFactory } from '~/helpers';
 
 let factory: TestFactory;
-const handles = ["creator"];
+const handles = ['creator'];
 
-describe("multiSig", () => {
+describe('multiSig', () => {
   let sdk: Polymesh;
   let signerOne: Account;
   let signerTwo: Account;
@@ -41,7 +37,7 @@ describe("multiSig", () => {
     await factory.close();
   });
 
-  it("should create a MultiSig", async () => {
+  it('should create a MultiSig', async () => {
     const createMultiSig = await sdk.accountManagement.createMultiSigAccount({
       signers: [signerOne, signerTwo],
       requiredSignatures: new BigNumber(2),
@@ -50,12 +46,10 @@ describe("multiSig", () => {
 
     const result = await createMultiSig.run();
 
-    expect(result).toEqual(
-      expect.objectContaining({ address: expect.any(String) })
-    );
+    expect(result).toEqual(expect.objectContaining({ address: expect.any(String) }));
   });
 
-  it("should accept becoming the multi sig signers", async () => {
+  it('should accept becoming the multi sig signers', async () => {
     const [signerOneAuths, signerTwoAuths] = await Promise.all([
       signerOne.authorizations.getReceived(),
       signerTwo.authorizations.getReceived(),
@@ -66,16 +60,13 @@ describe("multiSig", () => {
       signerTwoAuths[0].accept({ signingAccount: signerTwo }),
     ]);
 
-    await Promise.all([
-      await signerOneAccept.run(),
-      await signerTwoAccept.run(),
-    ]);
+    await Promise.all([await signerOneAccept.run(), await signerTwoAccept.run()]);
   });
 
-  it("should create and accept a proposal", async () => {
+  it('should create and accept a proposal', async () => {
     const createPortfolio = await sdk.identities.createPortfolio(
       {
-        name: "MultiSig Portfolio",
+        name: 'MultiSig Portfolio',
       },
       { signingAccount: signerOne }
     );
@@ -93,15 +84,16 @@ describe("multiSig", () => {
     expect(acceptProposal.status).toEqual(TransactionStatus.Succeeded);
   });
 
-  it("should be able to fetch the multiSig via signer", async () => {
+  it('should be able to fetch the multiSig via signer', async () => {
     const fetchedMultiSig = await signerOne.getMultiSig();
 
     expect(fetchedMultiSig).toBeDefined();
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     multiSig = fetchedMultiSig!;
   });
 
-  it("should fetch historical proposals from middleware", async () => {
+  it('should fetch historical proposals from middleware', async () => {
     const historicalProposals = await multiSig.getHistoricalProposals();
 
     expect(historicalProposals.data.length).toEqual(1);

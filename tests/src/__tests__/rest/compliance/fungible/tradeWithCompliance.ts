@@ -1,30 +1,21 @@
-import { BigNumber } from "@polymeshassociation/polymesh-sdk";
-import {
-  ClaimType,
-  InstructionStatus,
-} from "@polymeshassociation/polymesh-sdk/types";
+import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+import { ClaimType, InstructionStatus } from '@polymeshassociation/polymesh-sdk/types';
 
-import { assertTagPresent } from "~/assertions";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { createAssetParams } from "~/rest/assets/params";
-import { createClaimParams } from "~/rest/claims/params";
-import { ProcessMode, TxBase } from "~/rest/common";
-import {
-  blockedIdentityRequirements,
-  complianceRequirementsParams,
-} from "~/rest/compliance";
-import { Identity } from "~/rest/identities/interfaces";
-import {
-  fungibleInstructionParams,
-  venueParams,
-} from "~/rest/settlements/params";
-import { awaitMiddlewareSyncedForRestApi } from "~/util";
+import { assertTagPresent } from '~/assertions';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams } from '~/rest/assets/params';
+import { createClaimParams } from '~/rest/claims/params';
+import { ProcessMode, TxBase } from '~/rest/common';
+import { blockedIdentityRequirements, complianceRequirementsParams } from '~/rest/compliance';
+import { Identity } from '~/rest/identities/interfaces';
+import { fungibleInstructionParams, venueParams } from '~/rest/settlements/params';
+import { awaitMiddlewareSyncedForRestApi } from '~/util';
 
-const handles = ["issuer", "blocked", "investor"];
+const handles = ['issuer', 'blocked', 'investor'];
 let factory: TestFactory;
 
-describe("Compliance Requirements for Fungible Assets", () => {
+describe('Compliance Requirements for Fungible Assets', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -56,12 +47,8 @@ describe("Compliance Requirements for Fungible Assets", () => {
       options: { signer: blocked.signer, processMode: ProcessMode.Submit },
     };
 
-    assetId = await restClient.assets.createAndGetAssetId(
-      createAssetParams(signerTxBase)
-    );
-    const venueData = await restClient.settlements.createVenue(
-      venueParams(signerTxBase)
-    );
+    assetId = await restClient.assets.createAndGetAssetId(createAssetParams(signerTxBase));
+    const venueData = await restClient.settlements.createVenue(venueParams(signerTxBase));
     ({ venue: venueId } = venueData as { venue: string });
   });
 
@@ -69,31 +56,25 @@ describe("Compliance Requirements for Fungible Assets", () => {
     await factory.close();
   });
 
-  it("should be able to create an instruction when no compliance rules exist", async () => {
+  it('should be able to create an instruction when no compliance rules exist', async () => {
     const investorInstruction = await restClient.settlements.createInstruction(
       venueId,
       fungibleInstructionParams(assetId, issuer.did, investor.did, signerTxBase)
     );
-    const blockedReceiverInstruction =
-      await restClient.settlements.createInstruction(
-        venueId,
-        fungibleInstructionParams(
-          assetId,
-          issuer.did,
-          blocked.did,
-          signerTxBase
-        )
-      );
+    const blockedReceiverInstruction = await restClient.settlements.createInstruction(
+      venueId,
+      fungibleInstructionParams(assetId, issuer.did, blocked.did, signerTxBase)
+    );
 
     expect(investorInstruction).toEqual(
-      assertTagPresent(expect, "settlement.addAndAffirmWithMediators")
+      assertTagPresent(expect, 'settlement.addAndAffirmWithMediators')
     );
     expect(blockedReceiverInstruction).toEqual(
-      assertTagPresent(expect, "settlement.addAndAffirmWithMediators")
+      assertTagPresent(expect, 'settlement.addAndAffirmWithMediators')
     );
   });
 
-  it("should be able to affirm an instruction when no compliance rules exist", async () => {
+  it('should be able to affirm an instruction when no compliance rules exist', async () => {
     blockedBalance += 10;
     investorBalance += 10;
 
@@ -110,7 +91,7 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
 
     expect(investorAffirmResult).toEqual(
-      assertTagPresent(expect, "settlement.affirmInstructionWithCount")
+      assertTagPresent(expect, 'settlement.affirmInstructionWithCount')
     );
 
     const { results: blockedPendingInstructions } =
@@ -126,15 +107,12 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
 
     expect(blockedAffirmResult).toEqual(
-      assertTagPresent(expect, "settlement.affirmInstructionWithCount")
+      assertTagPresent(expect, 'settlement.affirmInstructionWithCount')
     );
   });
 
-  it("should have transferred the asset to both receivers", async () => {
-    const investorPortfolio = await restClient.portfolios.getPortfolio(
-      investor.did,
-      "0"
-    );
+  it('should have transferred the asset to both receivers', async () => {
+    const investorPortfolio = await restClient.portfolios.getPortfolio(investor.did, '0');
 
     expect(investorPortfolio).toEqual(
       expect.objectContaining({
@@ -147,10 +125,7 @@ describe("Compliance Requirements for Fungible Assets", () => {
       })
     );
 
-    const blockedDidPortfolio = await restClient.portfolios.getPortfolio(
-      blocked.did,
-      "0"
-    );
+    const blockedDidPortfolio = await restClient.portfolios.getPortfolio(blocked.did, '0');
 
     expect(blockedDidPortfolio).toEqual(
       expect.objectContaining({
@@ -164,20 +139,16 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
   });
 
-  it("should be able to create compliance requirements for trading", async () => {
+  it('should be able to create compliance requirements for trading', async () => {
     const params = complianceRequirementsParams(
       [blockedIdentityRequirements(assetId, issuer.did)],
       signerTxBase
     );
     const txData = await restClient.compliance.setRequirements(assetId, params);
 
-    expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.replaceAssetCompliance")
-    );
+    expect(txData).toEqual(assertTagPresent(expect, 'complianceManager.replaceAssetCompliance'));
 
-    const requirements = await restClient.compliance.getComplianceRequirements(
-      assetId
-    );
+    const requirements = await restClient.compliance.getComplianceRequirements(assetId);
 
     expect(requirements).toMatchObject({
       requirements: expect.arrayContaining([
@@ -186,7 +157,7 @@ describe("Compliance Requirements for Fungible Assets", () => {
     });
   });
 
-  it("should be able to block an identity", async () => {
+  it('should be able to block an identity', async () => {
     const claimParams = createClaimParams({
       signer,
       dryRun: false,
@@ -196,7 +167,7 @@ describe("Compliance Requirements for Fungible Assets", () => {
           claim: {
             type: ClaimType.Blocked,
             scope: {
-              type: "Asset",
+              type: 'Asset',
               value: assetId,
             },
           },
@@ -205,10 +176,10 @@ describe("Compliance Requirements for Fungible Assets", () => {
     });
     const txData = await restClient.claims.addClaim(claimParams);
 
-    expect(txData).toEqual(assertTagPresent(expect, "identity.addClaim"));
+    expect(txData).toEqual(assertTagPresent(expect, 'identity.addClaim'));
   });
 
-  it("should be able to create instruction for investor and blocked receiver", async () => {
+  it('should be able to create instruction for investor and blocked receiver', async () => {
     investorBalance += 10;
 
     const investorInstruction = await restClient.settlements.createInstruction(
@@ -216,24 +187,23 @@ describe("Compliance Requirements for Fungible Assets", () => {
       fungibleInstructionParams(assetId, issuer.did, investor.did, signerTxBase)
     );
 
-    const blockedReceiverInstruction =
-      await restClient.settlements.createInstruction(
-        venueId,
-        fungibleInstructionParams(assetId, issuer.did, blocked.did, {
-          options: { signer: issuer.signer, processMode: ProcessMode.Submit },
-        })
-      );
+    const blockedReceiverInstruction = await restClient.settlements.createInstruction(
+      venueId,
+      fungibleInstructionParams(assetId, issuer.did, blocked.did, {
+        options: { signer: issuer.signer, processMode: ProcessMode.Submit },
+      })
+    );
 
     expect(investorInstruction).toEqual(
-      assertTagPresent(expect, "settlement.addAndAffirmWithMediators")
+      assertTagPresent(expect, 'settlement.addAndAffirmWithMediators')
     );
 
     expect(blockedReceiverInstruction).toEqual(
-      assertTagPresent(expect, "settlement.addAndAffirmWithMediators")
+      assertTagPresent(expect, 'settlement.addAndAffirmWithMediators')
     );
   });
 
-  it("should be able to call affirm on instruction for both receivers", async () => {
+  it('should be able to call affirm on instruction for both receivers', async () => {
     const { results: investorsPendingInstructions } =
       await restClient.identities.getPendingInstructions(investor.did);
 
@@ -247,7 +217,7 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
 
     expect(investorAffirmResult).toEqual(
-      assertTagPresent(expect, "settlement.affirmInstructionWithCount")
+      assertTagPresent(expect, 'settlement.affirmInstructionWithCount')
     );
 
     const { results: blockedPendingInstructions } =
@@ -263,28 +233,17 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
 
     expect(blockedAffirmResult).toEqual(
-      assertTagPresent(expect, "settlement.affirmInstructionWithCount")
+      assertTagPresent(expect, 'settlement.affirmInstructionWithCount')
     );
 
     // we add buffer of 1 block so that middleware can wait until InstructionExecuted event is processed ( which is done on next block where affirmations are received)
-    await awaitMiddlewareSyncedForRestApi(
-      investorAffirmResult,
-      restClient,
-      new BigNumber(1)
-    );
+    await awaitMiddlewareSyncedForRestApi(investorAffirmResult, restClient, new BigNumber(1));
     // we add buffer of 1 block so that middleware can wait until FailedToExecuteInstruction event is processed ( which is done on next block where affirmations are received)
-    await awaitMiddlewareSyncedForRestApi(
-      blockedAffirmResult,
-      restClient,
-      new BigNumber(1)
-    );
+    await awaitMiddlewareSyncedForRestApi(blockedAffirmResult, restClient, new BigNumber(1));
   });
 
-  it("should have transferred asset to investor", async () => {
-    const investorPortfolio = await restClient.portfolios.getPortfolio(
-      investor.did,
-      "0"
-    );
+  it('should have transferred asset to investor', async () => {
+    const investorPortfolio = await restClient.portfolios.getPortfolio(investor.did, '0');
 
     expect(investorPortfolio).toEqual(
       expect.objectContaining({
@@ -298,11 +257,8 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
   });
 
-  it("should have not transferred the asset to a blocked receiver", async () => {
-    const blockedDidPortfolio = await restClient.portfolios.getPortfolio(
-      blocked.did,
-      "0"
-    );
+  it('should have not transferred the asset to a blocked receiver', async () => {
+    const blockedDidPortfolio = await restClient.portfolios.getPortfolio(blocked.did, '0');
 
     expect(blockedDidPortfolio).toEqual(
       expect.objectContaining({
@@ -316,10 +272,8 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
   });
 
-  it("should have affirmed the instruction for investor", async () => {
-    const instruction = await restClient.settlements.getInstruction(
-      investorInstructionId
-    );
+  it('should have affirmed the instruction for investor', async () => {
+    const instruction = await restClient.settlements.getInstruction(investorInstructionId);
 
     expect(instruction).toEqual(
       expect.objectContaining({
@@ -328,10 +282,8 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
   });
 
-  it("should have failed the instruction for blocked did", async () => {
-    const instruction = await restClient.settlements.getInstruction(
-      blockedInstructionId
-    );
+  it('should have failed the instruction for blocked did', async () => {
+    const instruction = await restClient.settlements.getInstruction(blockedInstructionId);
 
     expect(instruction).toEqual(
       expect.objectContaining({
@@ -340,26 +292,20 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
   });
 
-  it("should be possible to send an asset to a blocked did after pausing compliance requirements", async () => {
-    const txData = await restClient.compliance.pauseRequirements(
-      assetId,
-      signerTxBase
-    );
+  it('should be possible to send an asset to a blocked did after pausing compliance requirements', async () => {
+    const txData = await restClient.compliance.pauseRequirements(assetId, signerTxBase);
 
-    expect(txData).toEqual(
-      assertTagPresent(expect, "complianceManager.pauseAssetCompliance")
-    );
+    expect(txData).toEqual(assertTagPresent(expect, 'complianceManager.pauseAssetCompliance'));
 
-    const blockedReceiverInstruction =
-      await restClient.settlements.createInstruction(
-        venueId,
-        fungibleInstructionParams(assetId, issuer.did, blocked.did, {
-          options: { signer: issuer.signer, processMode: ProcessMode.Submit },
-        })
-      );
+    const blockedReceiverInstruction = await restClient.settlements.createInstruction(
+      venueId,
+      fungibleInstructionParams(assetId, issuer.did, blocked.did, {
+        options: { signer: issuer.signer, processMode: ProcessMode.Submit },
+      })
+    );
 
     expect(blockedReceiverInstruction).toEqual(
-      assertTagPresent(expect, "settlement.addAndAffirmWithMediators")
+      assertTagPresent(expect, 'settlement.addAndAffirmWithMediators')
     );
 
     blockedBalance += 10;
@@ -377,13 +323,10 @@ describe("Compliance Requirements for Fungible Assets", () => {
     );
 
     expect(blockedAffirmResult).toEqual(
-      assertTagPresent(expect, "settlement.affirmInstructionWithCount")
+      assertTagPresent(expect, 'settlement.affirmInstructionWithCount')
     );
 
-    const blockedDidPortfolio = await restClient.portfolios.getPortfolio(
-      blocked.did,
-      "0"
-    );
+    const blockedDidPortfolio = await restClient.portfolios.getPortfolio(blocked.did, '0');
 
     expect(blockedDidPortfolio).toEqual(
       expect.objectContaining({

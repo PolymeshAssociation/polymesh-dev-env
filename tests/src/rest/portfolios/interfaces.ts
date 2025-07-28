@@ -1,4 +1,4 @@
-import { RestSuccessResult } from "~/rest/interfaces";
+import { RestSuccessResult } from '~/rest/interfaces';
 
 export type CreatedPortfolioResult = RestSuccessResult & {
   portfolio: {

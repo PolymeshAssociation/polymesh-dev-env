@@ -1,19 +1,16 @@
-import { ClaimType } from "@polymeshassociation/polymesh-sdk/types";
+import { ClaimType } from '@polymeshassociation/polymesh-sdk/types';
 
-import { expectBasicTxInfo } from "~/__tests__/rest/utils";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import {
-  createClaimParams,
-  registerCustomClaimTypeParams,
-} from "~/rest/claims/params";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
+import { expectBasicTxInfo } from '~/__tests__/rest/utils';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createClaimParams, registerCustomClaimTypeParams } from '~/rest/claims/params';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer", "target"];
+const handles = ['issuer', 'target'];
 let factory: TestFactory;
 
-describe("CustomClaim", () => {
+describe('CustomClaim', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -42,7 +39,7 @@ describe("CustomClaim", () => {
           claim: {
             type: ClaimType.Custom,
             scope: {
-              type: "Identity",
+              type: 'Identity',
               value: issuerDid,
             },
             customClaimTypeId: 1,
@@ -65,28 +62,28 @@ describe("CustomClaim", () => {
     await factory.close();
   });
 
-  it("should add a custom claim", async () => {
+  it('should add a custom claim', async () => {
     const result = await restClient.claims.addClaim(claimParams);
 
     expect(result).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "identity.addClaim",
-          type: "single",
+          transactionTag: 'identity.addClaim',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),
     });
   });
 
-  it("should add a custom claim", async () => {
+  it('should add a custom claim', async () => {
     const result = await restClient.claims.removeClaim(claimParams);
 
     expect(result).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "identity.revokeClaim",
-          type: "single",
+          transactionTag: 'identity.revokeClaim',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),

@@ -1,14 +1,14 @@
-import { expectBasicTxInfo } from "~/__tests__/rest/utils";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { createAssetParams } from "~/rest/assets";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
+import { expectBasicTxInfo } from '~/__tests__/rest/utils';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams } from '~/rest/assets';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer"];
+const handles = ['issuer'];
 let factory: TestFactory;
 
-describe("Asset pre-approval", () => {
+describe('Asset pre-approval', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -32,26 +32,23 @@ describe("Asset pre-approval", () => {
     await factory.close();
   });
 
-  it("should set asset pre-approval", async () => {
+  it('should set asset pre-approval', async () => {
     const params = { options: { processMode: ProcessMode.Submit, signer } };
     const txData = await restClient.assets.preApprove(assetId, params);
 
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "asset.preApproveAsset",
-          type: "single",
+          transactionTag: 'asset.preApproveAsset',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),
     });
   });
 
-  it("should return the asset as pre-approved", async () => {
-    const result = await restClient.assets.getIsPreApproved(
-      assetId,
-      issuer.did
-    );
+  it('should return the asset as pre-approved', async () => {
+    const result = await restClient.assets.getIsPreApproved(assetId, issuer.did);
 
     expect(result).toEqual({
       did: issuer.did,
@@ -60,7 +57,7 @@ describe("Asset pre-approval", () => {
     });
   });
 
-  it("should return a page of pre-approved assets", async () => {
+  it('should return a page of pre-approved assets', async () => {
     const results = await restClient.assets.getPreApprovals(issuer.did);
 
     expect(results).toEqual({
@@ -74,7 +71,7 @@ describe("Asset pre-approval", () => {
     });
   });
 
-  it("should remove asset pre-approval", async () => {
+  it('should remove asset pre-approval', async () => {
     const txData = await restClient.assets.removePreApproval(assetId, {
       options: { processMode: ProcessMode.Submit, signer },
     });
@@ -82,8 +79,8 @@ describe("Asset pre-approval", () => {
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          type: "single",
-          transactionTag: "asset.removeAssetPreApproval",
+          type: 'single',
+          transactionTag: 'asset.removeAssetPreApproval',
           ...expectBasicTxInfo,
         },
       ]),

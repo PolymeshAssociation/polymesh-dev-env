@@ -1,7 +1,7 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import assert from "node:assert";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import assert from 'node:assert';
 
-import { awaitMiddlewareSynced } from "~/util";
+import { awaitMiddlewareSynced } from '~/util';
 
 /*
   This script showcases Portfolio's Custodian related functionality. It:
@@ -14,10 +14,7 @@ import { awaitMiddlewareSynced } from "~/util";
 
   It assumes the custodian's primary Account is present in the SDK's signing manager
 */
-export const portfolioCustody = async (
-  sdk: Polymesh,
-  custodianDid: string
-): Promise<void> => {
+export const portfolioCustody = async (sdk: Polymesh, custodianDid: string): Promise<void> => {
   const custodian = await sdk.identities.getIdentity({ did: custodianDid });
   const { account: custodianAccount } = await custodian.getPrimaryAccount();
 
@@ -25,27 +22,20 @@ export const portfolioCustody = async (
   assert(identity);
 
   const createPortfolioTx = await sdk.identities.createPortfolio({
-    name: "CUSTODY_PORTFOLIO",
+    name: 'CUSTODY_PORTFOLIO',
   });
   const portfolio = await createPortfolioTx.run();
   assert(createPortfolioTx.isSuccess);
 
   // Here is how to check ownership and custody of a Portfolio
-  const [portfolioCustodian, isOwnedByIdentity, isCustodiedByIdentity] =
-    await Promise.all([
-      portfolio.getCustodian(),
-      portfolio.isOwnedBy({ identity }),
-      portfolio.isCustodiedBy({ identity }),
-    ]);
-  assert(
-    portfolioCustodian.did === identity.did,
-    `Portfolio custodian should be: ${identity.did}`
-  );
+  const [portfolioCustodian, isOwnedByIdentity, isCustodiedByIdentity] = await Promise.all([
+    portfolio.getCustodian(),
+    portfolio.isOwnedBy({ identity }),
+    portfolio.isCustodiedBy({ identity }),
+  ]);
+  assert(portfolioCustodian.did === identity.did, `Portfolio custodian should be: ${identity.did}`);
   assert(isOwnedByIdentity, `Portfolio is should be owned by ${identity.did}`);
-  assert(
-    isCustodiedByIdentity,
-    `Portfolio is should be custodied by ${identity.did}`
-  );
+  assert(isCustodiedByIdentity, `Portfolio is should be custodied by ${identity.did}`);
 
   const setCustodianTx = await portfolio.setCustodian({
     targetIdentity: custodian,
@@ -75,16 +65,12 @@ export const portfolioCustody = async (
     newCustodian.did === custodian.did,
     `DID ${custodian.did} should now be the custodian of the Portfolio`
   );
-  assert(
-    !isCustodiedByOwner,
-    `DID ${identity.did} should no longer be be the custodian`
-  );
+  assert(!isCustodiedByOwner, `DID ${identity.did} should no longer be be the custodian`);
 
   await awaitMiddlewareSynced(acceptTx, sdk);
 
   // The custodian can get all non owned portfolios where they are the custodian - note there are pagination options
-  const custodiedPortfolios =
-    await custodian.portfolios.getCustodiedPortfolios();
+  const custodiedPortfolios = await custodian.portfolios.getCustodiedPortfolios();
 
   // Quit being a custodian of a Portfolio
   const [portfolioToQuit] = custodiedPortfolios.data;

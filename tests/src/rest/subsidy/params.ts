@@ -1,13 +1,9 @@
-import { TxBase, TxExtras } from "~/rest/common";
+import { TxBase, TxExtras } from '~/rest/common';
 
-export const createSubsidyParams = (
-  beneficiary: string,
-  base: TxBase,
-  extras: TxExtras = {}
-) =>
+export const createSubsidyParams = (beneficiary: string, base: TxBase, extras: TxExtras = {}) =>
   ({
     beneficiary,
-    allowance: "10000",
+    allowance: '10000',
     ...extras,
     ...base,
   } as const);
@@ -25,11 +21,7 @@ export const setSubsidyAllowanceParams = (
     ...base,
   } as const);
 
-export const quitSubsidyParams = (
-  subsidizer: string,
-  base: TxBase,
-  extras: TxExtras = {}
-) =>
+export const quitSubsidyParams = (subsidizer: string, base: TxBase, extras: TxExtras = {}) =>
   ({
     subsidizer,
     ...extras,

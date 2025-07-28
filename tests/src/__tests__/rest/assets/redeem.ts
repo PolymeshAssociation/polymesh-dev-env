@@ -1,15 +1,15 @@
-import { expectBasicTxInfo } from "~/__tests__/rest/utils";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { createAssetParams, redeemTokenParams } from "~/rest/assets";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
-import { moveAssetParams, portfolioParams } from "~/rest/portfolios";
+import { expectBasicTxInfo } from '~/__tests__/rest/utils';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams, redeemTokenParams } from '~/rest/assets';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
+import { moveAssetParams, portfolioParams } from '~/rest/portfolios';
 
-const handles = ["issuer"];
+const handles = ['issuer'];
 let factory: TestFactory;
 
-describe("Redeem", () => {
+describe('Redeem', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -33,8 +33,8 @@ describe("Redeem", () => {
     await factory.close();
   });
 
-  it("should redeem tokens from default Portfolio", async () => {
-    const params = redeemTokenParams("0", {
+  it('should redeem tokens from default Portfolio', async () => {
+    const params = redeemTokenParams('0', {
       options: { processMode: ProcessMode.Submit, signer },
     });
     const txData = await restClient.assets.redeem(assetId, params);
@@ -42,25 +42,23 @@ describe("Redeem", () => {
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "asset.redeem",
-          type: "single",
+          transactionTag: 'asset.redeem',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),
     });
   });
 
-  it("should redeem tokens from specified Portfolio", async () => {
+  it('should redeem tokens from specified Portfolio', async () => {
     const portfolioName = factory.nextPortfolio();
     const createPortfolioParams = portfolioParams(portfolioName, {
       options: { processMode: ProcessMode.Submit, signer },
     });
-    const result = await restClient.portfolios.createPortfolio(
-      createPortfolioParams
-    );
+    const result = await restClient.portfolios.createPortfolio(createPortfolioParams);
     const createdPortfolio = result.portfolio.id;
 
-    const moveFundParams = moveAssetParams(assetId, "0", createdPortfolio, {
+    const moveFundParams = moveAssetParams(assetId, '0', createdPortfolio, {
       options: { processMode: ProcessMode.Submit, signer },
     });
     await restClient.portfolios.moveAssets(issuer.did, moveFundParams);
@@ -73,8 +71,8 @@ describe("Redeem", () => {
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         expect.objectContaining({
-          transactionTag: "asset.redeem",
-          type: "single",
+          transactionTag: 'asset.redeem',
+          type: 'single',
           ...expectBasicTxInfo,
         }),
       ]),

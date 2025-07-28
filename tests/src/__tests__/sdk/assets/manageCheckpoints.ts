@@ -1,13 +1,13 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { manageCheckpoints } from "~/sdk/assets/manageCheckpoints";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { manageCheckpoints } from '~/sdk/assets/manageCheckpoints';
 
 let factory: TestFactory;
 
-describe("manageCheckpoints", () => {
+describe('manageCheckpoints', () => {
   let asset: FungibleAsset;
   let sdk: Polymesh;
 
@@ -22,7 +22,7 @@ describe("manageCheckpoints", () => {
     await factory.close();
   });
 
-  it("should execute mangeCheckpoints without errors", async () => {
+  it('should execute mangeCheckpoints without errors', async () => {
     await expect(manageCheckpoints(sdk, asset)).resolves.not.toThrow();
   });
 });

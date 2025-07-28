@@ -1,8 +1,8 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { ClaimType, ScopeType } from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { ClaimType, ScopeType } from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { awaitMiddlewareSynced } from "~/util";
+import { awaitMiddlewareSynced } from '~/util';
 
 /*
   This function showcases Claim related functionality. It:
@@ -57,19 +57,15 @@ export const manageClaims = async (
     target: identity.did,
     includeExpired: false,
   });
-  assert(
-    issuedClaims.data.length,
-    "The default signer should have at least one issued claim"
-  );
+  assert(issuedClaims.data.length, 'The default signer should have at least one issued claim');
 
-  const identitiesWithAccreditedClaim =
-    await sdk.claims.getIdentitiesWithClaims({
-      targets: [targetDid],
-      claimTypes: [ClaimType.Accredited],
-      size: new BigNumber(1),
-      start: new BigNumber(0),
-      includeExpired: true,
-    });
+  const identitiesWithAccreditedClaim = await sdk.claims.getIdentitiesWithClaims({
+    targets: [targetDid],
+    claimTypes: [ClaimType.Accredited],
+    size: new BigNumber(1),
+    start: new BigNumber(0),
+    includeExpired: true,
+  });
   assert(Array.isArray(identitiesWithAccreditedClaim.data));
   expect(identitiesWithAccreditedClaim.data.length).toBe(1);
 
@@ -106,26 +102,20 @@ export const manageClaims = async (
   const signerCddClaims = await sdk.claims.getCddClaims();
   assert(
     signerCddClaims.length > 0,
-    "The signing Identity should have at least one Customer Due Diligence claim"
+    'The signing Identity should have at least one Customer Due Diligence claim'
   );
 
   // `target` can specify which Identity to fetch Claims for
   const targetingClaims = await sdk.claims.getTargetingClaims({
     target: identity.did,
   });
-  assert(
-    Array.isArray(targetingClaims.data),
-    "Data should be an Array for `getTargetingClaims`"
-  );
+  assert(Array.isArray(targetingClaims.data), 'Data should be an Array for `getTargetingClaims`');
 
   // `target` here refers to the issuer of the claim
   const claimsIssuedByTarget = await sdk.claims.getIssuedClaims({
     target: identity.did,
   });
-  assert(
-    Array.isArray(claimsIssuedByTarget.data),
-    "Data should be an Array for `getIssuedClaims`"
-  );
+  assert(Array.isArray(claimsIssuedByTarget.data), 'Data should be an Array for `getIssuedClaims`');
 
   // get identities with claims
   const identitiesWithClaims = await sdk.claims.getIdentitiesWithClaims({

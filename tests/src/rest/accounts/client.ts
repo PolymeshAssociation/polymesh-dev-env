@@ -1,17 +1,4 @@
-import {
-  assetMediatorsParams,
-  createAssetParams,
-  createMetadataParams,
-  issueAssetParams,
-  MetadataType,
-  redeemTokenParams,
-  setAssetDocumentParams,
-  setMetadataParams,
-  transferAssetOwnershipParams,
-} from "~/rest/assets/params";
-import { RestClient } from "~/rest/client";
-import { TxBase } from "~/rest/common";
-import { PostResult, RestSuccessResult } from "~/rest/interfaces";
+import { RestClient } from '~/rest/client';
 
 export class Accounts {
   constructor(private client: RestClient) {}

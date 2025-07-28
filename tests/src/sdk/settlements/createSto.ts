@@ -1,14 +1,14 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   FungibleAsset,
   OfferingBalanceStatus,
   OfferingSaleStatus,
   OfferingTimingStatus,
   VenueType,
-} from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+} from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { addIsNotBlocked } from "~/sdk/settlements/util";
+import { addIsNotBlocked } from '~/sdk/settlements/util';
 
 /*
   This script showcases Security Token Offering (STO) functionality. It:
@@ -47,12 +47,12 @@ export const createSto = async (
 
   // Create a Venue to use for the offering. An existing Venue could also be used
   const createVenueTx = await sdk.settlements.createVenue({
-    description: "Example Offering Venue",
+    description: 'Example Offering Venue',
     type: VenueType.Sto,
   });
   // Create a Portfolio to store raised funds in
   const createPortfolioTx = await sdk.identities.createPortfolio({
-    name: "Example STO",
+    name: 'Example STO',
   });
   // batch the transactions for efficiency
   const batchTx = await sdk.createTransactionBatch({
@@ -69,7 +69,7 @@ export const createSto = async (
     raisingPortfolio,
     raisingCurrency: raisingAsset.id,
     venue, // optional, defaults to the first "Offering" type venue created by the owner of the Offering Portfolio
-    name: "Example STO",
+    name: 'Example STO',
     start: undefined, // optional, defaults to now
     end: new Date(new Date().getTime() + 365 * 24 * 60 * 60 * 1000), // optional, defaults to never
     // tiers can incentivize early investors with a better rate
@@ -98,10 +98,7 @@ export const createSto = async (
 
   // Fetch offering details
   const offeringDetails = await offering.details();
-  assert(
-    offeringDetails.status.sale === OfferingSaleStatus.Live,
-    "the offering should be live"
-  );
+  assert(offeringDetails.status.sale === OfferingSaleStatus.Live, 'the offering should be live');
 
   // Fetch an investable offering for the asset
   const [{ offering: investableOffering }] = await offeringAsset.offerings.get({
@@ -143,5 +140,5 @@ export const createSto = async (
 
   // Fetch investments from the offering
   const { data: investments } = await offering.getInvestments();
-  assert(investments.length > 0, "the asset should have investments");
+  assert(investments.length > 0, 'the asset should have investments');
 };

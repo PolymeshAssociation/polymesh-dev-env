@@ -1,15 +1,15 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { Identity } from "~/rest/identities";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { manageCustomClaims } from "~/sdk/identities/customClaims";
+import { TestFactory } from '~/helpers';
+import { Identity } from '~/rest/identities';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { manageCustomClaims } from '~/sdk/identities/customClaims';
 
 let factory: TestFactory;
-const handles = ["claimTarget"];
+const handles = ['claimTarget'];
 
-describe("manageCustomClaims", () => {
+describe('manageCustomClaims', () => {
   let sdk: Polymesh;
   let targetIdentity: Identity;
   let asset: FungibleAsset;
@@ -25,9 +25,7 @@ describe("manageCustomClaims", () => {
     await factory.close();
   });
 
-  it("should execute manageClaimsCustomClaims without errors", async () => {
-    await expect(
-      manageCustomClaims(sdk, targetIdentity.did, asset)
-    ).resolves.not.toThrow();
+  it('should execute manageClaimsCustomClaims without errors', async () => {
+    await expect(manageCustomClaims(sdk, targetIdentity.did, asset)).resolves.not.toThrow();
   });
 });

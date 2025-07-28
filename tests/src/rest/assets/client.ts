@@ -8,26 +8,22 @@ import {
   setAssetDocumentParams,
   setMetadataParams,
   transferAssetOwnershipParams,
-} from "~/rest/assets/params";
-import { RestClient } from "~/rest/client";
-import { TxBase } from "~/rest/common";
-import { PostResult, RestSuccessResult } from "~/rest/interfaces";
+} from '~/rest/assets/params';
+import { RestClient } from '~/rest/client';
+import { TxBase } from '~/rest/common';
+import { PostResult, RestSuccessResult } from '~/rest/interfaces';
 
 export class Assets {
   constructor(private client: RestClient) {}
 
-  public async createAndGetAssetId(
-    params: ReturnType<typeof createAssetParams>
-  ): Promise<string> {
+  public async createAndGetAssetId(params: ReturnType<typeof createAssetParams>): Promise<string> {
     const result = (await this.createAsset(params)) as RestSuccessResult;
 
     return result.asset as string;
   }
 
-  public async createAsset(
-    params: ReturnType<typeof createAssetParams>
-  ): Promise<PostResult> {
-    return this.client.post("/assets/create", params);
+  public async createAsset(params: ReturnType<typeof createAssetParams>): Promise<PostResult> {
+    return this.client.post('/assets/create', params);
   }
 
   public async getAsset(asset: string): Promise<unknown> {
@@ -35,18 +31,14 @@ export class Assets {
   }
 
   public async getGlobalMetadata(): Promise<unknown> {
-    return this.client.get("/assets/global-metadata");
+    return this.client.get('/assets/global-metadata');
   }
 
   public async getMetadata(asset: string): Promise<unknown> {
     return this.client.get(`/assets/${asset}/metadata`);
   }
 
-  public async getMetadataById(
-    asset: string,
-    type: MetadataType,
-    id: string
-  ): Promise<unknown> {
+  public async getMetadataById(asset: string, type: MetadataType, id: string): Promise<unknown> {
     return this.client.get(`assets/${asset}/metadata/${type}/${id}`);
   }
 
@@ -63,10 +55,7 @@ export class Assets {
     id: string,
     params: ReturnType<typeof setMetadataParams>
   ): Promise<PostResult> {
-    return this.client.post(
-      `/assets/${asset}/metadata/${type}/${id}/set`,
-      params
-    );
+    return this.client.post(`/assets/${asset}/metadata/${type}/${id}/set`, params);
   }
 
   public async getDocuments(asset: string): Promise<unknown> {
@@ -102,10 +91,7 @@ export class Assets {
     asset: string,
     params: ReturnType<typeof assetMediatorsParams>
   ): Promise<PostResult> {
-    return this.client.post(
-      `assets/${asset}/remove-required-mediators`,
-      params
-    );
+    return this.client.post(`assets/${asset}/remove-required-mediators`, params);
   }
 
   public async transferAssetOwnership(
@@ -119,10 +105,7 @@ export class Assets {
     return this.client.post(`assets/${asset}/pre-approve`, { ...params });
   }
 
-  public async removePreApproval(
-    asset: string,
-    params: TxBase
-  ): Promise<PostResult> {
+  public async removePreApproval(asset: string, params: TxBase): Promise<PostResult> {
     return this.client.post(`assets/${asset}/remove-pre-approval`, {
       ...params,
     });

@@ -1,13 +1,13 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   ClaimTarget,
   ClaimType,
   FungibleAsset,
   ScopeType,
-} from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+} from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { awaitMiddlewareSynced, randomString } from "~/util";
+import { awaitMiddlewareSynced, randomString } from '~/util';
 
 export const manageCustomClaims = async (
   sdk: Polymesh,
@@ -36,28 +36,20 @@ export const manageCustomClaims = async (
 
   assert(
     registeredCustomClaimTypes.count?.isGreaterThanOrEqualTo(1),
-    "There should be at least one registered CustomClaimType"
+    'There should be at least one registered CustomClaimType'
   );
 
-  assert(
-    registerCustomClaimTypeTx.isSuccess,
-    "Should register a CustomClaimType"
-  );
-  assert(
-    BigNumber.isBigNumber(customClaimTypeId),
-    "CustomClaimTypeId should be BigNumber"
-  );
+  assert(registerCustomClaimTypeTx.isSuccess, 'Should register a CustomClaimType');
+  assert(BigNumber.isBigNumber(customClaimTypeId), 'CustomClaimTypeId should be BigNumber');
 
-  const customClaimTypeById = await sdk.claims.getCustomClaimTypeById(
-    customClaimTypeId
-  );
+  const customClaimTypeById = await sdk.claims.getCustomClaimTypeById(customClaimTypeId);
 
   assert(
     customClaimTypeById?.name === name,
-    "Retrieved CustomClaimType name should equal the one provided"
+    'Retrieved CustomClaimType name should equal the one provided'
   );
 
-  const customClaim: Omit<ClaimTarget, "expiry"> = {
+  const customClaim: Omit<ClaimTarget, 'expiry'> = {
     target: targetDid,
     claim: {
       type: ClaimType.Custom,
@@ -78,7 +70,7 @@ export const manageCustomClaims = async (
 
   await addClaimTx.run();
 
-  assert(addClaimTx.isSuccess, "Should be able to add a custom claim");
+  assert(addClaimTx.isSuccess, 'Should be able to add a custom claim');
 
   await awaitMiddlewareSynced(addClaimTx, sdk);
 
@@ -88,5 +80,5 @@ export const manageCustomClaims = async (
   );
   await revokeClaimTx.run();
 
-  assert(revokeClaimTx.isSuccess, "Should be able to revoke a custom claim");
+  assert(revokeClaimTx.isSuccess, 'Should be able to revoke a custom claim');
 };

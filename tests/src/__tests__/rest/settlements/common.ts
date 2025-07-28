@@ -1,14 +1,14 @@
-import { expectBasicTxInfo } from "~/__tests__/rest/utils";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
-import { venueParams } from "~/rest/settlements";
+import { expectBasicTxInfo } from '~/__tests__/rest/utils';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
+import { venueParams } from '~/rest/settlements';
 
-const handles = ["issuer", "collector"];
+const handles = ['issuer', 'collector'];
 let factory: TestFactory;
 
-describe("Settlements Common Methods", () => {
+describe('Settlements Common Methods', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -25,7 +25,7 @@ describe("Settlements Common Methods", () => {
     await factory.close();
   });
 
-  it("should create a Venue", async () => {
+  it('should create a Venue', async () => {
     const params = venueParams({
       options: { processMode: ProcessMode.Submit, signer },
     });
@@ -34,8 +34,8 @@ describe("Settlements Common Methods", () => {
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "settlement.createVenue",
-          type: "single",
+          transactionTag: 'settlement.createVenue',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),

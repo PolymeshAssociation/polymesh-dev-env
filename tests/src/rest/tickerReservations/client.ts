@@ -1,18 +1,16 @@
-import { RestClient } from "~/rest/client";
-import { TxBase } from "~/rest/common";
-import { PostResult } from "~/rest/interfaces";
+import { RestClient } from '~/rest/client';
+import { TxBase } from '~/rest/common';
+import { PostResult } from '~/rest/interfaces';
 import {
   reserveTickerParams,
   transferTickerReservationParams,
-} from "~/rest/tickerReservations/params";
+} from '~/rest/tickerReservations/params';
 
 export class TickerReservations {
   constructor(private client: RestClient) {}
 
-  public async reserve(
-    params: ReturnType<typeof reserveTickerParams>
-  ): Promise<PostResult> {
-    return this.client.post("/ticker-reservations/reserve-ticker", params);
+  public async reserve(params: ReturnType<typeof reserveTickerParams>): Promise<PostResult> {
+    return this.client.post('/ticker-reservations/reserve-ticker', params);
   }
 
   public async getReservation(ticker: string): Promise<PostResult> {
@@ -29,10 +27,7 @@ export class TickerReservations {
     ticker: string,
     params: ReturnType<typeof transferTickerReservationParams>
   ): Promise<Record<string, unknown>> {
-    return this.client.post(
-      `/ticker-reservations/${ticker}/transfer-ownership`,
-      params
-    );
+    return this.client.post(`/ticker-reservations/${ticker}/transfer-ownership`, params);
   }
 
   public async getIdentityReservations(did: string): Promise<PostResult> {

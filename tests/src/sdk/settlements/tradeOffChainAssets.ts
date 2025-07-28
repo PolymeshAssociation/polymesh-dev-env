@@ -1,13 +1,13 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   InstructionOffChainLeg,
   SignerKeyRingType,
   VenueType,
-} from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+} from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { createVenue } from "~/sdk/settlements/createVenue";
-import { awaitMiddlewareSynced } from "~/util";
+import { createVenue } from '~/sdk/settlements/createVenue';
+import { awaitMiddlewareSynced } from '~/util';
 
 interface OffChainLegInfo {
   ticker: string;
@@ -46,7 +46,7 @@ export const tradeOffChainAssets = async (
 
   // First we create a venue specifying the signers allowed to sign off chain receipts
   const venue = await createVenue(sdk, {
-    description: "Off chain settlement venue",
+    description: 'Off chain settlement venue',
     type: VenueType.Exchange,
     signers: [signer],
   });
@@ -67,25 +67,22 @@ export const tradeOffChainAssets = async (
   const addInstructionTx = await venue.addInstruction({
     legs,
     endAfterBlock: new BigNumber(0), // if specified the execution of the settlement can be done manually after this block. We set this to 0, so that we can execute once we have all the off chain affirmations
-    tradeDate: new Date("2024/01/01"),
-    valueDate: new Date("2024/01/10"),
-    memo: "Some message",
+    tradeDate: new Date('2024/01/01'),
+    valueDate: new Date('2024/01/10'),
+    memo: 'Some message',
   });
 
   const instruction = await addInstructionTx.run();
-  assert(addInstructionTx.isSuccess, "add instruction should succeed");
+  assert(addInstructionTx.isSuccess, 'add instruction should succeed');
 
   await awaitMiddlewareSynced(addInstructionTx, sdk);
 
   const details = await instruction.details();
-  assert(details.memo, "the instruction should have a memo");
+  assert(details.memo, 'the instruction should have a memo');
 
   // since this contains only off-chain legs, there will be no affirmations
   const { data: affirmations } = await instruction.getAffirmations();
-  assert(
-    affirmations.length === 0,
-    "the instruction should have no affirmation"
-  );
+  assert(affirmations.length === 0, 'the instruction should have no affirmation');
 
   /**
    * Off chain legs require a receipt for affirmation.

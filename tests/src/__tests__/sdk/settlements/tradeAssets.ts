@@ -1,16 +1,16 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { tradeAssets } from "~/sdk/settlements/tradeAssets";
-import { tradeOffChainAssets } from "~/sdk/settlements/tradeOffChainAssets";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { tradeAssets } from '~/sdk/settlements/tradeAssets';
+import { tradeOffChainAssets } from '~/sdk/settlements/tradeOffChainAssets';
 
 let factory: TestFactory;
 let counterPartyDid: string;
 
-describe("tradeAssets", () => {
+describe('tradeAssets', () => {
   let askAsset: FungibleAsset;
   let bidAsset: FungibleAsset;
   let sdk: Polymesh;
@@ -30,8 +30,7 @@ describe("tradeAssets", () => {
       mnemonic: targetMnemonic,
     });
 
-    offChainSenderDid =
-      "0xd99b7c317566c53af54f111e7f82579207f72197e76ec31204ece65cf8db3eb8";
+    offChainSenderDid = '0xd99b7c317566c53af54f111e7f82579207f72197e76ec31204ece65cf8db3eb8';
 
     ({
       results: [{ did: counterPartyDid }],
@@ -43,11 +42,7 @@ describe("tradeAssets", () => {
     const initialSupply = new BigNumber(100);
     [bidAsset, askAsset] = await Promise.all([
       createAsset(sdk, { initialSupply }),
-      createAsset(
-        sdk,
-        { initialSupply },
-        { signingAccount: counterPartyAddress }
-      ),
+      createAsset(sdk, { initialSupply }, { signingAccount: counterPartyAddress }),
     ]);
   });
 
@@ -55,14 +50,14 @@ describe("tradeAssets", () => {
     await factory.close();
   });
 
-  it("should transfer fungible assets", async () => {
+  it('should transfer fungible assets', async () => {
     const bid = { asset: bidAsset, amount: new BigNumber(10) };
     const ask = { asset: askAsset, amount: new BigNumber(20) };
 
     await tradeAssets(sdk, counterPartyDid, bid, ask);
   });
 
-  it("should check canTransfer without error", async () => {
+  it('should check canTransfer without error', async () => {
     const to = await sdk.identities.getIdentity({ did: counterPartyDid });
 
     const { owner: from } = await askAsset.details();
@@ -72,7 +67,7 @@ describe("tradeAssets", () => {
     ).resolves.not.toThrow();
   });
 
-  it("should transfer off chain assets", async () => {
+  it('should transfer off chain assets', async () => {
     const bid = {
       ticker: bidOffChainTicker,
       offChainAmount: new BigNumber(10),

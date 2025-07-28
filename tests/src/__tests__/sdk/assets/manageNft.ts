@@ -1,6 +1,6 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { Nft } from "@polymeshassociation/polymesh-sdk/internal";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { Nft } from '@polymeshassociation/polymesh-sdk/internal';
 import {
   DefaultPortfolio,
   Identity,
@@ -11,15 +11,15 @@ import {
   NumberedPortfolio,
   Venue,
   VenueType,
-} from "@polymeshassociation/polymesh-sdk/types";
+} from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createNftCollection } from "~/sdk/assets/createNftCollection";
-import { awaitMiddlewareSynced } from "~/util";
+import { TestFactory } from '~/helpers';
+import { createNftCollection } from '~/sdk/assets/createNftCollection';
+import { awaitMiddlewareSynced } from '~/util';
 
 let factory: TestFactory;
 
-describe("manageNft", () => {
+describe('manageNft', () => {
   let ticker: string;
   let sdk: Polymesh;
   let collection: NftCollection;
@@ -43,13 +43,13 @@ describe("manageNft", () => {
       collectionKeys: [
         {
           type: MetadataType.Local,
-          name: "img",
-          spec: { url: "https://example.com/nft/{id}" },
+          name: 'img',
+          spec: { url: 'https://example.com/nft/{id}' },
         },
         {
           type: MetadataType.Local,
-          name: "imgHash",
-          spec: { description: "SHA256" },
+          name: 'imgHash',
+          spec: { description: 'SHA256' },
         },
       ],
     });
@@ -66,11 +66,11 @@ describe("manageNft", () => {
     receiver = await sdk.identities.getIdentity({ did: receiverDid });
 
     const portfolioTx = await sdk.identities.createPortfolio({
-      name: "NFT portfolio",
+      name: 'NFT portfolio',
     });
 
     const venueTx = await sdk.settlements.createVenue({
-      description: "test exchange",
+      description: 'test exchange',
       type: VenueType.Exchange,
     });
 
@@ -92,35 +92,34 @@ describe("manageNft", () => {
     await factory.close();
   });
 
-  it("should be defined", async () => {
+  it('should be defined', async () => {
     const details = await collection.details();
     expect(details.ticker).toEqual(ticker);
   });
 
-  it("should return the needed metadata", async () => {
+  it('should return the needed metadata', async () => {
     const requiredMetadata = await collection.collectionKeys();
 
     expect(requiredMetadata).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ name: "img", type: MetadataType.Local }),
-        expect.objectContaining({ name: "imgHash", type: MetadataType.Local }),
+        expect.objectContaining({ name: 'img', type: MetadataType.Local }),
+        expect.objectContaining({ name: 'imgHash', type: MetadataType.Local }),
       ])
     );
   });
 
-  it("should issue an Nft", async () => {
+  it('should issue an Nft', async () => {
     const issueTx = await collection.issue({
       metadata: [
         {
           type: MetadataType.Local,
           id: new BigNumber(1),
-          value: "https://example.com/nft/1",
+          value: 'https://example.com/nft/1',
         },
         {
           type: MetadataType.Local,
           id: new BigNumber(2),
-          value:
-            "0x35987a0f9ae77012a5146a982966661b75cdeaa4161d1d62b1e18d39438e7396",
+          value: '0x35987a0f9ae77012a5146a982966661b75cdeaa4161d1d62b1e18d39438e7396',
         },
       ],
     });
@@ -130,7 +129,7 @@ describe("manageNft", () => {
     expect(nft.id).toEqual(new BigNumber(1));
   });
 
-  it("should allow holder to transfer NFTs between portfolios", async () => {
+  it('should allow holder to transfer NFTs between portfolios', async () => {
     const moveTx = await defaultPortfolio.moveFunds({
       to: portfolio,
       items: [
@@ -159,7 +158,7 @@ describe("manageNft", () => {
     );
   });
 
-  it("should allow the holder to check if they can transfer the NFT", async () => {
+  it('should allow the holder to check if they can transfer the NFT', async () => {
     const { result } = await collection.settlements.canTransfer({
       from: portfolio,
       to: receiver,
@@ -169,7 +168,7 @@ describe("manageNft", () => {
     expect(result).toEqual(true);
   });
 
-  it("should let the holder send instructions with an NFT", async () => {
+  it('should let the holder send instructions with an NFT', async () => {
     const instructionTx = await sdk.settlements.addInstruction({
       venueId: venue.id,
       legs: [
@@ -187,7 +186,7 @@ describe("manageNft", () => {
     await awaitMiddlewareSynced(instructionTx, sdk);
   });
 
-  it("should return legs for an instruction when they contain an NFT", async () => {
+  it('should return legs for an instruction when they contain an NFT', async () => {
     expect(instruction).toBeDefined();
 
     const { data: legs } = await instruction.getLegs();
@@ -196,19 +195,14 @@ describe("manageNft", () => {
       expect.arrayContaining([
         expect.objectContaining({
           asset: expect.objectContaining({ id: collection.id }),
-          nfts: expect.arrayContaining([
-            expect.objectContaining({ id: nft.id }),
-          ]),
+          nfts: expect.arrayContaining([expect.objectContaining({ id: nft.id })]),
         }),
       ])
     );
   });
 
-  it("should allow the receiver to accept an NFT settlement", async () => {
-    const affirmTx = await instruction.affirm(
-      {},
-      { signingAccount: receiverAddress }
-    );
+  it('should allow the receiver to accept an NFT settlement', async () => {
+    const affirmTx = await instruction.affirm({}, { signingAccount: receiverAddress });
     await affirmTx.run();
 
     const receiverPortfolio = await receiver.portfolios.getPortfolio();
@@ -221,27 +215,25 @@ describe("manageNft", () => {
           collection: expect.objectContaining({
             id: collection.id,
           }),
-          free: expect.arrayContaining([
-            expect.objectContaining({ id: nft.id }),
-          ]),
+          free: expect.arrayContaining([expect.objectContaining({ id: nft.id })]),
           total: new BigNumber(1),
         }),
       ])
     );
   });
 
-  it("should allow the issuer to redeem an NFT", async () => {
+  it('should allow the issuer to redeem an NFT', async () => {
     const createNftTx = await collection.issue({
       metadata: [
         {
           type: MetadataType.Local,
           id: new BigNumber(1),
-          value: "https://example.com/nft/1",
+          value: 'https://example.com/nft/1',
         },
         {
           type: MetadataType.Local,
           id: new BigNumber(2),
-          value: "0x1234",
+          value: '0x1234',
         },
       ],
     });

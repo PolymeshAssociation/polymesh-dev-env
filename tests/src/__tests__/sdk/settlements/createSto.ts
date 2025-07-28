@@ -1,14 +1,14 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { createSto } from "~/sdk/settlements/createSto";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { createSto } from '~/sdk/settlements/createSto';
 
 let factory: TestFactory;
 
-describe("createSto", () => {
+describe('createSto', () => {
   let offeringAsset: FungibleAsset;
   let raisingAsset: FungibleAsset;
   let investorDid: string;
@@ -38,7 +38,7 @@ describe("createSto", () => {
     await factory.close();
   });
 
-  it("should execute without errors", async () => {
+  it('should execute without errors', async () => {
     await createSto(sdk, investorDid, offeringAsset, raisingAsset);
   });
 });

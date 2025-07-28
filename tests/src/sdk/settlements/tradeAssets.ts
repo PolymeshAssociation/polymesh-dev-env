@@ -1,10 +1,10 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/internal";
-import { VenueType } from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/internal';
+import { VenueType } from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { addIsNotBlocked } from "~/sdk/settlements/util";
-import { awaitMiddlewareSynced } from "~/util";
+import { addIsNotBlocked } from '~/sdk/settlements/util';
+import { awaitMiddlewareSynced } from '~/util';
 
 interface Leg {
   asset: FungibleAsset;
@@ -42,8 +42,7 @@ export const tradeAssets = async (
   const askAsset = ask.asset;
   assert(identity);
 
-  const { account: counterPartyAccount } =
-    await counterParty.getPrimaryAccount();
+  const { account: counterPartyAccount } = await counterParty.getPrimaryAccount();
 
   // Assets need non compliance requirements set before they can be traded
   await Promise.all([
@@ -52,23 +51,20 @@ export const tradeAssets = async (
   ]);
 
   const venueTx = await sdk.settlements.createVenue({
-    description: "Example Venue",
+    description: 'Example Venue',
     type: VenueType.Exchange,
   });
   const venue = await venueTx.run();
   assert(venueTx.isSuccess);
 
   const venueDetails = await venue.details();
-  assert(
-    venueDetails.owner.did === identity.did,
-    "default signer should own the Venue"
-  );
+  assert(venueDetails.owner.did === identity.did, 'default signer should own the Venue');
 
   /* An Identities Venues can be fetched */
   const venues = await identity.getVenues();
   assert(
     venues.some(({ id }) => id.eq(venue.id)),
-    "The created venue should be returned"
+    'The created venue should be returned'
   );
 
   // Find the portfolio to trade with
@@ -91,32 +87,29 @@ export const tradeAssets = async (
     ],
     endBlock: undefined, // if specified the execution of the settlement will be delayed until this block
     tradeDate: undefined, // (optional) - specify a date if there are off chain components in the transaction
-    memo: "Some message", // optional - passing a message with the instruction
+    memo: 'Some message', // optional - passing a message with the instruction
   });
 
   const instruction = await addInstructionTx.run();
-  assert(addInstructionTx.isSuccess, "add instruction should succeed");
+  assert(addInstructionTx.isSuccess, 'add instruction should succeed');
 
   await awaitMiddlewareSynced(addInstructionTx, sdk, 15, 2000);
 
   const details = await instruction.details();
-  assert(details.memo, "the instruction should have a memo");
+  assert(details.memo, 'the instruction should have a memo');
 
   // by default the submitter will automatically affirm the instruction
   const { data: affirmations } = await instruction.getAffirmations();
-  assert(affirmations.length > 0, "the instruction should have an affirmation");
+  assert(affirmations.length > 0, 'the instruction should have an affirmation');
 
   const { pending } = await counterParty.getInstructions();
 
   const counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
-  assert(
-    counterInstruction,
-    "the counter party should have the instruction as pending"
-  );
+  assert(counterInstruction, 'the counter party should have the instruction as pending');
 
   // All legs of an Instruction should be inspected before before affirming
   const { data: legs } = await counterInstruction.getLegs();
-  assert(legs.length > 0, "the instruction should have some legs");
+  assert(legs.length > 0, 'the instruction should have some legs');
 
   /*
    Affirm the instruction, `counterInstruction.reject()` is another option
@@ -124,10 +117,7 @@ export const tradeAssets = async (
    Note, the actual settlement will be executed in a block after the final affirmation.
    The instruction can still be rejected even if the final affirmation succeeds
   */
-  const affirmTx = await counterInstruction.affirm(
-    {},
-    { signingAccount: counterPartyAccount }
-  );
+  const affirmTx = await counterInstruction.affirm({}, { signingAccount: counterPartyAccount });
   await affirmTx.run();
   assert(affirmTx.isSuccess);
 };

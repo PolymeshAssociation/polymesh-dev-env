@@ -1,9 +1,9 @@
-import { TxBase, TxExtras } from "~/rest/common";
+import { TxBase, TxExtras } from '~/rest/common';
 
 export const venueParams = (base: TxBase, extras: TxExtras = {}) =>
   ({
-    description: "A test Venue",
-    type: "Exchange",
+    description: 'A test Venue',
+    type: 'Exchange',
     ...extras,
     ...base,
   } as const);
@@ -16,10 +16,10 @@ export const fungibleInstructionParams = (
   extras: TxExtras = {}
 ) =>
   ({
-    memo: "Testing settlements",
+    memo: 'Testing settlements',
     legs: [
       {
-        amount: "10",
+        amount: '10',
         from: {
           did: from,
           id: 0,
@@ -28,7 +28,7 @@ export const fungibleInstructionParams = (
           did: to,
           id: 0,
         },
-        type: "onChain",
+        type: 'onChain',
         asset: assetId,
       },
     ],
@@ -45,7 +45,7 @@ export const nftInstructionParams = (
   extras: TxExtras = {}
 ) =>
   ({
-    memo: "Testing NFT settlement",
+    memo: 'Testing NFT settlement',
     legs: [
       {
         nfts,
@@ -57,7 +57,7 @@ export const nftInstructionParams = (
           did: to,
           id: 0,
         },
-        type: "onChain",
+        type: 'onChain',
         asset: collectionId,
       },
     ],

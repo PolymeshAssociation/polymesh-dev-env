@@ -1,6 +1,6 @@
-import { RestClient } from "~/rest/client";
-import { PostResult, RestSuccessResult } from "~/rest/interfaces";
-import { createNftCollectionParams, issueNftParams } from "~/rest/nfts/params";
+import { RestClient } from '~/rest/client';
+import { PostResult, RestSuccessResult } from '~/rest/interfaces';
+import { createNftCollectionParams, issueNftParams } from '~/rest/nfts/params';
 
 export class Nfts {
   constructor(private client: RestClient) {}
@@ -8,9 +8,7 @@ export class Nfts {
   public async createAndGetNftCollection(
     params: ReturnType<typeof createNftCollectionParams>
   ): Promise<string> {
-    const result = (await this.createNftCollection(
-      params
-    )) as RestSuccessResult;
+    const result = (await this.createNftCollection(params)) as RestSuccessResult;
 
     return result.collection as string;
   }
@@ -18,7 +16,7 @@ export class Nfts {
   public async createNftCollection(
     params: ReturnType<typeof createNftCollectionParams>
   ): Promise<PostResult> {
-    return this.client.post("/nfts/create", params);
+    return this.client.post('/nfts/create', params);
   }
 
   public async issueNft(

@@ -1,11 +1,8 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import {
-  ClaimType,
-  FungibleAsset,
-} from "@polymeshassociation/polymesh-sdk/types";
-import assert from "node:assert";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { ClaimType, FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
+import assert from 'node:assert';
 
-import { wellKnown } from "~/consts";
+import { wellKnown } from '~/consts';
 
 /*
   This script showcases Compliance related functionality. It shows:
@@ -51,10 +48,7 @@ export const manageTrustedClaimIssuers = async (
   assert(setTrustedClaimIssuersTx.isSuccess);
 
   const defaultTrustedIssuers = await compliance.trustedClaimIssuers.get();
-  assert(
-    defaultTrustedIssuers.length > 0,
-    "there should be a trusted claim issuer"
-  );
+  assert(defaultTrustedIssuers.length > 0, 'there should be a trusted claim issuer');
 
   // Remove a trusted issuers. Identities no longer compliant will be able to send, but not receive the Asset
   const removeClaimIssuerTx = await compliance.trustedClaimIssuers.remove({

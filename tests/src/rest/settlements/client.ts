@@ -1,42 +1,33 @@
-import { RestClient } from "~/rest/client";
-import { TxBase } from "~/rest/common";
-import { PostResult } from "~/rest/interfaces";
+import { RestClient } from '~/rest/client';
+import { TxBase } from '~/rest/common';
+import { PostResult } from '~/rest/interfaces';
 import {
   fungibleInstructionParams,
   nftInstructionParams,
   venueParams,
-} from "~/rest/settlements/params";
+} from '~/rest/settlements/params';
 
 export class Settlements {
   constructor(private client: RestClient) {}
 
-  public async createVenue(
-    params: ReturnType<typeof venueParams>
-  ): Promise<unknown> {
-    return this.client.post("/venues/create", params);
+  public async createVenue(params: ReturnType<typeof venueParams>): Promise<unknown> {
+    return this.client.post('/venues/create', params);
   }
 
   public async createInstruction(
     venueId: string,
-    params:
-      | ReturnType<typeof fungibleInstructionParams>
-      | ReturnType<typeof nftInstructionParams>
+    params: ReturnType<typeof fungibleInstructionParams> | ReturnType<typeof nftInstructionParams>
   ): Promise<PostResult> {
     return this.client.post(`/venues/${venueId}/instructions/create`, params);
   }
 
   public async createDirectInstruction(
-    params:
-      | ReturnType<typeof fungibleInstructionParams>
-      | ReturnType<typeof nftInstructionParams>
+    params: ReturnType<typeof fungibleInstructionParams> | ReturnType<typeof nftInstructionParams>
   ): Promise<PostResult> {
-    return this.client.post(`/instructions/create`, params);
+    return this.client.post('/instructions/create', params);
   }
 
-  public async affirmInstruction(
-    instructionId: string,
-    txBase: TxBase
-  ): Promise<PostResult> {
+  public async affirmInstruction(instructionId: string, txBase: TxBase): Promise<PostResult> {
     return this.client.post(`/instructions/${instructionId}/affirm`, {
       ...txBase,
     });
@@ -47,56 +38,35 @@ export class Settlements {
     expiry: Date | undefined,
     txBase: TxBase
   ): Promise<PostResult> {
-    return this.client.post(
-      `/instructions/${instructionId}/affirm-as-mediator`,
-      {
-        expiry,
-        ...txBase,
-      }
-    );
+    return this.client.post(`/instructions/${instructionId}/affirm-as-mediator`, {
+      expiry,
+      ...txBase,
+    });
   }
 
-  public async withdrawAsMediator(
-    instructionId: string,
-    txBase: TxBase
-  ): Promise<PostResult> {
-    return this.client.post(
-      `/instructions/${instructionId}/withdraw-as-mediator`,
-      {
-        ...txBase,
-      }
-    );
+  public async withdrawAsMediator(instructionId: string, txBase: TxBase): Promise<PostResult> {
+    return this.client.post(`/instructions/${instructionId}/withdraw-as-mediator`, {
+      ...txBase,
+    });
   }
 
-  public async rejectAsMediator(
-    instructionId: string,
-    txBase: TxBase
-  ): Promise<PostResult> {
-    return this.client.post(
-      `/instructions/${instructionId}/reject-as-mediator`,
-      {
-        ...txBase,
-      }
-    );
+  public async rejectAsMediator(instructionId: string, txBase: TxBase): Promise<PostResult> {
+    return this.client.post(`/instructions/${instructionId}/reject-as-mediator`, {
+      ...txBase,
+    });
   }
 
   public async getInstruction(instructionId: string): Promise<unknown> {
     return this.client.get(`/instructions/${instructionId}`);
   }
 
-  public async withdrawAffirmation(
-    instructionId: string,
-    txBase: TxBase
-  ): Promise<PostResult> {
+  public async withdrawAffirmation(instructionId: string, txBase: TxBase): Promise<PostResult> {
     return this.client.post(`/instructions/${instructionId}/withdraw`, {
       ...txBase,
     });
   }
 
-  public async rejectInstruction(
-    instructionId: string,
-    txBase: TxBase
-  ): Promise<PostResult> {
+  public async rejectInstruction(instructionId: string, txBase: TxBase): Promise<PostResult> {
     return this.client.post(`/instructions/${instructionId}/reject`, {
       ...txBase,
     });

@@ -1,15 +1,15 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { Identity } from "~/rest/identities";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { manageClaims } from "~/sdk/identities/claims";
+import { TestFactory } from '~/helpers';
+import { Identity } from '~/rest/identities';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { manageClaims } from '~/sdk/identities/claims';
 
 let factory: TestFactory;
-const handles = ["claimTarget"];
+const handles = ['claimTarget'];
 
-describe("manageClaims", () => {
+describe('manageClaims', () => {
   let sdk: Polymesh;
   let targetIdentity: Identity;
   let asset: FungibleAsset;
@@ -26,9 +26,7 @@ describe("manageClaims", () => {
     await factory.close();
   });
 
-  it("should execute manageClaims without errors", async () => {
-    await expect(
-      manageClaims(sdk, targetIdentity.did, asset.id)
-    ).resolves.not.toThrow();
+  it('should execute manageClaims without errors', async () => {
+    await expect(manageClaims(sdk, targetIdentity.did, asset.id)).resolves.not.toThrow();
   });
 });

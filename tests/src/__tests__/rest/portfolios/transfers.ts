@@ -1,22 +1,18 @@
-import { AuthorizationType } from "@polymeshassociation/polymesh-sdk/types";
+import { AuthorizationType } from '@polymeshassociation/polymesh-sdk/types';
 
-import { assertTagPresent } from "~/assertions";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { createAssetParams } from "~/rest/assets/params";
-import { ProcessMode, TxBase } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
-import {
-  moveAssetParams,
-  portfolioParams,
-  setCustodianParams,
-} from "~/rest/portfolios";
-import { awaitMiddlewareSyncedForRestApi, randomNonce } from "~/util";
+import { assertTagPresent } from '~/assertions';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams } from '~/rest/assets/params';
+import { ProcessMode, TxBase } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
+import { moveAssetParams, portfolioParams, setCustodianParams } from '~/rest/portfolios';
+import { awaitMiddlewareSyncedForRestApi, randomNonce } from '~/util';
 
-const handles = ["issuer", "custodian"];
+const handles = ['issuer', 'custodian'];
 let factory: TestFactory;
 
-describe("Portfolio Asset Transfers", () => {
+describe('Portfolio Asset Transfers', () => {
   let restClient: RestClient;
   let issuer: Identity;
   let custodian: Identity;
@@ -43,10 +39,9 @@ describe("Portfolio Asset Transfers", () => {
 
     // create portfolios
     custodyPortfolioName = `CUSTODY-${nonce}`;
-    const { portfolio: custodyPortfolio } =
-      await restClient.portfolios.createPortfolio(
-        portfolioParams(custodyPortfolioName, issuerBasePrams)
-      );
+    const { portfolio: custodyPortfolio } = await restClient.portfolios.createPortfolio(
+      portfolioParams(custodyPortfolioName, issuerBasePrams)
+    );
     custodyPortfolioId = custodyPortfolio.id;
 
     // create custody portfolio
@@ -61,34 +56,28 @@ describe("Portfolio Asset Transfers", () => {
       )
     );
 
-    const pendingAuthorizations =
-      await restClient.identities.getPendingAuthorizations(
-        custodian.did,
-        AuthorizationType.PortfolioCustody
-      );
+    const pendingAuthorizations = await restClient.identities.getPendingAuthorizations(
+      custodian.did,
+      AuthorizationType.PortfolioCustody
+    );
     authId = pendingAuthorizations.received[0].id;
 
-    await restClient.identities.acceptAuthorization(
-      authId,
-      custodianBaseParams
-    );
+    await restClient.identities.acceptAuthorization(authId, custodianBaseParams);
 
     // create and issue an Asset to move
-    assetId = await restClient.assets.createAndGetAssetId(
-      createAssetParams(issuerBasePrams)
-    );
+    assetId = await restClient.assets.createAndGetAssetId(createAssetParams(issuerBasePrams));
   });
 
   afterAll(async () => {
     await factory.close();
   });
 
-  it("should have issued the asset to the Default portfolio of the issuer", async () => {
-    const result = await restClient.portfolios.getPortfolio(issuer.did, "0");
+  it('should have issued the asset to the Default portfolio of the issuer', async () => {
+    const result = await restClient.portfolios.getPortfolio(issuer.did, '0');
 
     expect(result).toEqual(
       expect.objectContaining({
-        name: "default",
+        name: 'default',
         assetBalances: [
           {
             asset: assetId,
@@ -97,26 +86,21 @@ describe("Portfolio Asset Transfers", () => {
             total: expect.any(String),
           },
         ],
-        id: "0",
+        id: '0',
         owner: issuer.did,
       })
     );
   });
 
-  it("should transfer the asset from the issuer to the custody portfolio", async () => {
+  it('should transfer the asset from the issuer to the custody portfolio', async () => {
     const result = await restClient.portfolios.moveAssets(
       issuer.did,
-      moveAssetParams(assetId, "0", custodyPortfolioId, issuerBasePrams)
+      moveAssetParams(assetId, '0', custodyPortfolioId, issuerBasePrams)
     );
 
-    expect(result).toEqual(
-      assertTagPresent(expect, "portfolio.movePortfolioFunds")
-    );
+    expect(result).toEqual(assertTagPresent(expect, 'portfolio.movePortfolioFunds'));
 
-    const portfolio = await restClient.portfolios.getPortfolio(
-      issuer.did,
-      custodyPortfolioId
-    );
+    const portfolio = await restClient.portfolios.getPortfolio(issuer.did, custodyPortfolioId);
 
     expect(portfolio).toEqual(
       expect.objectContaining({
@@ -124,9 +108,9 @@ describe("Portfolio Asset Transfers", () => {
         assetBalances: [
           {
             asset: assetId,
-            free: "1000",
-            locked: "0",
-            total: "1000",
+            free: '1000',
+            locked: '0',
+            total: '1000',
           },
         ],
         id: custodyPortfolioId,
@@ -136,22 +120,17 @@ describe("Portfolio Asset Transfers", () => {
     );
   });
 
-  it("should allow custodian to transfer the asset to the default portfolio", async () => {
+  it('should allow custodian to transfer the asset to the default portfolio', async () => {
     const result = await restClient.portfolios.moveAssets(
       issuer.did,
-      moveAssetParams(assetId, custodyPortfolioId, "0", custodianBaseParams)
+      moveAssetParams(assetId, custodyPortfolioId, '0', custodianBaseParams)
     );
 
-    expect(result).toEqual(
-      assertTagPresent(expect, "portfolio.movePortfolioFunds")
-    );
+    expect(result).toEqual(assertTagPresent(expect, 'portfolio.movePortfolioFunds'));
 
     await awaitMiddlewareSyncedForRestApi(result, restClient);
 
-    const portfolio = await restClient.portfolios.getPortfolio(
-      issuer.did,
-      custodyPortfolioId
-    );
+    const portfolio = await restClient.portfolios.getPortfolio(issuer.did, custodyPortfolioId);
 
     expect(portfolio).toEqual(
       expect.objectContaining({
@@ -165,10 +144,7 @@ describe("Portfolio Asset Transfers", () => {
   });
 
   it("should have created transaction history for the asset's transfer", async () => {
-    const result = await restClient.portfolios.getTransactionHistory(
-      issuer.did,
-      "0"
-    );
+    const result = await restClient.portfolios.getTransactionHistory(issuer.did, '0');
 
     expect(result.results).toEqual(
       expect.arrayContaining([
@@ -176,13 +152,13 @@ describe("Portfolio Asset Transfers", () => {
           legs: [
             expect.objectContaining({
               asset: assetId,
-              amount: "1000",
+              amount: '1000',
               from: {
                 did: issuer.did,
               },
               to: {
                 did: issuer.did,
-                id: "1",
+                id: '1',
               },
             }),
           ],
@@ -191,10 +167,10 @@ describe("Portfolio Asset Transfers", () => {
           legs: [
             expect.objectContaining({
               asset: assetId,
-              amount: "1000",
+              amount: '1000',
               from: {
                 did: issuer.did,
-                id: "1",
+                id: '1',
               },
               to: {
                 did: issuer.did,

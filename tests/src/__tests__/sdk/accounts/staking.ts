@@ -1,13 +1,13 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { Account } from "@polymeshassociation/polymesh-sdk/types";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { Account } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
+import { TestFactory } from '~/helpers';
 
 let factory: TestFactory;
-const handles = ["stash", "controller", "payee"];
+const handles = ['stash', 'controller', 'payee'];
 
-describe("staking", () => {
+describe('staking', () => {
   let sdk: Polymesh;
   let stash: Account;
   let controller: Account;
@@ -30,11 +30,7 @@ describe("staking", () => {
       mnemonic: payeeMnemonic,
     });
 
-    await factory.createIdentityForAddresses([
-      stashAddress,
-      controllerAddress,
-      payeeAddress,
-    ]);
+    await factory.createIdentityForAddresses([stashAddress, controllerAddress, payeeAddress]);
 
     [stash, controller, payee] = await Promise.all([
       sdk.accountManagement.getAccount({ address: stashAddress }),
@@ -47,7 +43,7 @@ describe("staking", () => {
     await factory.close();
   });
 
-  it("should allow an account to bond polyx", async () => {
+  it('should allow an account to bond polyx', async () => {
     const bondTx = await sdk.staking.bond(
       {
         amount: new BigNumber(10),
@@ -72,7 +68,7 @@ describe("staking", () => {
     expect(currentLedger?.stash.address).toEqual(stash.address);
   });
 
-  it("should allow for a controller to be reassigned", async () => {
+  it('should allow for a controller to be reassigned', async () => {
     const setControllerTx = await sdk.staking.setController(
       { controller },
       { signingAccount: stash }
@@ -84,7 +80,7 @@ describe("staking", () => {
     expect(currentController?.address).toEqual(controller.address);
   });
 
-  it("should allow for a payee to be reassigned", async () => {
+  it('should allow for a payee to be reassigned', async () => {
     const setPayeeTx = await sdk.staking.setPayee(
       { payee, autoStake: false },
       { signingAccount: controller }
@@ -97,7 +93,7 @@ describe("staking", () => {
     expect(currentPayee?.autoStaked).toEqual(false);
   });
 
-  it("should allow for the stash to bond extra", async () => {
+  it('should allow for the stash to bond extra', async () => {
     const ledgerBefore = await controller.staking.getLedger();
 
     const bondMoreTx = await sdk.staking.bondExtra(
@@ -112,7 +108,7 @@ describe("staking", () => {
     expect(ledgerBefore?.total.plus(5)).toEqual(ledgerAfter?.total);
   });
 
-  it("should allow for a controller to unbond", async () => {
+  it('should allow for a controller to unbond', async () => {
     const unbondTx = await sdk.staking.unbond(
       { amount: new BigNumber(10) },
       { signingAccount: controller }
@@ -121,13 +117,13 @@ describe("staking", () => {
     await expect(unbondTx.run()).resolves.not.toThrow();
   });
 
-  it("should allow for the controller to call withdraw", async () => {
+  it('should allow for the controller to call withdraw', async () => {
     const withdraw = await sdk.staking.withdraw({ signingAccount: controller });
 
     await expect(withdraw.run()).resolves.not.toThrow();
   });
 
-  it("should be able to get network staking info", async () => {
+  it('should be able to get network staking info', async () => {
     const result = await sdk.staking.eraInfo();
 
     expect(result).toEqual({
@@ -139,7 +135,7 @@ describe("staking", () => {
     });
   });
 
-  it("should fetch validators", async () => {
+  it('should fetch validators', async () => {
     const validators = await sdk.staking.getValidators();
 
     expect(validators).toEqual(

@@ -1,20 +1,16 @@
-import { encodeAddress } from "@polkadot/util-crypto";
-import { assert } from "console";
-import fetch from "cross-fetch";
-import { join } from "path";
+import { encodeAddress } from '@polkadot/util-crypto';
+import { assert } from 'console';
+import fetch from 'cross-fetch';
+import { join } from 'path';
 
-import { GetVaultKeyResponse, VaultKey } from "~/vault/interfaces";
+import { GetVaultKeyResponse, VaultKey } from '~/vault/interfaces';
 
 export class VaultClient {
-  constructor(
-    public baseUrl: string,
-    public transitPath: string,
-    private vaultToken: string
-  ) {}
+  constructor(public baseUrl: string, public transitPath: string, private vaultToken: string) {}
 
   public async createKey(name: string): Promise<VaultKey> {
-    await this.post(`/keys/${name}`, { type: "ed25519" }).catch((err) =>
-      console.info("could not create vault key: ", name, err)
+    await this.post(`/keys/${name}`, { type: 'ed25519' }).catch((err) =>
+      console.info('could not create vault key: ', name, err)
     );
     return await this.getAddress(name);
   }
@@ -22,7 +18,7 @@ export class VaultClient {
   public async updateKey(name: string, deletable: boolean): Promise<void> {
     await this.post(`/keys/${name}/config`, {
       deletion_allowed: deletable,
-    }).catch((err) => console.info("could not update vault key", name, err));
+    }).catch((err) => console.info('could not update vault key', name, err));
   }
 
   /**
@@ -37,9 +33,7 @@ export class VaultClient {
 
     const latestVersion = response.data.latest_version;
     const { public_key: publicKey } = response.data.keys[latestVersion];
-    const hexPublicKey = `0x${Buffer.from(publicKey, "base64").toString(
-      "hex"
-    )}`;
+    const hexPublicKey = `0x${Buffer.from(publicKey, 'base64').toString('hex')}`;
     const address = encodeAddress(hexPublicKey);
     const signer = `${name}-${latestVersion}`;
 
@@ -48,24 +42,21 @@ export class VaultClient {
 
   public async get<T = unknown>(path: string): Promise<T> {
     const url = new URL(join(this.transitPath, path), this.baseUrl).href;
-    const method = "GET";
+    const method = 'GET';
 
     return this.fetch(url, method) as Promise<T>;
   }
 
-  public async post<T = unknown>(
-    path: string,
-    body: Record<string, unknown>
-  ): Promise<T> {
+  public async post<T = unknown>(path: string, body: Record<string, unknown>): Promise<T> {
     const url = new URL(join(this.transitPath, path), this.baseUrl).href;
-    const method = "POST";
+    const method = 'POST';
 
     return this.fetch(url, method, body) as Promise<T>;
   }
 
   public async delete<T = unknown>(path: string): Promise<T> {
     const url = new URL(join(this.transitPath, path), this.baseUrl).href;
-    const method = "DELETE";
+    const method = 'DELETE';
 
     return this.fetch(url, method) as Promise<T>;
   }
@@ -82,8 +73,8 @@ export class VaultClient {
     const body = reqBody ? JSON.stringify(reqBody) : undefined;
     const response = await fetch(url, {
       headers: [
-        ["Content-Type", "application/json"],
-        ["X-Vault-Token", this.vaultToken],
+        ['Content-Type', 'application/json'],
+        ['X-Vault-Token', this.vaultToken],
       ],
       method,
       body,

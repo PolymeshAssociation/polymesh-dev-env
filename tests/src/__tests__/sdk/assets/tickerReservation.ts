@@ -1,11 +1,11 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 
-import { TestFactory } from "~/helpers";
-import { tickerReservation } from "~/sdk/assets/tickerReservation";
+import { TestFactory } from '~/helpers';
+import { tickerReservation } from '~/sdk/assets/tickerReservation';
 
 let factory: TestFactory;
 
-describe("tickerReservation", () => {
+describe('tickerReservation', () => {
   let ticker: string;
   let sdk: Polymesh;
 
@@ -20,7 +20,7 @@ describe("tickerReservation", () => {
     await factory.close();
   });
 
-  it("should execute tickerReservation without errors", async () => {
+  it('should execute tickerReservation without errors', async () => {
     await expect(tickerReservation(sdk, ticker)).resolves.not.toThrow();
   });
 });

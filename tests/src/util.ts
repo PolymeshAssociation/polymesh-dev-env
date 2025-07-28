@@ -1,18 +1,16 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
   GenericPolymeshTransaction,
   TransactionStatus,
-} from "@polymeshassociation/polymesh-sdk/types";
+} from '@polymeshassociation/polymesh-sdk/types';
 
-import { RestClient } from "~/rest";
-import { PostResult } from "~/rest/interfaces";
+import { RestClient } from '~/rest';
+import { PostResult } from '~/rest/interfaces';
 
-export const alphabet = [...Array(26)].map((val, i) =>
-  String.fromCharCode(i + 65)
-);
+export const alphabet = [...Array(26)].map((val, i) => String.fromCharCode(i + 65));
 
 export const randomNonce = (digits: number): string => {
-  let output = "";
+  let output = '';
   for (let i = 0; i < digits; ++i) {
     output += Math.floor(Math.random() * 10).toString(10);
   }
@@ -25,7 +23,7 @@ export const randomString = (length = 6, adjust = 0): string => {
   // Ensure that the adjustment wraps around within the range of possible hash values for the given length
   const hashValue = timestamp + (adjust % Math.pow(26, length));
 
-  let result = "";
+  let result = '';
   let number = hashValue;
 
   for (let i = 0; i < length; i++) {
@@ -62,12 +60,8 @@ export const awaitMiddlewareSynced = async (
   retries = 15,
   delay = 2000
 ): Promise<void> => {
-  if (
-    ![TransactionStatus.Succeeded, TransactionStatus.Failed].includes(tx.status)
-  ) {
-    throw new Error(
-      "Transaction was not successful or failed and does not have a block number"
-    );
+  if (![TransactionStatus.Succeeded, TransactionStatus.Failed].includes(tx.status)) {
+    throw new Error('Transaction was not successful or failed and does not have a block number');
   }
 
   const txBlock = tx.blockNumber as BigNumber;
@@ -110,8 +104,8 @@ export const awaitMiddlewareSyncedForRestApi = async (
   retries = 15,
   delay = 6000
 ): Promise<void> => {
-  if (!("transactions" in result)) {
-    throw new Error("Transaction was not successful or failed");
+  if (!('transactions' in result)) {
+    throw new Error('Transaction was not successful or failed');
   }
 
   const { transactions } = result;
@@ -121,19 +115,10 @@ export const awaitMiddlewareSyncedForRestApi = async (
   for (let i = 0; i < retries; i++) {
     try {
       const metadata = await restClient.network.getMiddlewareMetadata();
-      const latestBlock = (metadata as { lastProcessedHeight: string })
-        ?.lastProcessedHeight;
+      const latestBlock = (metadata as { lastProcessedHeight: string })?.lastProcessedHeight;
 
-      if (
-        latestBlock &&
-        new BigNumber(latestBlock).gte(new BigNumber(txBlock))
-      ) {
-        if (
-          new BigNumber(latestBlock).gte(
-            new BigNumber(txBlock).plus(bufferBlocks)
-          ) ||
-          i === 5
-        ) {
+      if (latestBlock && new BigNumber(latestBlock).gte(new BigNumber(txBlock))) {
+        if (new BigNumber(latestBlock).gte(new BigNumber(txBlock).plus(bufferBlocks)) || i === 5) {
           // this is a hacky way to get middleware to wait on syncing instruction execution event for SettleOnAffirmation type instruction
           return;
         }
@@ -155,4 +140,5 @@ export const awaitMiddlewareSyncedForRestApi = async (
  * @param days - The number of days to add to the current date
  * @returns The date in the future
  */
-export const getDayInFuture = (days: number) => new Date(Date.now() + 1000 * 60 * 60 * 24 * days)
+export const getDayInFuture = (days: number): Date =>
+  new Date(Date.now() + 1000 * 60 * 60 * 24 * days);

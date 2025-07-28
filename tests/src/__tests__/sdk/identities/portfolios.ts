@@ -1,13 +1,13 @@
-import { BigNumber, Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { managePortfolios } from "~/sdk/identities/portfolios";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { managePortfolios } from '~/sdk/identities/portfolios';
 
 let factory: TestFactory;
 
-describe("managePortfolios", () => {
+describe('managePortfolios', () => {
   let sdk: Polymesh;
   let asset: FungibleAsset;
 
@@ -22,7 +22,7 @@ describe("managePortfolios", () => {
     await factory.close();
   });
 
-  it("should execute managePortfolios without errors", async () => {
+  it('should execute managePortfolios without errors', async () => {
     await expect(managePortfolios(sdk, asset)).resolves.not.toThrow();
   });
 });

@@ -1,14 +1,14 @@
-import { expectBasicTxInfo } from "~/__tests__/rest/utils";
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { assetMediatorsParams, createAssetParams } from "~/rest/assets";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
+import { expectBasicTxInfo } from '~/__tests__/rest/utils';
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { assetMediatorsParams, createAssetParams } from '~/rest/assets';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer"];
+const handles = ['issuer'];
 let factory: TestFactory;
 
-describe("AssetDocument", () => {
+describe('AssetDocument', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -32,7 +32,7 @@ describe("AssetDocument", () => {
     await factory.close();
   });
 
-  it("should add asset mediators", async () => {
+  it('should add asset mediators', async () => {
     const params = assetMediatorsParams([issuer.did], {
       options: { processMode: ProcessMode.Submit, signer },
     });
@@ -41,15 +41,15 @@ describe("AssetDocument", () => {
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "asset.addMandatoryMediators",
-          type: "single",
+          transactionTag: 'asset.addMandatoryMediators',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),
     });
   });
 
-  it("should get the asset mediators", async () => {
+  it('should get the asset mediators', async () => {
     const result = await restClient.assets.getAssetMediators(assetId);
 
     expect(result).toEqual(
@@ -59,21 +59,18 @@ describe("AssetDocument", () => {
     );
   });
 
-  it("should remove asset mediators", async () => {
+  it('should remove asset mediators', async () => {
     const params = assetMediatorsParams([issuer.did], {
       options: { processMode: ProcessMode.Submit, signer },
     });
 
-    const txData = await restClient.assets.removeAssetMediators(
-      assetId,
-      params
-    );
+    const txData = await restClient.assets.removeAssetMediators(assetId, params);
 
     expect(txData).toMatchObject({
       transactions: expect.arrayContaining([
         {
-          transactionTag: "asset.removeMandatoryMediators",
-          type: "single",
+          transactionTag: 'asset.removeMandatoryMediators',
+          type: 'single',
           ...expectBasicTxInfo,
         },
       ]),

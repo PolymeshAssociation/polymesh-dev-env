@@ -1,13 +1,13 @@
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
-import { FungibleAsset } from "@polymeshassociation/polymesh-sdk/types";
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { createAsset } from "~/sdk/assets/createAsset";
-import { manageMetadata } from "~/sdk/assets/manageMetadata";
+import { TestFactory } from '~/helpers';
+import { createAsset } from '~/sdk/assets/createAsset';
+import { manageMetadata } from '~/sdk/assets/manageMetadata';
 
 let factory: TestFactory;
 
-describe("manageMetadata", () => {
+describe('manageMetadata', () => {
   let asset: FungibleAsset;
   let sdk: Polymesh;
 
@@ -22,7 +22,7 @@ describe("manageMetadata", () => {
     await factory.close();
   });
 
-  it("should execute manageMetadata without errors", async () => {
+  it('should execute manageMetadata without errors', async () => {
     await manageMetadata(sdk, asset);
   });
 });

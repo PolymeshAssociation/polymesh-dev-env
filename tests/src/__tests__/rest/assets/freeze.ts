@@ -1,15 +1,15 @@
-import { TransferError } from "@polymeshassociation/polymesh-sdk/types";
+import { TransferError } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import { createAssetParams } from "~/rest/assets/params";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams } from '~/rest/assets/params';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer", "recipient"];
+const handles = ['issuer', 'recipient'];
 let factory: TestFactory;
 
-describe("Freeze/unfreeze Asset", () => {
+describe('Freeze/unfreeze Asset', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -34,7 +34,7 @@ describe("Freeze/unfreeze Asset", () => {
     await factory.close();
   });
 
-  it("should create and fetch the Asset", async () => {
+  it('should create and fetch the Asset', async () => {
     assetId = await restClient.assets.createAndGetAssetId(assetParams);
 
     const asset = await restClient.assets.getAsset(assetId);
@@ -49,12 +49,12 @@ describe("Freeze/unfreeze Asset", () => {
     });
   });
 
-  it("should have issued the asset to the Default portfolio of the issuer", async () => {
-    const result = await restClient.portfolios.getPortfolio(issuer.did, "0");
+  it('should have issued the asset to the Default portfolio of the issuer', async () => {
+    const result = await restClient.portfolios.getPortfolio(issuer.did, '0');
 
     expect(result).toEqual(
       expect.objectContaining({
-        name: "default",
+        name: 'default',
         assetBalances: [
           {
             asset: assetId,
@@ -63,13 +63,13 @@ describe("Freeze/unfreeze Asset", () => {
             total: expect.any(String),
           },
         ],
-        id: "0",
+        id: '0',
         owner: issuer.did,
       })
     );
   });
 
-  it("should freeze the Asset and get the isFrozen state as true", async () => {
+  it('should freeze the Asset and get the isFrozen state as true', async () => {
     await restClient.assets.freeze(assetId, assetParams);
 
     const asset = await restClient.assets.getAsset(assetId);
@@ -81,14 +81,14 @@ describe("Freeze/unfreeze Asset", () => {
     });
   });
 
-  it("should not allow transfers when frozen", async () => {
+  it('should not allow transfers when frozen', async () => {
     const result = await restClient.settlements.validateLeg({
       asset: assetId,
       fromDid: issuer.did,
       toDid: recipient.did,
-      amount: "100",
-      fromPortfolio: "0",
-      toPortfolio: "0",
+      amount: '100',
+      fromPortfolio: '0',
+      toPortfolio: '0',
     });
 
     expect(result).toMatchObject({
@@ -97,7 +97,7 @@ describe("Freeze/unfreeze Asset", () => {
     });
   });
 
-  it("should unfreeze the Asset and get the isFrozen state as false", async () => {
+  it('should unfreeze the Asset and get the isFrozen state as false', async () => {
     await restClient.assets.unfreeze(assetId, assetParams);
 
     const asset = await restClient.assets.getAsset(assetId);
@@ -109,14 +109,14 @@ describe("Freeze/unfreeze Asset", () => {
     });
   });
 
-  it("should allow transfers when asset is unfrozen", async () => {
+  it('should allow transfers when asset is unfrozen', async () => {
     const result = await restClient.settlements.validateLeg({
       asset: assetId,
       fromDid: issuer.did,
       toDid: recipient.did,
-      amount: "100",
-      fromPortfolio: "0",
-      toPortfolio: "0",
+      amount: '100',
+      fromPortfolio: '0',
+      toPortfolio: '0',
     });
 
     expect(result).toMatchObject({

@@ -1,17 +1,13 @@
-import { TestFactory } from "~/helpers";
-import { RestClient } from "~/rest";
-import {
-  createAssetParams,
-  createMetadataParams,
-  setMetadataParams,
-} from "~/rest/assets";
-import { ProcessMode } from "~/rest/common";
-import { Identity } from "~/rest/identities/interfaces";
+import { TestFactory } from '~/helpers';
+import { RestClient } from '~/rest';
+import { createAssetParams, createMetadataParams, setMetadataParams } from '~/rest/assets';
+import { ProcessMode } from '~/rest/common';
+import { Identity } from '~/rest/identities/interfaces';
 
-const handles = ["issuer"];
+const handles = ['issuer'];
 let factory: TestFactory;
 
-describe("Metadata", () => {
+describe('Metadata', () => {
   let restClient: RestClient;
   let signer: string;
   let issuer: Identity;
@@ -35,7 +31,7 @@ describe("Metadata", () => {
     await factory.close();
   });
 
-  it("should list the global metadata", async () => {
+  it('should list the global metadata', async () => {
     const result = await restClient.assets.getGlobalMetadata();
 
     expect(result).toEqual(
@@ -52,7 +48,7 @@ describe("Metadata", () => {
     );
   });
 
-  it("should set an Assets metadata", async () => {
+  it('should set an Assets metadata', async () => {
     const params = createMetadataParams({
       options: { processMode: ProcessMode.Submit, signer },
     });
@@ -62,14 +58,14 @@ describe("Metadata", () => {
       expect.objectContaining({
         metadata: {
           asset,
-          id: "1",
-          type: "Local",
+          id: '1',
+          type: 'Local',
         },
       })
     );
   });
 
-  it("should get an Assets metadata", async () => {
+  it('should get an Assets metadata', async () => {
     const result = await restClient.assets.getMetadata(asset);
 
     expect(result).toEqual({
@@ -83,46 +79,41 @@ describe("Metadata", () => {
     });
   });
 
-  it("should update metadata", async () => {
+  it('should update metadata', async () => {
     const params = setMetadataParams({
       options: { processMode: ProcessMode.Submit, signer },
     });
 
-    const result = await restClient.assets.setMetadataValue(
-      asset,
-      "Local",
-      "1",
-      params
-    );
+    const result = await restClient.assets.setMetadataValue(asset, 'Local', '1', params);
 
     expect(result).toEqual(
       expect.objectContaining({
         transactions: expect.arrayContaining([
           expect.objectContaining({
-            transactionTag: "asset.setAssetMetadata",
-            type: "single",
+            transactionTag: 'asset.setAssetMetadata',
+            type: 'single',
           }),
         ]),
       })
     );
   });
 
-  it("should get metadata by id", async () => {
-    const result = await restClient.assets.getMetadataById(asset, "Local", "1");
+  it('should get metadata by id', async () => {
+    const result = await restClient.assets.getMetadataById(asset, 'Local', '1');
 
     expect(result).toEqual(
       expect.objectContaining({
         asset,
-        id: "1",
+        id: '1',
         specs: {
-          description: "Some description",
-          url: "https://example.com",
+          description: 'Some description',
+          url: 'https://example.com',
         },
-        type: "Local",
+        type: 'Local',
         value: {
-          value: "Set Value",
-          lockStatus: "LockedUntil",
-          lockedUntil: "2030-05-23T00:00:00.000Z",
+          value: 'Set Value',
+          lockStatus: 'LockedUntil',
+          lockedUntil: '2030-05-23T00:00:00.000Z',
           expiry: null,
         },
       })

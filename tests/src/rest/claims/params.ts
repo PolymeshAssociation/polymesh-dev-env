@@ -1,6 +1,6 @@
-import { ClaimType } from "@polymeshassociation/polymesh-sdk/types";
+import { ClaimType } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TxBase, TxExtras } from "~/rest/common";
+import { TxBase, TxExtras } from '~/rest/common';
 
 type Claim = {
   target: string;
@@ -28,11 +28,7 @@ export type CreateClaimParams = {
   extras?: TxExtras;
 };
 
-export const registerCustomClaimTypeParams = (
-  name: string,
-  base: TxBase,
-  extras: TxExtras = {}
-) =>
+export const registerCustomClaimTypeParams = (name: string, base: TxBase, extras: TxExtras = {}) =>
   ({
     name,
     ...extras,

@@ -1,12 +1,12 @@
-import { LocalSigningManager } from "@polymeshassociation/local-signing-manager";
-import { Polymesh } from "@polymeshassociation/polymesh-sdk";
+import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 
-import { TestFactory } from "~/helpers";
-import { portfolioCustody } from "~/sdk/identities/portfolioCustody";
+import { TestFactory } from '~/helpers';
+import { portfolioCustody } from '~/sdk/identities/portfolioCustody';
 
 let factory: TestFactory;
 
-describe("portfolioCustody", () => {
+describe('portfolioCustody', () => {
   let sdk: Polymesh;
   let custodianDid: string;
 
@@ -26,7 +26,7 @@ describe("portfolioCustody", () => {
     await factory.close();
   });
 
-  it("should execute portfolioCustody without errors", async () => {
+  it('should execute portfolioCustody without errors', async () => {
     await expect(portfolioCustody(sdk, custodianDid)).resolves.not.toThrow();
   });
 });

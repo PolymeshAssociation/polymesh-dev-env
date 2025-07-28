@@ -3,9 +3,9 @@ import {
   ConditionTarget,
   ConditionType,
   ScopeType,
-} from "@polymeshassociation/polymesh-sdk/types";
+} from '@polymeshassociation/polymesh-sdk/types';
 
-import { TxBase, TxExtras } from "~/rest/common";
+import { TxBase, TxExtras } from '~/rest/common';
 
 type ClaimParams = {
   type: ClaimType;
@@ -26,7 +26,7 @@ export const bothConditionsRequirements = (
   issuer: string,
   asset: string,
   blockedIdentity: string,
-  blockedJurisdiction: string,
+  blockedJurisdiction: string
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Both,
@@ -42,16 +42,11 @@ export const bothConditionsRequirements = (
         code: blockedJurisdiction,
       },
     ],
-    trustedClaimIssuers: [
-      { trustedFor: [ClaimType.Blocked], identity: issuer },
-    ],
+    trustedClaimIssuers: [{ trustedFor: [ClaimType.Blocked], identity: issuer }],
   },
 ];
 
-export const kycRequirements = (
-  asset: string,
-  trustedIdentity: string,
-): ConditionParams[] => [
+export const kycRequirements = (asset: string, trustedIdentity: string): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
     type: ConditionType.IsPresent,
@@ -71,7 +66,7 @@ export const kycRequirements = (
 export const blockedJurisdictionRequirements = (
   asset: string,
   trustedIdentity: string,
-  code: string,
+  code: string
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
@@ -92,7 +87,7 @@ export const blockedJurisdictionRequirements = (
 
 export const blockedIdentityRequirements = (
   asset: string,
-  targetIdentity: string,
+  targetIdentity: string
 ): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
@@ -110,9 +105,7 @@ export const blockedIdentityRequirements = (
   },
 ];
 
-export const receiverConditionsRequirements = (
-  identity: string,
-): ConditionParams[] => [
+export const receiverConditionsRequirements = (identity: string): ConditionParams[] => [
   {
     target: ConditionTarget.Receiver,
     type: ConditionType.IsIdentity,
@@ -120,9 +113,7 @@ export const receiverConditionsRequirements = (
   },
 ];
 
-export const senderConditionsRequirements = (
-  identity: string,
-): ConditionParams[] => [
+export const senderConditionsRequirements = (identity: string): ConditionParams[] => [
   {
     target: ConditionTarget.Sender,
     type: ConditionType.IsIdentity,
@@ -133,21 +124,21 @@ export const senderConditionsRequirements = (
 export const complianceRequirementsParams = (
   requirements: ConditionParams[][],
   base: TxBase,
-  extras: TxExtras = {},
+  extras: TxExtras = {}
 ) =>
   ({
     requirements,
     ...extras,
     ...base,
-  }) as const;
+  } as const);
 
 export const complianceRequirementParams = (
   conditions: ConditionParams[],
   base: TxBase,
-  extras: TxExtras = {},
+  extras: TxExtras = {}
 ) =>
   ({
     conditions,
     ...extras,
     ...base,
-  }) as const;
+  } as const);
