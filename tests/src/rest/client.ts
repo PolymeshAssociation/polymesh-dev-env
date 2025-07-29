@@ -6,6 +6,7 @@ import { Claims } from '~/rest/claims/client';
 import { TxBase } from '~/rest/common';
 import { Compliance } from '~/rest/compliance';
 import { Identities } from '~/rest/identities';
+import { MultiSigs } from '~/rest/multiSigs';
 import { Network } from '~/rest/network';
 import { Nfts } from '~/rest/nfts';
 import { Portfolios } from '~/rest/portfolios';
@@ -21,6 +22,7 @@ export class RestClient {
   public nfts: Nfts;
   public compliance: Compliance;
   public identities: Identities;
+  public multiSigs: MultiSigs;
   public settlements: Settlements;
   public subsidy: Subsidy;
   public tickerReservations: TickerReservations;
@@ -35,6 +37,7 @@ export class RestClient {
     this.nfts = new Nfts(this);
     this.compliance = new Compliance(this);
     this.identities = new Identities(this);
+    this.multiSigs = new MultiSigs(this);
     this.settlements = new Settlements(this);
     this.subsidy = new Subsidy(this);
     this.tickerReservations = new TickerReservations(this);
