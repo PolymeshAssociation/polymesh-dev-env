@@ -1,5 +1,5 @@
 import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
-import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
+import { Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
 import { TestFactory } from '~/helpers';

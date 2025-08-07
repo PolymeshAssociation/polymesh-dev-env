@@ -8,10 +8,11 @@ import {
   setAssetDocumentParams,
   setMetadataParams,
   transferAssetOwnershipParams,
+  controllerTransferParams,
 } from '~/rest/assets/params';
 import { RestClient } from '~/rest/client';
 import { TxBase } from '~/rest/common';
-import { PostResult, RestSuccessResult } from '~/rest/interfaces';
+import { PostResult, ResultSet, RestSuccessResult } from '~/rest/interfaces';
 
 export class Assets {
   constructor(private client: RestClient) {}
@@ -132,5 +133,13 @@ export class Assets {
 
   public async unfreeze(asset: string, params: TxBase): Promise<PostResult> {
     return this.client.post(`assets/${asset}/unfreeze`, { ...params });
+  }
+
+  public async controllerTransfer(asset: string, params: ReturnType<typeof controllerTransferParams>): Promise<PostResult> {
+    return this.client.post(`assets/${asset}/controller-transfer`, params);
+  }
+
+  public async getAssetHolders(asset: string): Promise<ResultSet<Record<string, unknown>>> {
+    return this.client.get(`assets/${asset}/holders`);
   }
 }
