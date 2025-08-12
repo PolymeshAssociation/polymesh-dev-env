@@ -13,7 +13,8 @@ export const fungibleInstructionParams = (
   from: string,
   to: string,
   base: TxBase,
-  extras: TxExtras = {}
+  extras: TxExtras = {},
+  endAfterBlock?: string
 ) =>
   ({
     memo: 'Testing settlements',
@@ -32,6 +33,7 @@ export const fungibleInstructionParams = (
         asset: assetId,
       },
     ],
+    endAfterBlock,
     ...extras,
     ...base,
   } as const);

@@ -20,6 +20,7 @@ export interface PolymeshLocalSettings {
 
 export interface ResultSet<T> {
   results: T[];
+  total: string;
 }
 interface SingleResult {
   type: 'single';
