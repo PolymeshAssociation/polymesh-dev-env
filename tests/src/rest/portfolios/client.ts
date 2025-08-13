@@ -1,7 +1,7 @@
 import { RestClient } from '~/rest/client';
 import { TxBase } from '~/rest/common';
 import { PostResult, ResultSet } from '~/rest/interfaces';
-import { CreatedPortfolioResult } from '~/rest/portfolios/interfaces';
+import { CreatedPortfolioResult, PortfolioInfoResult } from '~/rest/portfolios/interfaces';
 import { moveAssetParams, portfolioParams, setCustodianParams } from '~/rest/portfolios/params';
 
 export class Portfolios {
@@ -44,7 +44,7 @@ export class Portfolios {
     return this.client.get(`/identities/${did}/custodied-portfolios`);
   }
 
-  public async getPortfolio(did: string, portfolioId: string): Promise<Record<string, unknown>> {
+  public async getPortfolio(did: string, portfolioId: string): Promise<PortfolioInfoResult> {
     return this.client.get(`/identities/${did}/portfolios/${portfolioId}`);
   }
 

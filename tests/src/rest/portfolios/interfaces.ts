@@ -6,3 +6,14 @@ export type CreatedPortfolioResult = RestSuccessResult & {
     id: string;
   };
 };
+
+export type PortfolioInfoResult = {
+  id: string;
+  name: string;
+  assetBalances: {
+    total: string;
+    free: string;
+    locked: string;
+    asset: string;
+  }[];
+};
