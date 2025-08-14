@@ -16,4 +16,5 @@ export type PortfolioInfoResult = {
     locked: string;
     asset: string;
   }[];
+  custodian?: string;
 };
