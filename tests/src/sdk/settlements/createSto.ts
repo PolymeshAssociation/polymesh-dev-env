@@ -4,6 +4,7 @@ import {
   OfferingBalanceStatus,
   OfferingSaleStatus,
   OfferingTimingStatus,
+  SignerKeyRingType,
   VenueType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import assert from 'node:assert';
@@ -122,6 +123,45 @@ export const createSto = async (
 
   await investTx.run();
   assert(investTx.isSuccess);
+
+  let offChainFundingDetails = await investableOffering.offChainFundingDetails();
+  assert(offChainFundingDetails.enabled === false, 'off chain funding should be disabled');
+
+  const enableOffChainFundingTx = await investableOffering.enableOffChainFunding({
+    offChainTicker: 'OFFCHAIN1234',
+  });
+  await enableOffChainFundingTx.run();
+  assert(enableOffChainFundingTx.isSuccess);
+
+  offChainFundingDetails = await investableOffering.offChainFundingDetails();
+  assert(offChainFundingDetails.enabled === true, 'off chain funding should be enabled');
+  assert(
+    offChainFundingDetails.offChainTicker === 'OFFCHAIN1234',
+    'off chain funding should be enabled'
+  );
+
+  const authChainFundingReceipt = await investableOffering.generateOffChainFundingReceipt({
+    uid: new BigNumber(1),
+    offChainTicker: 'OFFCHAIN1234',
+    amount: new BigNumber(100),
+    sender: investor,
+    metadata: 'Off chain metadata',
+    signer: investorAccount,
+  });
+
+  const offChainInvestTx = await investableOffering.invest(
+    {
+      offChainTicker: 'OFFCHAIN1234',
+      offChainFundingReceipt: authChainFundingReceipt,
+      purchasePortfolio: investorPortfolio,
+      purchaseAmount: new BigNumber(10),
+      maxPrice: new BigNumber(11),
+    },
+    { signingAccount: investorAccount }
+  );
+
+  await offChainInvestTx.run();
+  assert(offChainInvestTx.isSuccess);
 
   // Freeze the offering
   const freezeTx = await offering.freeze();
