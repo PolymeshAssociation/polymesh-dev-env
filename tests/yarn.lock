@@ -1026,57 +1026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/api@npm:15.10.2":
-  version: 15.10.2
-  resolution: "@polkadot/api@npm:15.10.2"
-  dependencies:
-    "@polkadot/api-augment": "npm:15.10.2"
-    "@polkadot/api-base": "npm:15.10.2"
-    "@polkadot/api-derive": "npm:15.10.2"
-    "@polkadot/keyring": "npm:^13.4.4"
-    "@polkadot/rpc-augment": "npm:15.10.2"
-    "@polkadot/rpc-core": "npm:15.10.2"
-    "@polkadot/rpc-provider": "npm:15.10.2"
-    "@polkadot/types": "npm:15.10.2"
-    "@polkadot/types-augment": "npm:15.10.2"
-    "@polkadot/types-codec": "npm:15.10.2"
-    "@polkadot/types-create": "npm:15.10.2"
-    "@polkadot/types-known": "npm:15.10.2"
-    "@polkadot/util": "npm:^13.4.4"
-    "@polkadot/util-crypto": "npm:^13.4.4"
-    eventemitter3: "npm:^5.0.1"
-    rxjs: "npm:^7.8.1"
-    tslib: "npm:^2.8.1"
-  checksum: 10c0/420c8dd2c22e740d9a913f3cc377b4d099bb993691c86bce1e131669493a0111397f04446e4df079f65835e6486b1b318c4fbdcf741276f7bf9585592cec0b19
-  languageName: node
-  linkType: hard
-
-"@polkadot/api@npm:^11.2.1":
-  version: 11.3.1
-  resolution: "@polkadot/api@npm:11.3.1"
-  dependencies:
-    "@polkadot/api-augment": "npm:11.3.1"
-    "@polkadot/api-base": "npm:11.3.1"
-    "@polkadot/api-derive": "npm:11.3.1"
-    "@polkadot/keyring": "npm:^12.6.2"
-    "@polkadot/rpc-augment": "npm:11.3.1"
-    "@polkadot/rpc-core": "npm:11.3.1"
-    "@polkadot/rpc-provider": "npm:11.3.1"
-    "@polkadot/types": "npm:11.3.1"
-    "@polkadot/types-augment": "npm:11.3.1"
-    "@polkadot/types-codec": "npm:11.3.1"
-    "@polkadot/types-create": "npm:11.3.1"
-    "@polkadot/types-known": "npm:11.3.1"
-    "@polkadot/util": "npm:^12.6.2"
-    "@polkadot/util-crypto": "npm:^12.6.2"
-    eventemitter3: "npm:^5.0.1"
-    rxjs: "npm:^7.8.1"
-    tslib: "npm:^2.6.2"
-  checksum: 10c0/160842649ffc28486a157056127c0f2231860ca1b7b7980b6f49365fd8030dccc8978f881c544d9211a0c94a988059b330f58de93ef2143bc657953b3ab05074
-  languageName: node
-  linkType: hard
-
-"@polkadot/keyring@npm:12.6.2":
+"@polkadot/keyring@npm:^12.6.2":
   version: 12.6.2
   resolution: "@polkadot/keyring@npm:12.6.2"
   dependencies:
@@ -1090,7 +1040,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/networks@npm:12.6.2":
+"@polkadot/networks@npm:12.6.2, @polkadot/networks@npm:^12.6.2":
   version: 12.6.2
   resolution: "@polkadot/networks@npm:12.6.2"
   dependencies:
@@ -1226,7 +1176,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/util-crypto@npm:12.6.2":
+"@polkadot/util-crypto@npm:12.6.2, @polkadot/util-crypto@npm:^12.6.2":
   version: 12.6.2
   resolution: "@polkadot/util-crypto@npm:12.6.2"
   dependencies:
@@ -1246,7 +1196,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/util@npm:12.6.2":
+"@polkadot/util@npm:12.6.2, @polkadot/util@npm:^12.6.2":
   version: 12.6.2
   resolution: "@polkadot/util@npm:12.6.2"
   dependencies:
@@ -1341,7 +1291,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polkadot/x-bigint@npm:12.6.2":
+"@polkadot/x-bigint@npm:12.6.2, @polkadot/x-bigint@npm:^12.6.2":
   version: 12.6.2
   resolution: "@polkadot/x-bigint@npm:12.6.2"
   dependencies:
@@ -1415,21 +1365,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymeshassociation/local-signing-manager@npm:^3.5.0":
-  version: 3.5.0
-  resolution: "@polymeshassociation/local-signing-manager@npm:3.5.0"
+"@polymeshassociation/local-signing-manager@npm:^3.5.2":
+  version: 3.5.2
+  resolution: "@polymeshassociation/local-signing-manager@npm:3.5.2"
   dependencies:
-    "@polkadot/api": "npm:^11.2.1"
-    "@polkadot/util": "npm:^12.6.2"
-    "@polkadot/util-crypto": "npm:^12.6.2"
-    "@polymeshassociation/signing-manager-types": "npm:^3.3.0"
-  checksum: 10c0/6fe8516a0ab3905d192e81c4de21bad7fa1dfecd3d66d9c69a8fc799c7d9d16aa316edb7c69c28b58835de94b50f34ff72a1c9710c96e5bcb5958efd8bc11c6b
+    "@polkadot/api": "npm:11.2.1"
+    "@polkadot/util": "npm:12.6.2"
+    "@polkadot/util-crypto": "npm:12.6.2"
+    "@polymeshassociation/signing-manager-types": "npm:3.4.2"
+  checksum: 10c0/b9a8f9a4835e250b44ab60ff11398b947d1e6fca43874531df2da9c100305980d0db210c21bb3c1355c0884cf2e230bc9ea23eebca98bed8a7a0e3e5ed853c82
   languageName: node
   linkType: hard
 
 "@polymeshassociation/polymesh-sdk@npm:^27.5.1":
-  version: 27.6.0
-  resolution: "@polymeshassociation/polymesh-sdk@npm:27.6.0"
+  version: 27.7.0
+  resolution: "@polymeshassociation/polymesh-sdk@npm:27.7.0"
   dependencies:
     "@apollo/client": "npm:^3.8.1"
     "@polkadot/api": "npm:11.2.1"
@@ -1447,16 +1397,16 @@ __metadata:
     semver: "npm:^7.5.4"
     ts-morph: "npm:^25.0.1"
     websocket: "npm:^1.0.34"
-  checksum: 10c0/f65294f2a9cb2d3aa5b4987cf7c65cadaa54c663e22798f858749c97a102168305148b53c00bacb3b1c08c13070d4fdfb0c616914965e76cd83e117eef1fc2e6
+  checksum: 10c0/7d932a3dd4b510869fda88b12d510cd32cbb6986d066e9846361565dc89d1848f0b71a1374eeb7229c1e92a4565e24c70052a2115b9915a50e43669b3ceaef3d
   languageName: node
   linkType: hard
 
-"@polymeshassociation/signing-manager-types@npm:^3.3.0":
-  version: 3.4.1
-  resolution: "@polymeshassociation/signing-manager-types@npm:3.4.1"
+"@polymeshassociation/signing-manager-types@npm:3.4.2":
+  version: 3.4.2
+  resolution: "@polymeshassociation/signing-manager-types@npm:3.4.2"
   dependencies:
-    "@polkadot/api": "npm:15.10.2"
-  checksum: 10c0/0518c5211e525c61e4f2507487c306eacaea802040c3c126e90becf0049e78bd268217ca6a143b1373777aec7553cc4275f806289ec10a822221dac419e2e57f
+    "@polkadot/api": "npm:11.2.1"
+  checksum: 10c0/e3ff9d7265d5bfb4ae5fb1e552f9f795607dc2403bfbcc25ad0c31e2593da8cd3691627637bfabedbf0c620530e2ad632a77771ffa01cec7f6f3c5540c421c57
   languageName: node
   linkType: hard
 
@@ -6550,7 +6500,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "polymesh-dev-env@workspace:."
   dependencies:
-    "@polymeshassociation/local-signing-manager": "npm:^3.5.0"
+    "@polymeshassociation/local-signing-manager": "npm:^3.5.2"
     "@polymeshassociation/polymesh-sdk": "npm:^27.5.1"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.15.17"
@@ -7903,7 +7853,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.6.2, tslib@npm:^2.7.0, tslib@npm:^2.8.1":
+"tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.6.2, tslib@npm:^2.7.0":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
