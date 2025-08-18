@@ -11,13 +11,15 @@ jobs:
       CI: true
     steps:
       - uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
-          cache: 'yarn'
-          cache-dependency-path: 'tests/yarn.lock'
+          node-version: "22.x"
+          cache: "yarn"
+          cache-dependency-path: "tests/yarn.lock"
       - name: install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --immutable
         working-directory: tests
       - name: test
         run: yarn test
