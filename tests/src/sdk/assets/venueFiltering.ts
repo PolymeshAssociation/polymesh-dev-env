@@ -17,7 +17,11 @@ import assert from 'node:assert';
     - Tries to create an instruction on a venue that was previously removed
 */
 
-export const venueFiltering = async (sdk: Polymesh, asset: FungibleAsset, targetDid: string): Promise<void> => {
+export const venueFiltering = async (
+  sdk: Polymesh,
+  asset: FungibleAsset,
+  targetDid: string
+): Promise<void> => {
   const identity = await sdk.getSigningIdentity();
   assert(identity);
 
@@ -75,10 +79,12 @@ export const venueFiltering = async (sdk: Polymesh, asset: FungibleAsset, target
   assert(details2.allowedVenues.some((venue) => venue.id.eq(venue1.id)));
   assert(!details2.allowedVenues.some((venue) => venue.id.eq(venue2.id)));
 
-  
   // Try to create an instruction on a removed venue
   await expect(async () => {
-    await sdk.settlements.addInstruction({ venueId: venue2.id, legs: [{ asset, from: identity, to: targetDid, amount: new BigNumber(1000) }] });
+    await sdk.settlements.addInstruction({
+      venueId: venue2.id,
+      legs: [{ asset, from: identity, to: targetDid, amount: new BigNumber(1000) }],
+    });
   }).rejects.toThrow();
 
   // Disable venue filtering
@@ -90,6 +96,9 @@ export const venueFiltering = async (sdk: Polymesh, asset: FungibleAsset, target
 
   // Instruction should be created on any venue
   await expect(async () => {
-    await sdk.settlements.addInstruction({ venueId: venue2.id, legs: [{ asset, from: identity, to: targetDid, amount: new BigNumber(1000) }] });
+    await sdk.settlements.addInstruction({
+      venueId: venue2.id,
+      legs: [{ asset, from: identity, to: targetDid, amount: new BigNumber(1000) }],
+    });
   }).not.toThrow();
 };

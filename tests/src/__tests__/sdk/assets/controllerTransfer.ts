@@ -12,7 +12,6 @@ describe('controllerTransfer', () => {
   let sdk: Polymesh;
   let targetDid: string;
 
-
   beforeAll(async () => {
     factory = await TestFactory.create({});
     sdk = factory.polymeshSdk;
@@ -25,7 +24,6 @@ describe('controllerTransfer', () => {
     ({
       results: [{ did: targetDid }],
     } = await factory.createIdentityForAddresses([targetAddress]));
-
   });
 
   afterAll(async () => {

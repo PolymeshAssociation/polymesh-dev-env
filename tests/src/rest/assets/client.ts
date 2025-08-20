@@ -1,5 +1,6 @@
 import {
   assetMediatorsParams,
+  controllerTransferParams,
   createAssetParams,
   createMetadataParams,
   issueAssetParams,
@@ -8,11 +9,10 @@ import {
   setAssetDocumentParams,
   setMetadataParams,
   transferAssetOwnershipParams,
-  controllerTransferParams,
 } from '~/rest/assets/params';
 import { RestClient } from '~/rest/client';
 import { TxBase } from '~/rest/common';
-import { PostResult, ResultSet, RestSuccessResult } from '~/rest/interfaces';
+import { PostResult, RestSuccessResult, ResultSet } from '~/rest/interfaces';
 
 export class Assets {
   constructor(private client: RestClient) {}
@@ -135,7 +135,10 @@ export class Assets {
     return this.client.post(`assets/${asset}/unfreeze`, { ...params });
   }
 
-  public async controllerTransfer(asset: string, params: ReturnType<typeof controllerTransferParams>): Promise<PostResult> {
+  public async controllerTransfer(
+    asset: string,
+    params: ReturnType<typeof controllerTransferParams>
+  ): Promise<PostResult> {
     return this.client.post(`assets/${asset}/controller-transfer`, params);
   }
 

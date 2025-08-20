@@ -13,7 +13,6 @@ describe('venueFiltering', () => {
   let sdk: Polymesh;
   let targetDid: string;
 
-
   beforeAll(async () => {
     factory = await TestFactory.create({});
     sdk = factory.polymeshSdk;
