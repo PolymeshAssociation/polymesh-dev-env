@@ -6,6 +6,7 @@ import { Claims } from '~/rest/claims/client';
 import { TxBase } from '~/rest/common';
 import { Compliance } from '~/rest/compliance';
 import { Identities } from '~/rest/identities';
+import { CorporateActions } from '~/rest/corporate-actions';
 import { Network } from '~/rest/network';
 import { Nfts } from '~/rest/nfts';
 import { Portfolios } from '~/rest/portfolios';
@@ -28,6 +29,7 @@ export class RestClient {
   public claims: Claims;
   public network: Network;
   public checkpoints: Checkpoints;
+  public corporateActions: CorporateActions;
 
   constructor(public baseUrl: string) {
     this.accounts = new Accounts(this);
@@ -42,6 +44,7 @@ export class RestClient {
     this.claims = new Claims(this);
     this.network = new Network(this);
     this.checkpoints = new Checkpoints(this);
+    this.corporateActions = new CorporateActions(this);
   }
 
   public async get<T = unknown>(path: string): Promise<T> {

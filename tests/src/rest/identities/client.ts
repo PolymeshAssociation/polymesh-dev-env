@@ -74,4 +74,10 @@ export class Identities {
   public async getHeldAssets(did: string): Promise<ResultSet<unknown>> {
     return this.client.get(`/identities/${did}/held-assets`);
   }
+
+  public async pendingDividendDistributions(
+    did: string
+  ): Promise<ResultSet<Record<string, unknown>>> {
+    return this.client.get(`/identities/${did}/pending-distributions`);
+  }
 }
