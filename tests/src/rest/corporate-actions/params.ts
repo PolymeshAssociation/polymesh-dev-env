@@ -61,3 +61,28 @@ export const modifyDistributionCheckpointParams = (
     ...base,
     checkpoint,
   } as const);
+
+export type CorporateActionTargets = {
+  identities: string[];
+  treatment: TargetTreatment;
+};
+
+export type CorporateActionTaxWithHoldings = {
+  identity: string;
+  percentage: BigNumber;
+};
+
+export const corporateActionDefaultConfigParams = (
+  base: TxBase,
+  defaultTaxWithholding?: BigNumber | undefined,
+  targets?: CorporateActionTargets | undefined,
+  taxWithholdings?: CorporateActionTaxWithHoldings[] | undefined,
+  extras: TxExtras = {}
+) =>
+  ({
+    targets,
+    defaultTaxWithholding,
+    taxWithholdings,
+    ...extras,
+    ...base,
+  } as const);

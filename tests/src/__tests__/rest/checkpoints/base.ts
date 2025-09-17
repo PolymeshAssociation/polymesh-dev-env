@@ -44,7 +44,7 @@ describe('Checkpoints Controller', () => {
         },
         {
           name: 'Test Checkpoint Asset',
-          initialSupply: '1000000', // 1M tokens
+          initialSupply: '100',
         }
       );
 
