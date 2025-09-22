@@ -2,18 +2,18 @@ import { TestFactory } from '~/helpers';
 import { RestClient } from '~/rest';
 import { createAssetParams } from '~/rest/assets/params';
 import { ProcessMode } from '~/rest/common';
+import {
+  claimDividendDistributionParams,
+  createDividendDistributionParams,
+  modifyDistributionCheckpointParams,
+  payDividendDistributionParams,
+  reclaimDividendDistributionParams,
+} from '~/rest/corporate-actions/params';
 import { Identity } from '~/rest/identities/interfaces';
 import { RestSuccessResult } from '~/rest/interfaces';
 import { fungibleInstructionParams } from '~/rest/settlements/params';
 
 import { expectBasicTxInfo } from '../utils';
-import {
-  createDividendDistributionParams,
-  claimDividendDistributionParams,
-  payDividendDistributionParams,
-  reclaimDividendDistributionParams,
-  modifyDistributionCheckpointParams,
-} from '~/rest/corporate-actions/params';
 
 const handles = ['issuer', 'holder'];
 let factory: TestFactory;

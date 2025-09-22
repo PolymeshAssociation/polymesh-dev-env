@@ -1,5 +1,5 @@
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { FungibleAsset, Identity, VenueType } from '@polymeshassociation/polymesh-sdk/types';
+import { FungibleAsset, VenueType } from '@polymeshassociation/polymesh-sdk/types';
 import assert from 'node:assert';
 
 /*

@@ -1,5 +1,6 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
 import { TargetTreatment } from '@polymeshassociation/polymesh-sdk/types';
+
 import { TxBase, TxExtras } from '~/rest/common';
 
 // Shape is intentionally flexible to allow tests to pass specific values

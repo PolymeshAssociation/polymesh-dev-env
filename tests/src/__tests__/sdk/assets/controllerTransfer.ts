@@ -1,6 +1,5 @@
 import { LocalSigningManager } from '@polymeshassociation/local-signing-manager';
 import { Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 
 import { TestFactory } from '~/helpers';
 import { fungibleAssetControllerTransfer } from '~/sdk/assets/controllerTransfer';
@@ -8,7 +7,6 @@ import { fungibleAssetControllerTransfer } from '~/sdk/assets/controllerTransfer
 let factory: TestFactory;
 
 describe('controllerTransfer', () => {
-  let asset: FungibleAsset;
   let sdk: Polymesh;
   let targetDid: string;
 

@@ -1,5 +1,6 @@
 import { RestClient } from '~/rest/client';
 import { PostResult, RestSuccessResult, ResultSet } from '~/rest/interfaces';
+
 import {
   claimDividendDistributionParams,
   createDividendDistributionParams,

@@ -22,15 +22,16 @@ export const fungibleAssetControllerTransfer = async (
 
   assert(asset);
 
-  const [identity, counterParty] = await Promise.all([
+  const [signerIdentity, counterParty] = await Promise.all([
     sdk.getSigningIdentity(),
     sdk.identities.getIdentity({ did: targetDid }),
   ]);
-  assert(identity);
+  assert(signerIdentity);
   const { account: counterPartyAccount } = await counterParty.getPrimaryAccount();
 
   const transferTx = await sdk.settlements.addInstruction({
-    legs: [{ asset, from: identity, to: targetDid, amount: new BigNumber(1000) }],
+    legs: [{ asset, from: signerIdentity, to: targetDid, amount: new BigNumber(1000) }],
+    venueId: undefined,
   });
   const instruction = await transferTx.run();
   assert(transferTx.isSuccess);
@@ -54,7 +55,7 @@ export const fungibleAssetControllerTransfer = async (
 
   const assetHolders = await asset.assetHolders.get();
 
-  const heldByIssuer = assetHolders.data.find(({ identity }) => identity.isEqual(identity));
+  const heldByIssuer = assetHolders.data.find(({ identity }) => identity.isEqual(signerIdentity));
   assert(heldByIssuer);
   expect(heldByIssuer.balance.eq(new BigNumber(1100)));
 
@@ -82,11 +83,11 @@ export const nonFungibleAssetControllerTransfer = async (
 
   assert(collection);
 
-  const [identity, counterParty] = await Promise.all([
+  const [signerIdentity, counterParty] = await Promise.all([
     sdk.getSigningIdentity(),
     sdk.identities.getIdentity({ did: targetDid }),
   ]);
-  assert(identity);
+  assert(signerIdentity);
   assert(counterParty);
 
   const { account: counterPartyAccount } = await counterParty.getPrimaryAccount();
@@ -128,7 +129,8 @@ export const nonFungibleAssetControllerTransfer = async (
   const nft2 = await issueTx2.run();
 
   const transferTx = await sdk.settlements.addInstruction({
-    legs: [{ asset: collection, nfts: [nft, nft2], from: identity, to: targetDid }],
+    legs: [{ asset: collection, nfts: [nft, nft2], from: signerIdentity, to: targetDid }],
+    venueId: undefined,
   });
   const instruction = await transferTx.run();
   assert(transferTx.isSuccess);
@@ -152,7 +154,7 @@ export const nonFungibleAssetControllerTransfer = async (
 
   const assetHolders = await collection.assetHolders.get({});
 
-  let heldByIssuer = assetHolders.data.find(({ identity }) => identity.isEqual(identity));
+  let heldByIssuer = assetHolders.data.find(({ identity }) => identity.isEqual(signerIdentity));
   assert(heldByIssuer);
   expect(heldByIssuer.nfts.length).toEqual(1);
   expect(heldByIssuer.nfts[0].id.eq(nft.id));
@@ -169,7 +171,7 @@ export const nonFungibleAssetControllerTransfer = async (
   assert(createPortfolioTx.isSuccess);
 
   const controllerTransferTx2 = await collection.controllerTransfer({
-    originPortfolio: { identity, id: portfolio.id },
+    originPortfolio: { identity: signerIdentity, id: portfolio.id },
     nfts: [nft2],
   });
   await controllerTransferTx2.run();
@@ -178,7 +180,7 @@ export const nonFungibleAssetControllerTransfer = async (
 
   const assetHolders2 = await collection.assetHolders.get({});
 
-  heldByIssuer = assetHolders2.data.find(({ identity }) => identity.isEqual(identity));
+  heldByIssuer = assetHolders2.data.find(({ identity }) => identity.isEqual(signerIdentity));
   assert(heldByIssuer);
   expect(heldByIssuer.nfts.length).toEqual(2);
 

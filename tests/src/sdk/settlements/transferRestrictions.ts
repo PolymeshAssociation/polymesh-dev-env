@@ -6,8 +6,6 @@ import {
 } from '@polymeshassociation/polymesh-sdk/types';
 import assert from 'node:assert';
 
-import { wellKnown } from '~/consts';
-
 /*
   This script showcases Transfer Restriction related functionality. It:
     - Adds a percentage restriction to the Asset
