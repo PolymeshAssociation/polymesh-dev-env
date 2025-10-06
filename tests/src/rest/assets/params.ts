@@ -1,3 +1,5 @@
+import { StatType } from '@polymeshassociation/polymesh-sdk/types';
+
 import { TxBase, TxExtras } from '~/rest/common';
 
 export type MetadataType = 'Local' | 'Global';
@@ -115,6 +117,17 @@ export const controllerTransferParams = (
   ({
     origin,
     amount,
+    ...extras,
+    ...base,
+  } as const);
+
+export const setTransferRestrictionStatsParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    stats: [
+      {
+        type: StatType.Balance,
+      },
+    ],
     ...extras,
     ...base,
   } as const);

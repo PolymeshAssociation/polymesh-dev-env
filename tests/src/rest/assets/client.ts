@@ -1,3 +1,5 @@
+import { AssetStat } from '@polymeshassociation/polymesh-sdk/types';
+
 import {
   assetMediatorsParams,
   controllerTransferParams,
@@ -8,6 +10,7 @@ import {
   redeemTokenParams,
   setAssetDocumentParams,
   setMetadataParams,
+  setTransferRestrictionStatsParams,
   transferAssetOwnershipParams,
 } from '~/rest/assets/params';
 import { RestClient } from '~/rest/client';
@@ -144,5 +147,16 @@ export class Assets {
 
   public async getAssetHolders(asset: string): Promise<ResultSet<Record<string, unknown>>> {
     return this.client.get(`assets/${asset}/holders`);
+  }
+
+  public async getTransferRestrictionStats(asset: string): Promise<AssetStat[]> {
+    return this.client.get(`assets/${asset}/transfer-restrictions/stats`);
+  }
+
+  public async setTransferRestrictionStats(
+    asset: string,
+    params: ReturnType<typeof setTransferRestrictionStatsParams>
+  ): Promise<PostResult> {
+    return this.client.post(`assets/${asset}/transfer-restrictions/stats/set`, params);
   }
 }
