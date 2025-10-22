@@ -13,4 +13,11 @@ export class Accounts {
     );
     return response.did;
   }
+
+  /**
+   * @returns A promise that resolves to the treasury balance
+   */
+  async getTreasuryBalance(): Promise<{ balance: string }> {
+    return this.client.get('/accounts/treasury/balance');
+  }
 }

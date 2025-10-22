@@ -10,6 +10,7 @@ import {
   redeemTokenParams,
   setAssetDocumentParams,
   setMetadataParams,
+  setTransferRestrictionsParams,
   setTransferRestrictionStatsParams,
   transferAssetOwnershipParams,
 } from '~/rest/assets/params';
@@ -149,6 +150,10 @@ export class Assets {
     return this.client.get(`assets/${asset}/holders`);
   }
 
+  public async getTransferRestrictions(asset: string): Promise<unknown> {
+    return this.client.get(`assets/${asset}/transfer-restrictions`);
+  }
+
   public async getTransferRestrictionStats(asset: string): Promise<AssetStat[]> {
     return this.client.get(`assets/${asset}/transfer-restrictions/stats`);
   }
@@ -158,5 +163,70 @@ export class Assets {
     params: ReturnType<typeof setTransferRestrictionStatsParams>
   ): Promise<PostResult> {
     return this.client.post(`assets/${asset}/transfer-restrictions/stats/set`, params);
+  }
+
+  public async setTransferRestrictions(
+    asset: string,
+    params: ReturnType<typeof setTransferRestrictionsParams>
+  ): Promise<PostResult> {
+    return this.client.post(`assets/${asset}/transfer-restrictions/set`, params);
+  }
+
+  public async addTransferRestrictions(
+    asset: string,
+    params: ReturnType<typeof setTransferRestrictionsParams>
+  ): Promise<PostResult> {
+    return this.client.post(`assets/${asset}/transfer-restrictions/add`, params);
+  }
+
+  public async removeTransferRestrictions(
+    asset: string,
+    params: TxBase['options']
+  ): Promise<PostResult> {
+    return this.client.post(`assets/${asset}/transfer-restrictions/remove`, {
+      ...params,
+    });
+  }
+
+  public async getVenueFilteringDetails(asset: string): Promise<{
+    isEnabled: boolean;
+    allowedVenues: string[];
+    disallowedVenues: string[];
+  }> {
+    return this.client.get(`/assets/${asset}/venue-filtering`);
+  }
+
+  public async enableVenueFiltering(asset: string, params: TxBase): Promise<PostResult> {
+    return this.client.post(
+      `/assets/${asset}/venue-filtering/enable`,
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async disableVenueFiltering(asset: string, params: TxBase): Promise<PostResult> {
+    return this.client.post(
+      `/assets/${asset}/venue-filtering/disable`,
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async allowVenues(
+    asset: string,
+    params: { venues: number[] } & TxBase
+  ): Promise<PostResult> {
+    return this.client.post(
+      `/assets/${asset}/venue-filtering/allow`,
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async disallowVenues(
+    asset: string,
+    params: { venues: number[] } & TxBase
+  ): Promise<PostResult> {
+    return this.client.post(
+      `/assets/${asset}/venue-filtering/disallow`,
+      params as unknown as Record<string, unknown>
+    );
   }
 }

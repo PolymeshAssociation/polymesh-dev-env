@@ -1,4 +1,4 @@
-import { StatType } from '@polymeshassociation/polymesh-sdk/types';
+import { StatType, TransferRestrictionType } from '@polymeshassociation/polymesh-sdk/types';
 
 import { TxBase, TxExtras } from '~/rest/common';
 
@@ -101,9 +101,9 @@ export const transferAssetOwnershipParams = (
     ...base,
   } as const);
 
-export const issueAssetParams = (amount: number, base: TxBase, extras: TxExtras = {}) =>
+export const issueAssetParams = (amount: string | number, base: TxBase, extras: TxExtras = {}) =>
   ({
-    amount,
+    amount: amount.toString(),
     ...extras,
     ...base,
   } as const);
@@ -128,6 +128,38 @@ export const setTransferRestrictionStatsParams = (base: TxBase, extras: TxExtras
         type: StatType.Balance,
       },
     ],
+    ...extras,
+    ...base,
+  } as const);
+
+export const setTransferRestrictionsParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    restrictions: [
+      {
+        type: TransferRestrictionType.Percentage,
+        percentage: '10',
+      },
+    ],
+    ...extras,
+    ...base,
+  } as const);
+
+export const venueFilteringParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    ...extras,
+    ...base,
+  } as const);
+
+export const allowVenuesParams = (venues: number[], base: TxBase, extras: TxExtras = {}) =>
+  ({
+    venues,
+    ...extras,
+    ...base,
+  } as const);
+
+export const disallowVenuesParams = (venues: number[], base: TxBase, extras: TxExtras = {}) =>
+  ({
+    venues,
     ...extras,
     ...base,
   } as const);
