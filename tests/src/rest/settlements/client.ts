@@ -1,6 +1,6 @@
 import { RestClient } from '~/rest/client';
 import { TxBase } from '~/rest/common';
-import { PostResult } from '~/rest/interfaces';
+import { PostResult, ResultSet } from '~/rest/interfaces';
 import {
   fungibleInstructionParams,
   nftInstructionParams,
@@ -72,8 +72,34 @@ export class Settlements {
     });
   }
 
-  public async getAffirmations(instructionId: string): Promise<unknown> {
+  public async getAffirmations(
+    instructionId: string
+  ): Promise<ResultSet<{ identity: string; status: string }>> {
     return this.client.get(`/instructions/${instructionId}/affirmations`);
+  }
+
+  public async getVenue(venueId: string): Promise<unknown> {
+    return this.client.get(`/venues/${venueId}`);
+  }
+
+  public async updateVenue(
+    venueId: string,
+    params: { description?: string; type?: string },
+    txBase: TxBase
+  ): Promise<PostResult> {
+    return this.client.post(`/venues/${venueId}/modify`, {
+      ...txBase,
+      ...params,
+    });
+  }
+
+  public async executeInstructionManually(
+    instructionId: string,
+    txBase: TxBase
+  ): Promise<PostResult> {
+    return this.client.post(`/instructions/${instructionId}/execute-manually`, {
+      ...txBase,
+    });
   }
 
   public async validateLeg({
@@ -94,5 +120,9 @@ export class Settlements {
     return this.client.get(
       `/leg-validations?asset=${asset}&toPortfolio=${toPortfolio}&toDid=${toDid}&fromPortfolio=${fromPortfolio}&fromDid=${fromDid}&amount=${amount}`
     );
+  }
+
+  public async getPendingInstructions(did: string): Promise<ResultSet<{ id: string }>> {
+    return this.client.get(`/identities/${did}/pending-instructions`);
   }
 }
