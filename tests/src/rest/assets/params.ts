@@ -1,4 +1,8 @@
-import { StatType, TransferRestrictionType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  StatType,
+  TransferRestrictionType,
+  TxGroup,
+} from '@polymeshassociation/polymesh-sdk/types';
 
 import { TxBase, TxExtras } from '~/rest/common';
 
@@ -162,4 +166,69 @@ export const disallowVenuesParams = (venues: number[], base: TxBase, extras: TxE
     venues,
     ...extras,
     ...base,
+  } as const);
+
+export const abdicateAgentParams = (identity: string, base: TxBase, extras: TxExtras = {}) =>
+  ({
+    identity,
+    ...extras,
+    ...base,
+  } as const);
+
+export const assignAgentToGroupParams = (
+  target: string,
+  permissions: string | number | Record<string, unknown>,
+  base: TxBase,
+  extras: TxExtras = {}
+) =>
+  ({
+    target,
+    permissions,
+    ...extras,
+    ...base,
+  } as const);
+
+export const createPermissionGroupParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    transactionGroups: ['CapitalDistribution'],
+    ...extras,
+    ...base,
+  } as const);
+
+export const modifyPermissionGroupParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    transactionGroups: [TxGroup.PortfolioManagement],
+    ...extras,
+    ...base,
+  } as const);
+
+export const inviteAgentToGroupParams = (
+  target: string,
+  permissions: string | number | Record<string, unknown>,
+  base: TxBase,
+  extras: TxExtras = {}
+) =>
+  ({
+    target,
+    permissions,
+    ...extras,
+    ...base,
+  } as const);
+
+export const removeAgentFromGroupParams = (target: string, base: TxBase, extras: TxExtras = {}) =>
+  ({
+    target,
+    ...extras,
+    ...base,
+  } as const);
+
+export const checkAgentPermissionsParams = (
+  target: string,
+  transactions: string[],
+  extras: TxExtras = {}
+) =>
+  ({
+    target,
+    transactions,
+    ...extras,
   } as const);
