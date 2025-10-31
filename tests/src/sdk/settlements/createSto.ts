@@ -47,9 +47,11 @@ export const createSto = async (
   ]);
 
   // Create a Venue to use for the offering. An existing Venue could also be used
+  // The investor account must be authorized as a signer for off-chain funding receipts
   const createVenueTx = await sdk.settlements.createVenue({
     description: 'Example Offering Venue',
     type: VenueType.Sto,
+    signers: [investorAccount.address],
   });
   // Create a Portfolio to store raised funds in
   const createPortfolioTx = await sdk.identities.createPortfolio({
