@@ -1,3 +1,9 @@
+import {
+  StatType,
+  TransferRestrictionType,
+  TxGroup,
+} from '@polymeshassociation/polymesh-sdk/types';
+
 import { TxBase, TxExtras } from '~/rest/common';
 
 export type MetadataType = 'Local' | 'Global';
@@ -99,9 +105,9 @@ export const transferAssetOwnershipParams = (
     ...base,
   } as const);
 
-export const issueAssetParams = (amount: number, base: TxBase, extras: TxExtras = {}) =>
+export const issueAssetParams = (amount: string | number, base: TxBase, extras: TxExtras = {}) =>
   ({
-    amount,
+    amount: amount.toString(),
     ...extras,
     ...base,
   } as const);
@@ -117,4 +123,112 @@ export const controllerTransferParams = (
     amount,
     ...extras,
     ...base,
+  } as const);
+
+export const setTransferRestrictionStatsParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    stats: [
+      {
+        type: StatType.Balance,
+      },
+    ],
+    ...extras,
+    ...base,
+  } as const);
+
+export const setTransferRestrictionsParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    restrictions: [
+      {
+        type: TransferRestrictionType.Percentage,
+        percentage: '10',
+      },
+    ],
+    ...extras,
+    ...base,
+  } as const);
+
+export const venueFilteringParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    ...extras,
+    ...base,
+  } as const);
+
+export const allowVenuesParams = (venues: number[], base: TxBase, extras: TxExtras = {}) =>
+  ({
+    venues,
+    ...extras,
+    ...base,
+  } as const);
+
+export const disallowVenuesParams = (venues: number[], base: TxBase, extras: TxExtras = {}) =>
+  ({
+    venues,
+    ...extras,
+    ...base,
+  } as const);
+
+export const abdicateAgentParams = (identity: string, base: TxBase, extras: TxExtras = {}) =>
+  ({
+    identity,
+    ...extras,
+    ...base,
+  } as const);
+
+export const assignAgentToGroupParams = (
+  target: string,
+  permissions: string | number | Record<string, unknown>,
+  base: TxBase,
+  extras: TxExtras = {}
+) =>
+  ({
+    target,
+    permissions,
+    ...extras,
+    ...base,
+  } as const);
+
+export const createPermissionGroupParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    transactionGroups: ['CapitalDistribution'],
+    ...extras,
+    ...base,
+  } as const);
+
+export const modifyPermissionGroupParams = (base: TxBase, extras: TxExtras = {}) =>
+  ({
+    transactionGroups: [TxGroup.PortfolioManagement],
+    ...extras,
+    ...base,
+  } as const);
+
+export const inviteAgentToGroupParams = (
+  target: string,
+  permissions: string | number | Record<string, unknown>,
+  base: TxBase,
+  extras: TxExtras = {}
+) =>
+  ({
+    target,
+    permissions,
+    ...extras,
+    ...base,
+  } as const);
+
+export const removeAgentFromGroupParams = (target: string, base: TxBase, extras: TxExtras = {}) =>
+  ({
+    target,
+    ...extras,
+    ...base,
+  } as const);
+
+export const checkAgentPermissionsParams = (
+  target: string,
+  transactions: string[],
+  extras: TxExtras = {}
+) =>
+  ({
+    target,
+    transactions,
+    ...extras,
   } as const);
