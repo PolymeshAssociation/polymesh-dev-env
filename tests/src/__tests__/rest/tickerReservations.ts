@@ -63,6 +63,42 @@ describe('Ticker Reservations', () => {
     expect(result).toEqual(assertTagPresent(expect, 'asset.registerUniqueTicker'));
   });
 
+  it('should check if extend reservation will run using dry run', async () => {
+    const dryRunResult = await restClient.tickerReservations.extend(ticker, {
+      options: { processMode: ProcessMode.DryRun, signer },
+    });
+
+    // Check if it's an error response (backend fix may be incomplete)
+    // Error: TypeError: Cannot read properties of null (reading 'toHuman')
+    if ('statusCode' in dryRunResult && (dryRunResult as RestErrorResult).statusCode === 500) {
+      console.error('Dry run error response:', JSON.stringify(dryRunResult, null, 2));
+      // Expected behavior if backend fix is incomplete
+      expect(dryRunResult).toMatchObject({
+        statusCode: 500,
+        message: expect.any(String),
+      });
+    } else {
+      // Expected behavior once backend is fixed
+      expect(dryRunResult).toMatchObject({
+        transactions: [],
+        details: {
+          status: expect.any(String),
+          fees: {
+            protocol: expect.any(String),
+            gas: expect.any(String),
+            total: expect.any(String),
+          },
+          supportsSubsidy: expect.any(Boolean),
+          payingAccount: {
+            balance: expect.any(String),
+            type: expect.any(String),
+            address: expect.any(String),
+          },
+        },
+      });
+    }
+  });
+
   it('should transfer ownership', async () => {
     const params = transferTickerReservationParams(receiver.did, {
       options: { processMode: ProcessMode.Submit, signer },

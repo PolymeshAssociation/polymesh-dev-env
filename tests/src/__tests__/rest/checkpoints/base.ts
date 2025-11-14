@@ -220,6 +220,35 @@ describe('Checkpoints Controller', () => {
       scheduleId = (createScheduleTx.schedule as RestSuccessResult).id as string;
     });
 
+    it('should check if create checkpoint schedule will run using dry run', async () => {
+      const dryRunResult = await restClient.checkpoints.createSchedule(
+        assetId,
+        createScheduleParams({
+          options: { processMode: ProcessMode.DryRun, signer },
+        })
+      );
+
+      // Dry run response includes empty transactions array and details with fees/status
+      // Note: resolver doesn't run in dry run mode, so fields like 'schedule' are not populated
+      expect(dryRunResult).toMatchObject({
+        transactions: [],
+        details: {
+          status: expect.any(String),
+          fees: {
+            protocol: expect.any(String),
+            gas: expect.any(String),
+            total: expect.any(String),
+          },
+          supportsSubsidy: expect.any(Boolean),
+          payingAccount: {
+            balance: expect.any(String),
+            type: expect.any(String),
+            address: expect.any(String),
+          },
+        },
+      });
+    });
+
     it('should fetch schedule by ID and get details', async () => {
       // Get schedule details which should include next checkpoint date
       const schedule = await restClient.checkpoints.getSchedule(assetId, scheduleId);

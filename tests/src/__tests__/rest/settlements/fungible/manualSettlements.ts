@@ -1,4 +1,5 @@
 import { BigNumber } from '@polymeshassociation/polymesh-sdk';
+
 import { expectBasicTxInfo } from '~/__tests__/rest/utils';
 import { TestFactory } from '~/helpers';
 import { RestClient } from '~/rest';
@@ -105,21 +106,29 @@ describe('Settlements - REST API (Manual Settlement Flow)', () => {
     });
   });
 
-  // TODO: dryRun needs to be checked - it doesn't seralize the return value correctly -> results in 500 error
-  it.skip('should check if the instruction will run using dry run', async () => {
+  it('should check if the instruction will run using dry run', async () => {
+    // Dry run mode returns simulation details without executing the transaction
     const dryRunInstruction = await restClient.settlements.createInstruction(venueId, {
       ...createInstructionParams,
       options: { processMode: ProcessMode.DryRun, signer },
     });
 
     expect(dryRunInstruction).toMatchObject({
-      transactions: expect.arrayContaining([
-        {
-          transactionTag: 'settlement.createInstruction',
-          type: 'single',
-          ...expectBasicTxInfo,
+      transactions: [],
+      details: {
+        status: expect.any(String),
+        fees: {
+          protocol: expect.any(String),
+          gas: expect.any(String),
+          total: expect.any(String),
         },
-      ]),
+        supportsSubsidy: expect.any(Boolean),
+        payingAccount: {
+          balance: expect.any(String),
+          type: expect.any(String),
+          address: expect.any(String),
+        },
+      },
     });
   });
 

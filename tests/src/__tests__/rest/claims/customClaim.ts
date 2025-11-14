@@ -31,8 +31,7 @@ describe('CustomClaim', () => {
     issuerDid = issuer.did;
 
     claimParams = createClaimParams({
-      signer,
-      dryRun: false,
+      options: { signer, processMode: ProcessMode.Submit },
       claims: [
         {
           target: targetDid,

@@ -97,6 +97,33 @@ describe('Create and trading an Asset', () => {
     });
   });
 
+  it('should check if direct instruction will run using dry run', async () => {
+    const sender = issuer.did;
+    const receiver = investor.did;
+    const params = fungibleInstructionParams(assetId, sender, receiver, {
+      options: { processMode: ProcessMode.DryRun, signer },
+    });
+    const dryRunInstruction = await restClient.settlements.createDirectInstruction(params);
+
+    expect(dryRunInstruction).toMatchObject({
+      transactions: [],
+      details: {
+        status: expect.any(String),
+        fees: {
+          protocol: expect.any(String),
+          gas: expect.any(String),
+          total: expect.any(String),
+        },
+        supportsSubsidy: expect.any(Boolean),
+        payingAccount: {
+          balance: expect.any(String),
+          type: expect.any(String),
+          address: expect.any(String),
+        },
+      },
+    });
+  });
+
   it('should affirm the created settlement', async () => {
     const result = await restClient.identities.getPendingInstructions(investor.did);
 

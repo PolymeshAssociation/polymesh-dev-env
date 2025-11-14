@@ -1,6 +1,6 @@
 import { ClaimType } from '@polymeshassociation/polymesh-sdk/types';
 
-import { TxBase, TxExtras } from '~/rest/common';
+import { ProcessMode, TxBase, TxExtras } from '~/rest/common';
 
 type Claim = {
   target: string;
@@ -22,8 +22,10 @@ type Claim = {
 };
 
 export type CreateClaimParams = {
-  signer: string;
-  dryRun: boolean;
+  options: {
+    processMode: ProcessMode;
+    signer: string;
+  };
   claims: Claim[];
   extras?: TxExtras;
 };
