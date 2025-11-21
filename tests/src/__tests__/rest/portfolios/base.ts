@@ -92,6 +92,32 @@ describe('Portfolios Controller', () => {
         })
       );
     });
+
+    it('should check if create portfolio will run using dry run', async () => {
+      const params = portfolioParams(`TEST-DRYRUN-${nonce}`, {
+        options: { processMode: ProcessMode.DryRun, signer },
+      });
+
+      const dryRunResult = await restClient.portfolios.createPortfolio(params);
+
+      expect(dryRunResult).toMatchObject({
+        transactions: [],
+        details: {
+          status: expect.any(String),
+          fees: {
+            protocol: expect.any(String),
+            gas: expect.any(String),
+            total: expect.any(String),
+          },
+          supportsSubsidy: expect.any(Boolean),
+          payingAccount: {
+            balance: expect.any(String),
+            type: expect.any(String),
+            address: expect.any(String),
+          },
+        },
+      });
+    });
   });
 
   describe('method: deletePortfolio', () => {

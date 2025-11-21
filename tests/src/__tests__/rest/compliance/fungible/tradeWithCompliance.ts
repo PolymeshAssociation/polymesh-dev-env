@@ -159,8 +159,7 @@ describe('Compliance Requirements for Fungible Assets', () => {
 
   it('should be able to block an identity', async () => {
     const claimParams = createClaimParams({
-      signer,
-      dryRun: false,
+      options: { processMode: ProcessMode.Submit, signer },
       claims: [
         {
           target: blocked.did,
