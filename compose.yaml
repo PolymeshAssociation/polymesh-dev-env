@@ -223,6 +223,142 @@ services:
       retries: 10
       start_period: 30s
 
+  polymesh-eth-rpc:
+    image: ${POLYMESH_ETH_RPC_IMAGE:-paritypr/eth-rpc:master-fba8b6f3}
+    platform: ${POLYMESH_ETH_RPC_PLATFORM:-linux/amd64}
+    profiles:
+      - evm
+    depends_on:
+      polymesh-node:
+        condition: service_healthy
+    networks:
+      - polymesh
+    ports:
+      - ${POLYMESH_ETH_RPC_PORT:-8545}:8545
+    restart: on-failure
+    command:
+      - --node-rpc-url
+      - ${POLYMESH_ETH_RPC_NODE_RPC_URL:-ws://polymesh-node:9944}
+      - --rpc-port
+      - '8545'
+      - --rpc-external
+      - --rpc-cors=all
+      - --allow-unprotected-txs
+
+  blockscout-db:
+    image: ${POLYMESH_BLOCKSCOUT_POSTGRES_IMAGE:-postgres:17}
+    profiles:
+      - evm
+    networks:
+      - polymesh
+    restart: unless-stopped
+    shm_size: 256m
+    command: postgres -c 'max_connections=200' -c 'client_connection_check_interval=60000'
+    environment:
+      POSTGRES_DB: ${POLYMESH_BLOCKSCOUT_POSTGRES_DB:-blockscout}
+      POSTGRES_USER: ${POLYMESH_BLOCKSCOUT_POSTGRES_USER:-blockscout}
+      POSTGRES_PASSWORD: ${POLYMESH_BLOCKSCOUT_POSTGRES_PASSWORD:-blockscout}
+    volumes:
+      - blockscout-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POLYMESH_BLOCKSCOUT_POSTGRES_USER:-blockscout} -d ${POLYMESH_BLOCKSCOUT_POSTGRES_DB:-blockscout}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  blockscout-redis:
+    image: ${POLYMESH_BLOCKSCOUT_REDIS_IMAGE:-redis:alpine}
+    profiles:
+      - evm
+    networks:
+      - polymesh
+    restart: unless-stopped
+    command: redis-server
+    volumes:
+      - blockscout-redis-data:/data
+
+  polymesh-blockscout:
+    image: ${POLYMESH_BLOCKSCOUT_IMAGE:-ghcr.io/blockscout/blockscout:latest}
+    profiles:
+      - evm
+    depends_on:
+      polymesh-eth-rpc:
+        condition: service_started
+      blockscout-db:
+        condition: service_healthy
+      blockscout-redis:
+        condition: service_started
+    networks:
+      - polymesh
+    ports:
+      - ${POLYMESH_BLOCKSCOUT_BACKEND_PORT:-4001}:4000
+    restart: on-failure
+    stop_grace_period: 5m
+    command: >
+      sh -c "bin/blockscout eval \"Elixir.Explorer.ReleaseTasks.create_and_migrate()\" && bin/blockscout start"
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      ETHEREUM_JSONRPC_VARIANT: ${POLYMESH_BLOCKSCOUT_RPC_VARIANT:-geth}
+      ETHEREUM_JSONRPC_HTTP_URL: ${POLYMESH_BLOCKSCOUT_RPC_HTTP_URL:-http://polymesh-eth-rpc:8545/}
+      ETHEREUM_JSONRPC_TRACE_URL: ${POLYMESH_BLOCKSCOUT_RPC_TRACE_URL:-http://polymesh-eth-rpc:8545/}
+      ETHEREUM_JSONRPC_WS_URL: ${POLYMESH_BLOCKSCOUT_RPC_WS_URL:-ws://polymesh-eth-rpc:8545/}
+      DATABASE_URL: postgresql://${POLYMESH_BLOCKSCOUT_POSTGRES_USER:-blockscout}:${POLYMESH_BLOCKSCOUT_POSTGRES_PASSWORD:-blockscout}@blockscout-db:5432/${POLYMESH_BLOCKSCOUT_POSTGRES_DB:-blockscout}
+      ECTO_USE_SSL: ${POLYMESH_BLOCKSCOUT_ECTO_USE_SSL:-false}
+      ECTO_SSL_MODE: ${POLYMESH_BLOCKSCOUT_ECTO_SSL_MODE:-disable}
+      SECRET_KEY_BASE: ${POLYMESH_BLOCKSCOUT_SECRET_KEY_BASE:-56NtB48ear7+wMSf0IQuWDAAazhpb31qyc7GiyspBP2vh7t5zlCsF5QDv76chXeN}
+      PORT: 4000
+      COIN: ${POLYMESH_BLOCKSCOUT_COIN:-POLYX}
+      COIN_NAME: ${POLYMESH_BLOCKSCOUT_COIN_NAME:-POLYX}
+      CHAIN_ID: ${POLYMESH_EVM_CHAIN_ID:-1641818}
+      NETWORK: ${POLYMESH_BLOCKSCOUT_NETWORK:-Polymesh}
+      SUBNETWORK: ${POLYMESH_BLOCKSCOUT_SUBNETWORK:-Polymesh Dev}
+      INDEXER_DISABLE_PENDING_TRANSACTIONS_FETCHER: ${POLYMESH_BLOCKSCOUT_DISABLE_PENDING_TX_FETCHER:-true}
+      DISABLE_MARKET: 'true'
+      ACCOUNT_ENABLED: 'false'
+      DISABLE_WEBAPP: 'false'
+      API_V1_READ_METHODS_DISABLED: 'false'
+      API_V1_WRITE_METHODS_DISABLED: 'false'
+      RATE_LIMITER_REDIS_URL: redis://blockscout-redis:6379/0
+      ACCOUNT_REDIS_URL: redis://blockscout-redis:6379
+      RELEASE_LINK: ''
+    volumes:
+      - blockscout-logs:/app/logs
+      - blockscout-dets:/app/dets
+
+  polymesh-blockscout-frontend:
+    image: ${POLYMESH_BLOCKSCOUT_FRONTEND_IMAGE:-ghcr.io/blockscout/frontend:latest}
+    profiles:
+      - evm
+    depends_on:
+      polymesh-blockscout:
+        condition: service_started
+    networks:
+      - polymesh
+    ports:
+      - ${POLYMESH_BLOCKSCOUT_PORT:-4000}:3000
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_PROTOCOL: http
+      NEXT_PUBLIC_API_HOST: ${POLYMESH_BLOCKSCOUT_FRONTEND_API_HOST:-localhost}
+      NEXT_PUBLIC_API_PORT: ${POLYMESH_BLOCKSCOUT_BACKEND_PORT:-4001}
+      NEXT_PUBLIC_API_BASE_PATH: /
+      NEXT_PUBLIC_APP_PROTOCOL: http
+      NEXT_PUBLIC_APP_HOST: ${POLYMESH_BLOCKSCOUT_FRONTEND_APP_HOST:-localhost}
+      NEXT_PUBLIC_NETWORK_NAME: ${POLYMESH_BLOCKSCOUT_NETWORK:-Polymesh}
+      NEXT_PUBLIC_NETWORK_SHORT_NAME: ${POLYMESH_BLOCKSCOUT_NETWORK_SHORT_NAME:-Polymesh}
+      NEXT_PUBLIC_NETWORK_ID: ${POLYMESH_EVM_CHAIN_ID:-1641818}
+      NEXT_PUBLIC_NETWORK_CURRENCY_NAME: ${POLYMESH_BLOCKSCOUT_COIN_NAME:-POLYX}
+      NEXT_PUBLIC_NETWORK_CURRENCY_SYMBOL: ${POLYMESH_BLOCKSCOUT_COIN:-POLYX}
+      NEXT_PUBLIC_NETWORK_CURRENCY_DECIMALS: ${POLYMESH_BLOCKSCOUT_COIN_DECIMALS:-18}
+      NEXT_PUBLIC_IS_TESTNET: ${POLYMESH_BLOCKSCOUT_IS_TESTNET:-true}
+      NEXT_PUBLIC_API_WEBSOCKET_PROTOCOL: ws
+
   vault:
     image: hashicorp/vault:${VAULT_VERSION:-latest}
     networks:
@@ -351,3 +487,19 @@ volumes:
     labels:
       - 'network.polymesh.project=polymesh'
       - 'network.polymesh.description=REST API signer init'
+  blockscout-db-data:
+    labels:
+      - 'network.polymesh.project=polymesh'
+      - 'network.polymesh.description=Blockscout PostgreSQL data'
+  blockscout-redis-data:
+    labels:
+      - 'network.polymesh.project=polymesh'
+      - 'network.polymesh.description=Blockscout Redis data'
+  blockscout-logs:
+    labels:
+      - 'network.polymesh.project=polymesh'
+      - 'network.polymesh.description=Blockscout backend logs'
+  blockscout-dets:
+    labels:
+      - 'network.polymesh.project=polymesh'
+      - 'network.polymesh.description=Blockscout backend dets'

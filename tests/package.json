@@ -6,9 +6,12 @@
   "scripts": {
     "test": "../scripts/test.sh",
     "test:start": "../scripts/start-env.sh",
+    "test:start:evm": "../scripts/start-env.sh --profile evm",
     "test:run": "../scripts/run-tests.sh",
     "test:stop": "../scripts/stop-env.sh",
+    "test:stop:evm": "../scripts/stop-env.sh --profile evm",
     "test:vault-token": "../scripts/get-vault-token.sh",
+    "test:evm:smoke": "../scripts/evm-smoke-test.sh && ../scripts/blockscout-smoke-test.sh",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "format": "cross-env prettier-eslint $PWD\"/src/**/*.{ts,tsx,js,jsx,json,css,md}\" --write"
   },

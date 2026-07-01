@@ -1,19 +1,45 @@
 # Polymesh Integration Tests
 
-A set of integration tests for the Polymesh blockchain and an indexer, REST API and SDK.
+Integration tests for Polymesh chain services, REST APIs, and SDK workflows.
 
-Running the integration tests requires node along with some dependencies, e.g jest and the Polymesh SDK
+## Prerequisites
 
-```sh
-yarn # install dependencies (any node package manager)
-```
-
-## Running the tests
+From this `tests` directory:
 
 ```sh
-yarn up # brings up the dev environment
-
-yarn test # run the tests
-
-yarn down # cleans up the dev environment
+yarn
 ```
+
+## Runtime options
+
+Two environment modes are supported:
+
+1. Default mode (without EVM tooling)
+2. EVM tooling mode (`--profile evm`), which includes eth-rpc and Blockscout api and explorer
+
+## Default mode workflow
+
+```sh
+yarn test:start      # starts environment with default profile set
+yarn test:run        # runs integration tests
+yarn test:stop       # stops and removes environment
+```
+
+Or run the full flow with one command:
+
+```sh
+yarn test
+```
+
+## EVM tooling workflow
+
+```sh
+yarn test:start:evm  # starts environment with --profile evm
+yarn test:evm:smoke  # EVM RPC + Blockscout API smoke checks
+yarn test:run        # optional: run integration tests while env is up
+yarn test:stop:evm   # stops and removes env started with --profile evm
+```
+
+## Notes
+
+- EVM tooling is only expected on chain v8+ presets.
