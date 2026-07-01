@@ -40,7 +40,7 @@ services:
       DB_PORT: 5432
       START_BLOCK: 1
       NETWORK_ENDPOINT: ${POLYMESH_CHAIN_WS:-ws://polymesh-node:9944}
-      NETWORK_HTTP_ENDPOINT: http://polymesh-node:9933
+      NETWORK_HTTP_ENDPOINT: http://polymesh-node:9944
       NETWORK_CHAIN_ID: ${CHAIN_ID:-}
       NODE_ENV: local
     command:
@@ -97,26 +97,26 @@ services:
       - polymesh
     ports:
       - ${POLYMESH_CHAIN_WS_PORT:-9944}:9944
-      - ${POLYMESH_CHAIN_RPC_PORT:-9933}:9933
+      - ${POLYMESH_CHAIN_RPC_PORT:-9933}:9944
       - ${POLYMESH_CHAIN_P2P_PORT:-30333}:30333
     volumes:
       - chain-data:/var/lib/polymesh
     command:
       - --base-path=/var/lib/polymesh
-      - --unsafe-ws-external
       - --unsafe-rpc-external
       - --wasm-execution=compiled
       - --no-prometheus
       - --no-telemetry
       - --pruning=archive
       - --no-mdns
+      # - --unsafe-force-node-key-generation
       - --validator
       - --rpc-cors=all
       - --rpc-methods=unsafe
       - --force-authoring
       - --port=30333
       - --alice
-      - --chain=dev
+      - --dev
     configs:
       - source: polymesh-healthcheck-libp2p
         target: /usr/local/bin/polymesh-healthcheck-libp2p.sh
@@ -243,6 +243,7 @@ services:
   # This will make sure vault is initialized and unsealed on the first run and unsealed on subsequent runs
   vault-init:
     image: hashicorp/vault:${VAULT_VERSION:-latest}
+    user: '0:0'
     networks:
       - polymesh
     restart: 'no'
