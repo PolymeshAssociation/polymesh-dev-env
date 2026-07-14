@@ -358,6 +358,9 @@ services:
       NEXT_PUBLIC_NETWORK_CURRENCY_DECIMALS: ${POLYMESH_BLOCKSCOUT_COIN_DECIMALS:-18}
       NEXT_PUBLIC_IS_TESTNET: ${POLYMESH_BLOCKSCOUT_IS_TESTNET:-true}
       NEXT_PUBLIC_API_WEBSOCKET_PROTOCOL: ws
+      # Required to enable in-browser wallet interaction (contract Write tab,
+      # MetaMask, etc). Get a free project ID from https://cloud.reown.com
+      NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: ${POLYMESH_BLOCKSCOUT_WALLET_CONNECT_PROJECT_ID:-}
 
   vault:
     image: hashicorp/vault:${VAULT_VERSION:-latest}

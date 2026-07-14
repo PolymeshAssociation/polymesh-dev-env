@@ -38,3 +38,6 @@ POLYMESH_SUBQUERY_GRAPHQL_PORT=3000
 # POLYMESH_BLOCKSCOUT_SUBNETWORK=Polymesh Dev
 # POLYMESH_BLOCKSCOUT_COIN=POLYX
 # POLYMESH_BLOCKSCOUT_COIN_NAME=POLYX
+# Enables in-browser wallet interaction (contract Write tab, MetaMask, etc).
+# Get a free project ID from https://cloud.reown.com
+# POLYMESH_BLOCKSCOUT_WALLET_CONNECT_PROJECT_ID=
