@@ -11,7 +11,13 @@ import { alphabet, isChainV7, randomNonce } from '~/util';
 import { VaultClient } from '~/vault';
 
 const nonceLength = 9;
-const startingPolyx = 100000;
+// Paid by the worker's admin for every identity a suite creates, out of the
+// 1_000_000 it is given in helpers/admin-setup.ts. At 100_000 the suite's ~80
+// identities needed the entire 8_000_000 budget, so any worker handed an
+// above-average share of suites failed with "Insufficient free balance".
+// 25_000 still dwarfs what a suite spends: protocol fees are 2_500 to create an
+// asset and 500 for a ticker, and no test moves more than 1_000 POLYX.
+const startingPolyx = 25000;
 const { nodeUrl, vaultUrl, vaultToken, vaultTransitPath } = env;
 
 export class TestFactory {

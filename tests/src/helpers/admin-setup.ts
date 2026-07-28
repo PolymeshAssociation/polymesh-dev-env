@@ -9,18 +9,16 @@ import { env } from '../environment';
 
 const maxWorkersSupported = 8;
 
-// Each worker's admin funds every identity its suites create, at 100_000 POLYX
-// a piece (`startingPolyx` in helpers/factory.ts) plus fees. The suite creates
-// ~80 identities, so at 1_000_000 the budget was exactly 100% subscribed: an
-// admin could afford 10 identities and averaged 10, leaving any worker handed
-// an above-average share of suites to fail with "Insufficient free balance".
+// Do not raise this. create-test-admins transfers from a finite source account,
+// and asking for more than it holds fails the whole call on chain with
+// FundsUnavailable. 8 x 1_000_000 is the largest total observed to succeed;
+// 8 x 2_500_000 and 8 x 10_000_000 both failed outright, which left every admin
+// with nothing and the entire suite failing on transaction fees.
 //
-// There is a ceiling at the other end: the source funding these admins cannot
-// cover 8 x 10_000_000, and create-test-admins fails outright when asked to.
-// 8 x 2_500_000 keeps the total at 20_000_000, which the environment's own
-// setup already funds in one call (scripts/rest-api-accounts-init.sh), while
-// giving each admin room for 25 identities against the 10 it averages.
-const startingPolyx = 2500000;
+// Headroom for the suite comes from the other side of the ledger instead: each
+// identity costs `startingPolyx` in helpers/factory.ts, which is sized well
+// below this budget.
+const startingPolyx = 1000000;
 
 export default async (): Promise<void> => {
   const vaultClient = new VaultClient(env.vaultUrl, env.vaultTransitPath, env.vaultToken);
