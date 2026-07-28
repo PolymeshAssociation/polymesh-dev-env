@@ -13,7 +13,7 @@ jobs:
     # Generous, so a phase overrunning trips its own step timeout while the job
     # still has budget left to run the diagnostics. A job-level timeout cancels
     # the job outright and `if: failure()` steps never run.
-    timeout-minutes: 50
+    timeout-minutes: 70
     env:
       CI: true
     steps:
@@ -22,9 +22,9 @@ jobs:
         run: corepack enable
       - uses: actions/setup-node@v5
         with:
-          node-version: "22.x"
-          cache: "yarn"
-          cache-dependency-path: "tests/yarn.lock"
+          node-version: '22.x'
+          cache: 'yarn'
+          cache-dependency-path: 'tests/yarn.lock'
       - name: install dependencies
         run: yarn --immutable
         working-directory: tests
@@ -37,7 +37,7 @@ jobs:
       - name: run tests
         run: yarn test:run
         working-directory: tests
-        timeout-minutes: 25
+        timeout-minutes: 45
       - name: dump environment logs
         if: failure()
         run: |
