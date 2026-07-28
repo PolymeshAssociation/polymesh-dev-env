@@ -6,21 +6,39 @@ jobs:
   test:
     name: Testing
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Deliberately looser than the step timeouts below. A job-level timeout
+    # cancels the job outright, so `if: failure()` steps never get to run.
+    timeout-minutes: 60
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Enable corepack
         run: corepack enable
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: "22.x"
-          cache: "yarn"
-          cache-dependency-path: "tests/yarn.lock"
+          node-version: '22.x'
+          cache: 'yarn'
+          cache-dependency-path: 'tests/yarn.lock'
       - name: install dependencies
         run: yarn --immutable
         working-directory: tests
-      - name: test
-        run: yarn test
+      # Split from `yarn test` so startup and the suite are timed and bounded
+      # separately, and so teardown still runs when either fails
+      - name: start environment
+        run: yarn test:start
+        working-directory: tests
+        timeout-minutes: 12
+      - name: run tests
+        run: yarn test:run
+        working-directory: tests
+        timeout-minutes: 40
+      - name: dump environment logs
+        if: failure()
+        run: |
+          docker compose --env-file envs/latest ps --all || true
+          docker compose --env-file envs/latest logs --no-color --timestamps || true
+      - name: stop environment
+        if: always()
+        run: yarn test:stop
         working-directory: tests
