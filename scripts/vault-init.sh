@@ -48,6 +48,11 @@ initialize_vault() {
 
 unseal_vault() {
     local key
+    if [ ! -f /vault-token/.unseal_key ]; then
+        >&2 echo "Vault reports initialized but /vault-token/.unseal_key is missing."
+        >&2 echo "The vault-volume and vault-root-token volumes are out of sync, remove both and restart."
+        return 1
+    fi
     key=$(cat /vault-token/.unseal_key)
     vault operator unseal $key
 
@@ -106,15 +111,17 @@ while [[ $(($SECONDS - $SECONDS_DELTA)) -lt "$TIMEOUT_SECONDS" ]]; do
     sleep 1
 done
 
+# This must come before reading the token file: on timeout the file was never
+# written, and `set -e` would abort on the `cat` below without reporting why.
+if [ "$READY" = false ]; then
+    >&2 echo "Timed out waiting for Vault to become ready after ${TIMEOUT_SECONDS}s"
+    >&2 echo "Last Vault status: ${STATUS:-<no response from $VAULT_ADDR>}"
+    exit 1
+fi
+
 # Output Vault Root Token
 echo "Vault Root Token: $(cat /vault-token/.token)"
 
 set_status "true"
-
-if [ "$READY" = false ]; then
-    >&2 echo "Timed out waiting for Vault to become ready"
-    set_status "false"
-    exit 1
-fi
 
 ###############################################################

@@ -1,6 +1,10 @@
 name: Run Tests
 on:
   workflow_dispatch:
+  # TEMPORARY: remove before merging. Lets the debug branch trigger CI on push.
+  push:
+    branches:
+      - ci/debug-vault-init
 
 jobs:
   test:
@@ -24,3 +28,8 @@ jobs:
       - name: test
         run: yarn test
         working-directory: tests
+      - name: dump environment logs
+        if: failure()
+        run: |
+          docker compose --env-file envs/latest ps --all || true
+          docker compose --env-file envs/latest logs --no-color --timestamps || true

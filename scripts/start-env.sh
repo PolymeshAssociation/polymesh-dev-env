@@ -66,7 +66,15 @@ if [[ -n "$COMPOSE_PULL_POLICY" ]]; then
 fi
 
 echo "[START ENV] Starting env using $COMPOSE_ENV"
-docker compose "${COMPOSE_ARGS[@]}" up "${UP_ARGS[@]}"
+# `up --detach` never attaches to container stdout, so a failing one-shot service
+# (vault-init, ...) reports only "didn't complete successfully: exit N" with no
+# indication of why. Dump state and logs before giving up.
+if ! docker compose "${COMPOSE_ARGS[@]}" up "${UP_ARGS[@]}"; then
+	echo "[START ENV] Environment failed to start, dumping container state and logs..."
+	docker compose "${COMPOSE_ARGS[@]}" ps --all || true
+	docker compose "${COMPOSE_ARGS[@]}" logs --no-color --timestamps --tail "${COMPOSE_FAILURE_LOG_TAIL:-200}" || true
+	exit 1
+fi
 
 echo "[START ENV] Waiting for a fully initialized environment..."
 # `|| true` swallows all errors, but `docker wait` exits with non-zero in the expected case
