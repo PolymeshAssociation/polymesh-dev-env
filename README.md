@@ -137,6 +137,7 @@ Notes:
 - `--allow-unprotected-txs` is enabled for local experimentation with legacy transaction flows.
 - Blockscout uses dedicated Postgres and Redis services, separate from Subquery services.
 - If you customize ports, keep frontend `NEXT_PUBLIC_API_PORT` aligned with `POLYMESH_BLOCKSCOUT_BACKEND_PORT`.
+- The upstream Blockscout frontend image enables third-party ad slots by default (a banner on the home page and a text ad on token pages). This environment disables them; set `POLYMESH_BLOCKSCOUT_AD_BANNER_PROVIDER` / `POLYMESH_BLOCKSCOUT_AD_TEXT_PROVIDER` to a provider name to re-enable.
 - `envs/7.2` does not include EVM settings because chain v7.2 is not EVM-compatible.
 - Treat EVM support as a v8+ feature set. Use v7.2 only for legacy non-EVM scenarios.
 

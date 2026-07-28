@@ -49,6 +49,10 @@ POLYMESH_SUBQUERY_GRAPHQL_PORT=3000
 # POLYMESH_BLOCKSCOUT_NETWORK_SHORT_NAME=Polymesh
 # POLYMESH_BLOCKSCOUT_COIN_DECIMALS=18
 # POLYMESH_BLOCKSCOUT_IS_TESTNET=true
+# Third-party ad slots are disabled by default. Set a provider name
+# (e.g. slise, coinzilla) to re-enable them.
+# POLYMESH_BLOCKSCOUT_AD_BANNER_PROVIDER=none
+# POLYMESH_BLOCKSCOUT_AD_TEXT_PROVIDER=none
 
 # Optional vault image override
 # VAULT_VERSION=latest

@@ -365,6 +365,11 @@ services:
       # Required to enable in-browser wallet interaction (contract Write tab,
       # MetaMask, etc). Get a free project ID from https://cloud.reown.com
       NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: ${POLYMESH_BLOCKSCOUT_WALLET_CONNECT_PROJECT_ID:-}
+      # The upstream frontend image enables third-party ad slots by default
+      # (a banner on the home page and a text ad on token pages). They are
+      # disabled here; set a provider name to re-enable.
+      NEXT_PUBLIC_AD_BANNER_PROVIDER: ${POLYMESH_BLOCKSCOUT_AD_BANNER_PROVIDER:-none}
+      NEXT_PUBLIC_AD_TEXT_PROVIDER: ${POLYMESH_BLOCKSCOUT_AD_TEXT_PROVIDER:-none}
 
   vault:
     # DEVELOPMENT ONLY. This Vault is not a template for a real deployment: it
