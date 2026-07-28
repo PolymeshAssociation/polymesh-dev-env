@@ -11,7 +11,11 @@ import { alphabet, isChainV7, randomNonce } from '~/util';
 import { VaultClient } from '~/vault';
 
 const nonceLength = 9;
-const startingPolyx = 100000;
+// Paid by the worker's admin for every identity a suite creates, out of the
+// budget it is given in helpers/admin-setup.ts. Keep it well clear of what a
+// suite actually spends, protocol fees are 2_500 to create an asset and 500 for
+// a ticker, and no test moves more than 1_000 POLYX.
+const startingPolyx = 25000;
 const { nodeUrl, vaultUrl, vaultToken, vaultTransitPath } = env;
 
 export class TestFactory {
