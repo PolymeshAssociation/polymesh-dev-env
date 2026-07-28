@@ -1,5 +1,10 @@
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { KnownNftType, MetadataType, VenueType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  InstructionStatus,
+  KnownNftType,
+  MetadataType,
+  VenueType,
+} from '@polymeshassociation/polymesh-sdk/types';
 import assert from 'node:assert';
 
 import { createAsset } from '~/sdk/assets/createAsset';
@@ -48,27 +53,31 @@ export const fungibleAssetControllerTransfer = async (
 
   await awaitMiddlewareSynced(transferTx, sdk, 30, 3000);
 
-  // affirm instruction
+  // Affirm the instruction, if it still needs affirming.
   //
-  // Blocks are 6s, so the old 10 x 2s window only covered about three of them.
-  // The counter party's pending list is served by the middleware, which lags
-  // the chain further under load, and on a busy CI runner three blocks was not
-  // reliably enough. 30 attempts covers ten blocks, still far inside the ~300s
-  // (50 block) validity `getPendingInstructionEndBlock` gives the instruction.
-  let counterInstruction;
-  for (let attempt = 0; attempt < 30; attempt++) {
-    const { pending } = await counterParty.getInstructions();
-    counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
-    if (counterInstruction) {
-      break;
-    }
-    await sleep(2000);
-  }
-  assert(counterInstruction, 'the counter party should have the instruction as pending');
+  // A receiver's affirmation is automatic unless they have opted in via
+  // settlement.setMandatoryReceiverAffirmation, so this single leg instruction,
+  // where the counter party is only receiving, settles on submission and never
+  // appears in their pending list. Only reach for the pending instruction when
+  // it has not already gone through.
+  const { status } = await instruction.details();
 
-  const affirmTx = await counterInstruction.affirm({}, { signingAccount: counterPartyAccount });
-  await affirmTx.run();
-  assert(affirmTx.isSuccess);
+  if (status !== InstructionStatus.Success) {
+    let counterInstruction;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const { pending } = await counterParty.getInstructions();
+      counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
+      if (counterInstruction) {
+        break;
+      }
+      await sleep(2000);
+    }
+    assert(counterInstruction, 'the counter party should have the instruction as pending');
+
+    const affirmTx = await counterInstruction.affirm({}, { signingAccount: counterPartyAccount });
+    await affirmTx.run();
+    assert(affirmTx.isSuccess);
+  }
 
   const controllerTransferTx = await asset.controllerTransfer({
     originPortfolio: targetDid,
@@ -171,14 +180,20 @@ export const nonFungibleAssetControllerTransfer = async (
 
   await awaitMiddlewareSynced(transferTx, sdk);
 
-  // affirm instruction
-  const { pending } = await counterParty.getInstructions();
-  const counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
-  assert(counterInstruction, 'the counter party should have the instruction as pending');
+  // Affirm the instruction, if it still needs affirming. See the note in
+  // fungibleAssetControllerTransfer: a pure receiver affirms automatically, so
+  // the instruction may already have settled.
+  const { status } = await instruction.details();
 
-  const affirmTx = await counterInstruction.affirm({}, { signingAccount: counterPartyAccount });
-  await affirmTx.run();
-  assert(affirmTx.isSuccess);
+  if (status !== InstructionStatus.Success) {
+    const { pending } = await counterParty.getInstructions();
+    const counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
+    assert(counterInstruction, 'the counter party should have the instruction as pending');
+
+    const affirmTx = await counterInstruction.affirm({}, { signingAccount: counterPartyAccount });
+    await affirmTx.run();
+    assert(affirmTx.isSuccess);
+  }
 
   const controllerTransferTx = await collection.controllerTransfer({
     originPortfolio: targetDid,
