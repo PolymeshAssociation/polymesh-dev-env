@@ -49,8 +49,14 @@ export const fungibleAssetControllerTransfer = async (
   await awaitMiddlewareSynced(transferTx, sdk, 30, 3000);
 
   // affirm instruction
+  //
+  // Blocks are 6s, so the old 10 x 2s window only covered about three of them.
+  // The counter party's pending list is served by the middleware, which lags
+  // the chain further under load, and on a busy CI runner three blocks was not
+  // reliably enough. 30 attempts covers ten blocks, still far inside the ~300s
+  // (50 block) validity `getPendingInstructionEndBlock` gives the instruction.
   let counterInstruction;
-  for (let attempt = 0; attempt < 10; attempt++) {
+  for (let attempt = 0; attempt < 30; attempt++) {
     const { pending } = await counterParty.getInstructions();
     counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
     if (counterInstruction) {
