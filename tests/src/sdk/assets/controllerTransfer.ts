@@ -1,10 +1,51 @@
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
-import { KnownNftType, MetadataType, VenueType } from '@polymeshassociation/polymesh-sdk/types';
+import {
+  Account,
+  Instruction,
+  KnownNftType,
+  MetadataType,
+  VenueType,
+} from '@polymeshassociation/polymesh-sdk/types';
 import assert from 'node:assert';
 
 import { createAsset } from '~/sdk/assets/createAsset';
 import { createNftCollection } from '~/sdk/assets/createNftCollection';
-import { awaitMiddlewareSynced, getPendingInstructionEndBlock, sleep } from '~/util';
+import { awaitMiddlewareSynced, sleep } from '~/util';
+
+/**
+ * Wait for an instruction the counter party only receives on to settle,
+ * affirming as the receiver when the chain requires it.
+ *
+ * The submitter affirms on submission, and from chain v8 a party that only
+ * receives is affirmed automatically unless it has opted in through
+ * settlement.setMandatoryReceiverAffirmation. Such an instruction therefore
+ * settles with no further action and never reaches the receiver's pending list.
+ * Earlier chains need the receiver's affirmation before it can execute.
+ */
+const settleAsReceiver = async (
+  instruction: Instruction,
+  receiverAccount: Account,
+  retries = 15,
+  delay = 2000
+): Promise<void> => {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    if (await instruction.isExecuted()) {
+      return;
+    }
+
+    // An instruction with affirmations outstanding cannot execute, and the count
+    // reads zero once it has, so this cannot race with settlement
+    if ((await instruction.getPendingAffirmationCount()).gt(0)) {
+      const affirmTx = await instruction.affirm({}, { signingAccount: receiverAccount });
+      await affirmTx.run();
+      assert(affirmTx.isSuccess, 'the receiver should be able to affirm the instruction');
+    }
+
+    await sleep(delay);
+  }
+
+  assert(await instruction.isExecuted(), 'the transfer instruction should have settled');
+};
 
 /*
   This script showcases VenueFiltering related functionality. It:
@@ -30,8 +71,6 @@ export const fungibleAssetControllerTransfer = async (
   assert(signerIdentity);
   const { account: counterPartyAccount } = await counterParty.getPrimaryAccount();
 
-  const endBlock = await getPendingInstructionEndBlock(sdk);
-
   const venueTx = await sdk.settlements.createVenue({
     description: 'Controller transfer venue',
     type: VenueType.Exchange,
@@ -39,30 +78,15 @@ export const fungibleAssetControllerTransfer = async (
   const venue = await venueTx.run();
   assert(venueTx.isSuccess);
 
+  // No end block, so the instruction settles as soon as it is fully affirmed.
+  // The controller transfer below needs the counter party to hold the asset
   const transferTx = await venue.addInstruction({
     legs: [{ asset, from: signerIdentity, to: targetDid, amount: new BigNumber(1000) }],
-    endBlock,
   });
   const instruction = await transferTx.run();
   assert(transferTx.isSuccess);
 
-  await awaitMiddlewareSynced(transferTx, sdk, 30, 3000);
-
-  // affirm instruction
-  let counterInstruction;
-  for (let attempt = 0; attempt < 10; attempt++) {
-    const { pending } = await counterParty.getInstructions();
-    counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
-    if (counterInstruction) {
-      break;
-    }
-    await sleep(2000);
-  }
-  assert(counterInstruction, 'the counter party should have the instruction as pending');
-
-  const affirmTx = await counterInstruction.affirm({}, { signingAccount: counterPartyAccount });
-  await affirmTx.run();
-  assert(affirmTx.isSuccess);
+  await settleAsReceiver(instruction, counterPartyAccount);
 
   const controllerTransferTx = await asset.controllerTransfer({
     originPortfolio: targetDid,
@@ -72,15 +96,17 @@ export const fungibleAssetControllerTransfer = async (
 
   assert(controllerTransferTx.isSuccess);
 
+  await awaitMiddlewareSynced(controllerTransferTx, sdk, 30, 3000);
+
   const assetHolders = await asset.assetHolders.get();
 
   const heldByIssuer = assetHolders.data.find(({ identity }) => identity.isEqual(signerIdentity));
   assert(heldByIssuer);
-  expect(heldByIssuer.balance.eq(new BigNumber(1100)));
+  expect(heldByIssuer.balance.toNumber()).toEqual(1100);
 
   const heldByCounterParty = assetHolders.data.find(({ identity }) => identity.did === targetDid);
   assert(heldByCounterParty);
-  expect(heldByCounterParty.balance.eq(new BigNumber(900)));
+  expect(heldByCounterParty.balance.toNumber()).toEqual(900);
 };
 
 /*
@@ -147,8 +173,6 @@ export const nonFungibleAssetControllerTransfer = async (
 
   const nft2 = await issueTx2.run();
 
-  const endBlock = await getPendingInstructionEndBlock(sdk);
-
   const venueTx = await sdk.settlements.createVenue({
     description: 'Controller transfer venue',
     type: VenueType.Exchange,
@@ -156,23 +180,15 @@ export const nonFungibleAssetControllerTransfer = async (
   const venue = await venueTx.run();
   assert(venueTx.isSuccess);
 
+  // No end block, so the instruction settles as soon as it is fully affirmed.
+  // The controller transfer below needs the counter party to hold the NFTs
   const transferTx = await venue.addInstruction({
     legs: [{ asset: collection, nfts: [nft, nft2], from: signerIdentity, to: targetDid }],
-    endBlock,
   });
   const instruction = await transferTx.run();
   assert(transferTx.isSuccess);
 
-  await awaitMiddlewareSynced(transferTx, sdk);
-
-  // affirm instruction
-  const { pending } = await counterParty.getInstructions();
-  const counterInstruction = pending.find(({ id }) => id.eq(instruction.id));
-  assert(counterInstruction, 'the counter party should have the instruction as pending');
-
-  const affirmTx = await counterInstruction.affirm({}, { signingAccount: counterPartyAccount });
-  await affirmTx.run();
-  assert(affirmTx.isSuccess);
+  await settleAsReceiver(instruction, counterPartyAccount);
 
   const controllerTransferTx = await collection.controllerTransfer({
     originPortfolio: targetDid,
@@ -181,6 +197,8 @@ export const nonFungibleAssetControllerTransfer = async (
   await controllerTransferTx.run();
 
   assert(controllerTransferTx.isSuccess);
+
+  await awaitMiddlewareSynced(controllerTransferTx, sdk);
 
   const assetHolders = await collection.assetHolders.get({});
 
@@ -207,6 +225,8 @@ export const nonFungibleAssetControllerTransfer = async (
   await controllerTransferTx2.run();
 
   assert(controllerTransferTx2.isSuccess);
+
+  await awaitMiddlewareSynced(controllerTransferTx2, sdk);
 
   const assetHolders2 = await collection.assetHolders.get({});
 
