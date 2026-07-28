@@ -376,8 +376,13 @@ services:
     volumes:
       - vault-volume:/vault/file:rw
       - vault-log-volume:/vault/logs:rw
-    cap_add:
-      - IPC_LOCK # Prevents secrets from swapping to disk
+    # DEVELOPMENT ONLY. This Vault is not a template for a real deployment: it
+    # runs without TLS, initializes with a single unseal key, and writes both
+    # that key and the root token in plaintext to the vault-root-token volume
+    # for other services to read. `disable_mlock` is set in vault-config.json
+    # to match, since the image's binary carries no cap_ipc_lock file
+    # capability and runs as non-root, so mlock fails wherever the host's
+    # memlock rlimit is finite (GitHub Actions runners, for example).
     configs:
       - source: vault-config
         target: /vault/config/vault.json
