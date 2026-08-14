@@ -131,22 +131,7 @@ export const createSto = async (
   assert(investTx.isSuccess);
 
   await enableOffChainFunding(investableOffering);
-
-  /*
-    Known SDK defect (as of 31.0.0-beta.7). The chain's `FundraiserReceiptDetails` carries an
-    `expiresAt` field which `offChainFundingReceiptDetailsToMeshReceiptDetails` never sets, so it
-    is encoded as 0 and the chain rejects every off-chain funded investment as `sto.ReceiptExpired`.
-    `generateOffChainFundingReceipt` has no `expiresAt` parameter to supply one either. The
-    equivalent fix landed for settlement receipts in 30.1.1-beta.3 but not for STO funding receipts.
-
-    When the SDK is fixed this assertion will start failing: swap it for a success assertion.
-  */
-  await assert.rejects(
-    () =>
-      investWithOffChainFunding(investableOffering, investor, investorPortfolio, investorAccount),
-    /ReceiptExpired/,
-    'off chain funded investment should fail until the receipt expiry is encoded'
-  );
+  await investWithOffChainFunding(investableOffering, investor, investorPortfolio, investorAccount);
 
   // Freeze the offering
   const freezeTx = await offering.freeze();
@@ -207,6 +192,7 @@ export const investWithOffChainFunding = async (
     sender: investor,
     metadata: 'Off chain metadata',
     signer: investorAccount,
+    expiresAt: new Date('2055/01/01'),
   });
 
   const offChainInvestTx = await offering.invest(
