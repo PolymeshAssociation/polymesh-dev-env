@@ -8,6 +8,7 @@ import { wellKnown } from '~/consts';
   This script showcases Dividend Distribution related functionality. It:
     - Creates a Dividend Distribution
     - Modifies its Checkpoint
+    - Links documents to the Corporate Action and fetches them back
     - Fetches the Distribution details
     - Fetches all the Distribution participants
     - Pushes dividend payments
@@ -82,6 +83,46 @@ export const manageDistributions = async (
   });
   await modifyCheckpointTx.run();
   assert(modifyCheckpointTx.isSuccess);
+
+  // a Corporate Action starts with no documents linked to it
+  const documentsBefore = await distribution.getDocuments();
+  assert(
+    documentsBefore.length === 0,
+    `a new Corporate Action should have no linked documents, got ${documentsBefore.length}`
+  );
+
+  /*
+    Only documents already registered against the Asset can be linked to a Corporate Action,
+    so they are added to the Asset first
+  */
+  const caDocument = {
+    name: 'Distribution Terms',
+    uri: 'https://example.com/distribution-terms.pdf',
+    contentHash: '0x01'.padEnd(66, '0'),
+    type: 'Terms',
+  };
+
+  const addDocumentsTx = await asset.documents.add({ documents: [caDocument] });
+  await addDocumentsTx.run();
+  assert(addDocumentsTx.isSuccess);
+
+  const linkDocumentsTx = await distribution.linkDocuments({ documents: [caDocument] });
+  await linkDocumentsTx.run();
+  assert(linkDocumentsTx.isSuccess);
+
+  const linkedDocuments = await distribution.getDocuments();
+  assert(
+    linkedDocuments.length === 1,
+    `the Corporate Action should have one linked document, got ${linkedDocuments.length}`
+  );
+  assert(
+    linkedDocuments[0].name === caDocument.name && linkedDocuments[0].uri === caDocument.uri,
+    'the linked document should be the one added to the Asset'
+  );
+  assert(
+    linkedDocuments[0].id instanceof BigNumber,
+    'a linked document should carry its on-chain ID'
+  );
 
   // fetch distribution details (whether funds have been reclaimed and the amount of remaining funds)
   const { remainingFunds, fundsReclaimed } = await distribution.details();
