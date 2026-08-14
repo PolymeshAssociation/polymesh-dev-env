@@ -13,6 +13,7 @@ import assert from 'node:assert';
     - Fetches Schedule details
     - Fetches Checkpoints originated by a Schedule
     - Fetches a single Schedule for an asset
+    - Fetches the next Checkpoint across all of the asset's Schedules
     - Deletes a Schedule
 */
 export const manageCheckpoints = async (sdk: Polymesh, asset: FungibleAsset): Promise<void> => {
@@ -89,6 +90,23 @@ export const manageCheckpoints = async (sdk: Polymesh, asset: FungibleAsset): Pr
   assert(
     schedule.schedule.id.eq(activeSchedules[0].schedule.id),
     'schedule should be the same as the one fetched'
+  );
+
+  // the next Checkpoint is aggregated across every active Schedule of the asset
+  const nextCheckpoint = await asset.checkpoints.schedules.getNextCheckpoint();
+  assert(nextCheckpoint, `${asset.id} should report a next Checkpoint while a Schedule is active`);
+  assert(nextCheckpoint.nextAt instanceof Date, 'the next Checkpoint should report a date');
+  assert(
+    nextCheckpoint.totalPending.eq(remainingCheckpoints),
+    `the pending Checkpoint total (${nextCheckpoint.totalPending.toString()}) should match the Schedule's remaining Checkpoints (${remainingCheckpoints.toString()})`
+  );
+  assert(
+    nextCheckpoint.schedules.some(({ id }) => id.eq(newSchedule.id)),
+    'the next Checkpoint should be attributed to the created Schedule'
+  );
+  assert(
+    nextCheckpoint.nextAt.getTime() === nextCheckpointDate.getTime(),
+    "the aggregated next Checkpoint date should match the only Schedule's next date"
   );
 
   // A schedule can be removed if its no longer needed
