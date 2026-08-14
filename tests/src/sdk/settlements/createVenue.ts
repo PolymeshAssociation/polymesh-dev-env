@@ -23,11 +23,21 @@ export const createVenue = async (
   assert(venueTx.isSuccess);
 
   if (createVenueParams.signers?.length) {
-    const allowedSigners = await venue.getAllowedSigners();
+    const [allowedSigners, signerCount] = await Promise.all([
+      venue.getAllowedSigners(),
+      venue.getSignerCount(),
+    ]);
 
     assert(
       allowedSigners.map(({ address }) => createVenueParams.signers?.includes(address)),
       'signers are added to the Venue'
+    );
+
+    assert(
+      signerCount.eq(allowedSigners.length),
+      `the Venue signer count (${signerCount.toString()}) should match the allowed signers (${
+        allowedSigners.length
+      })`
     );
   }
   return venue;
