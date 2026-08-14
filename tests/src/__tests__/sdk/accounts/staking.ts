@@ -3,16 +3,17 @@ import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import { Account } from '@polymeshassociation/polymesh-sdk/types';
 
 import { TestFactory } from '~/helpers';
-import { isChainV7 } from '~/util';
 
 let factory: TestFactory;
-const handles = ['stash', 'controller', 'payee'];
+const handles = ['stash', 'payee'];
 
 describe('staking', () => {
   let sdk: Polymesh;
   let stash: Account;
-  let controller: Account;
   let payee: Account;
+  let unbondedAccount: Account;
+
+  const bondAmount = new BigNumber(10);
 
   beforeAll(async () => {
     factory = await TestFactory.create({ handles });
@@ -22,21 +23,21 @@ describe('staking', () => {
     const stashAddress = factory.signingManager.addAccount({
       mnemonic: stashMnemonic,
     });
-    const controllerMnemonic = LocalSigningManager.generateAccount();
-    const controllerAddress = factory.signingManager.addAccount({
-      mnemonic: controllerMnemonic,
-    });
     const payeeMnemonic = LocalSigningManager.generateAccount();
     const payeeAddress = factory.signingManager.addAccount({
       mnemonic: payeeMnemonic,
     });
+    const unbondedMnemonic = LocalSigningManager.generateAccount();
+    const unbondedAddress = factory.signingManager.addAccount({
+      mnemonic: unbondedMnemonic,
+    });
 
-    await factory.createIdentityForAddresses([stashAddress, controllerAddress, payeeAddress]);
+    await factory.createIdentityForAddresses([stashAddress, payeeAddress, unbondedAddress]);
 
-    [stash, controller, payee] = await Promise.all([
+    [stash, payee, unbondedAccount] = await Promise.all([
       sdk.accountManagement.getAccount({ address: stashAddress }),
-      sdk.accountManagement.getAccount({ address: controllerAddress }),
       sdk.accountManagement.getAccount({ address: payeeAddress }),
+      sdk.accountManagement.getAccount({ address: unbondedAddress }),
     ]);
   });
 
@@ -44,11 +45,16 @@ describe('staking', () => {
     await factory.close();
   });
 
+  it('should return a null payee for an Account that has never bonded', async () => {
+    const currentPayee = await unbondedAccount.staking.getPayee();
+
+    expect(currentPayee).toBeNull();
+  });
+
   it('should allow an account to bond polyx', async () => {
     const bondTx = await sdk.staking.bond(
       {
-        amount: new BigNumber(10),
-        controller: stash,
+        amount: bondAmount,
         payee: stash,
         autoStake: true,
       },
@@ -69,30 +75,32 @@ describe('staking', () => {
     expect(currentLedger?.stash.address).toEqual(stash.address);
   });
 
-  it('should allow for a controller to be reassigned', async () => {
-    if (!isChainV7(sdk)) {
-      return;
-    }
+  it('should report bonded POLYX as reserved on the stash balance', async () => {
+    const { free, locked, total, reserved, frozen } = await stash.getBalance();
 
-    const setControllerTx = await sdk.staking.setController(
-      { controller },
-      { signingAccount: stash }
-    );
+    expect(reserved.gte(bondAmount)).toBe(true);
+    expect(total).toEqual(free.plus(locked));
+    expect(locked).toEqual(total.minus(free));
+    expect(frozen.gte(0)).toBe(true);
+  });
 
-    await expect(setControllerTx.run()).resolves.not.toThrow();
-
+  it('should reject pairing a stash that is already its own controller', async () => {
+    /*
+      As of chain v8 a stash is bonded as its own controller, so `setController` only has an
+      effect for legacy stashes that still have a separate controller
+    */
     const currentController = await stash.staking.getController();
-    expect(currentController?.address).toEqual(controller.address);
+    expect(currentController?.address).toEqual(stash.address);
+
+    const setControllerTx = await sdk.staking.setController({ signingAccount: stash });
+
+    await expect(setControllerTx.run()).rejects.toThrow(/AlreadyPaired/);
   });
 
   it('should allow for a payee to be reassigned', async () => {
-    if (!isChainV7(sdk)) {
-      return;
-    }
-
     const setPayeeTx = await sdk.staking.setPayee(
       { payee, autoStake: false },
-      { signingAccount: controller }
+      { signingAccount: stash }
     );
 
     await expect(setPayeeTx.run()).resolves.not.toThrow();
@@ -103,11 +111,7 @@ describe('staking', () => {
   });
 
   it('should allow for the stash to bond extra', async () => {
-    if (!isChainV7(sdk)) {
-      return;
-    }
-
-    const ledgerBefore = await controller.staking.getLedger();
+    const ledgerBefore = await stash.staking.getLedger();
 
     const bondMoreTx = await sdk.staking.bondExtra(
       { amount: new BigNumber(5) },
@@ -116,30 +120,19 @@ describe('staking', () => {
 
     await expect(bondMoreTx.run()).resolves.not.toThrow();
 
-    const ledgerAfter = await controller.staking.getLedger();
+    const ledgerAfter = await stash.staking.getLedger();
 
     expect(ledgerBefore?.total.plus(5)).toEqual(ledgerAfter?.total);
   });
 
   it('should allow for a controller to unbond', async () => {
-    if (!isChainV7(sdk)) {
-      return;
-    }
-
-    const unbondTx = await sdk.staking.unbond(
-      { amount: new BigNumber(10) },
-      { signingAccount: controller }
-    );
+    const unbondTx = await sdk.staking.unbond({ amount: bondAmount }, { signingAccount: stash });
 
     await expect(unbondTx.run()).resolves.not.toThrow();
   });
 
   it('should allow for the controller to call withdraw', async () => {
-    if (!isChainV7(sdk)) {
-      return;
-    }
-
-    const withdraw = await sdk.staking.withdraw({ signingAccount: controller });
+    const withdraw = await sdk.staking.withdraw({ signingAccount: stash });
 
     await expect(withdraw.run()).resolves.not.toThrow();
   });
