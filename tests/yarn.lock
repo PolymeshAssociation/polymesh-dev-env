@@ -1380,9 +1380,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@polymeshassociation/polymesh-sdk@npm:30.1.0":
-  version: 30.1.0
-  resolution: "@polymeshassociation/polymesh-sdk@npm:30.1.0"
+"@polymeshassociation/polymesh-sdk@npm:31.0.0-beta.7":
+  version: 31.0.0-beta.7
+  resolution: "@polymeshassociation/polymesh-sdk@npm:31.0.0-beta.7"
   dependencies:
     "@apollo/client": "npm:^3.8.1"
     "@polkadot/api": "npm:16.5.2"
@@ -1400,7 +1400,7 @@ __metadata:
     semver: "npm:^7.5.4"
     ts-morph: "npm:^25.0.1"
     ws: "npm:^8.18.3"
-  checksum: 10c0/29c4634d6717d3e8b444858ba763b77a021c7ac0c9895ae0535130d6dc3e6ddb549d42d57a24a719960de17f75aedd2013fdfe6f2f6c3397b366ac4935119534
+  checksum: 10c0/15239455c18e2af83ee4e5b01ece76a36905d705713cfad0d8674fb8ba56163144d274f696538c2be9a1ad8d58f7cd2bfe1b92facd2cfcce3f00ede0a32d2e4b
   languageName: node
   linkType: hard
 
@@ -6401,7 +6401,7 @@ __metadata:
   resolution: "polymesh-dev-env@workspace:."
   dependencies:
     "@polymeshassociation/local-signing-manager": "npm:^4.1.1"
-    "@polymeshassociation/polymesh-sdk": "npm:30.1.0"
+    "@polymeshassociation/polymesh-sdk": "npm:31.0.0-beta.7"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^22.15.17"
     "@typescript-eslint/eslint-plugin": "npm:4.29.0"

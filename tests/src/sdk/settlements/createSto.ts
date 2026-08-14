@@ -1,10 +1,15 @@
 import { BigNumber, Polymesh } from '@polymeshassociation/polymesh-sdk';
 import {
+  Account,
+  DefaultPortfolio,
   FungibleAsset,
+  Identity,
+  NumberedPortfolio,
+  Offering,
   OfferingBalanceStatus,
   OfferingSaleStatus,
   OfferingTimingStatus,
-  VenueType
+  VenueType,
 } from '@polymeshassociation/polymesh-sdk/types';
 import assert from 'node:assert';
 
@@ -125,44 +130,23 @@ export const createSto = async (
   await investTx.run();
   assert(investTx.isSuccess);
 
-  let offChainFundingDetails = await investableOffering.offChainFundingDetails();
-  assert(offChainFundingDetails.enabled === false, 'off chain funding should be disabled');
+  await enableOffChainFunding(investableOffering);
 
-  const enableOffChainFundingTx = await investableOffering.enableOffChainFunding({
-    offChainTicker: 'OFFCHAIN1234',
-  });
-  await enableOffChainFundingTx.run();
-  assert(enableOffChainFundingTx.isSuccess);
+  /*
+    Known SDK defect (as of 31.0.0-beta.7). The chain's `FundraiserReceiptDetails` carries an
+    `expiresAt` field which `offChainFundingReceiptDetailsToMeshReceiptDetails` never sets, so it
+    is encoded as 0 and the chain rejects every off-chain funded investment as `sto.ReceiptExpired`.
+    `generateOffChainFundingReceipt` has no `expiresAt` parameter to supply one either. The
+    equivalent fix landed for settlement receipts in 30.1.1-beta.3 but not for STO funding receipts.
 
-  offChainFundingDetails = await investableOffering.offChainFundingDetails();
-  assert(offChainFundingDetails.enabled === true, 'off chain funding should be enabled');
-  assert(
-    offChainFundingDetails.offChainTicker === 'OFFCHAIN1234',
-    'off chain funding should be enabled'
+    When the SDK is fixed this assertion will start failing: swap it for a success assertion.
+  */
+  await assert.rejects(
+    () =>
+      investWithOffChainFunding(investableOffering, investor, investorPortfolio, investorAccount),
+    /ReceiptExpired/,
+    'off chain funded investment should fail until the receipt expiry is encoded'
   );
-
-  const authChainFundingReceipt = await investableOffering.generateOffChainFundingReceipt({
-    uid: new BigNumber(1),
-    offChainTicker: 'OFFCHAIN1234',
-    amount: new BigNumber(100),
-    sender: investor,
-    metadata: 'Off chain metadata',
-    signer: investorAccount,
-  });
-
-  const offChainInvestTx = await investableOffering.invest(
-    {
-      offChainTicker: 'OFFCHAIN1234',
-      offChainFundingReceipt: authChainFundingReceipt,
-      purchasePortfolio: investorPortfolio,
-      purchaseAmount: new BigNumber(10),
-      maxPrice: new BigNumber(11),
-    },
-    { signingAccount: investorAccount }
-  );
-
-  await offChainInvestTx.run();
-  assert(offChainInvestTx.isSuccess);
 
   // Freeze the offering
   const freezeTx = await offering.freeze();
@@ -182,4 +166,60 @@ export const createSto = async (
   // Fetch investments from the offering
   const { data: investments } = await offering.getInvestments();
   assert(investments.length > 0, 'the asset should have investments');
+};
+
+export const offChainFundingTicker = 'OFFCHAIN1234';
+
+/**
+ * Turns on off-chain funding for an Offering so investments can be settled with a signed receipt
+ */
+export const enableOffChainFunding = async (offering: Offering): Promise<void> => {
+  const detailsBefore = await offering.offChainFundingDetails();
+  assert(detailsBefore.enabled === false, 'off chain funding should be disabled');
+
+  const enableOffChainFundingTx = await offering.enableOffChainFunding({
+    offChainTicker: offChainFundingTicker,
+  });
+  await enableOffChainFundingTx.run();
+  assert(enableOffChainFundingTx.isSuccess);
+
+  const detailsAfter = await offering.offChainFundingDetails();
+  assert(detailsAfter.enabled === true, 'off chain funding should be enabled');
+  assert(
+    detailsAfter.offChainTicker === offChainFundingTicker,
+    'off chain funding should be enabled for the given ticker'
+  );
+};
+
+/**
+ * Invests in an Offering using an off-chain funding receipt
+ */
+export const investWithOffChainFunding = async (
+  offering: Offering,
+  investor: Identity,
+  investorPortfolio: DefaultPortfolio | NumberedPortfolio,
+  investorAccount: Account
+): Promise<void> => {
+  const fundingReceipt = await offering.generateOffChainFundingReceipt({
+    uid: new BigNumber(1),
+    offChainTicker: offChainFundingTicker,
+    amount: new BigNumber(100),
+    sender: investor,
+    metadata: 'Off chain metadata',
+    signer: investorAccount,
+  });
+
+  const offChainInvestTx = await offering.invest(
+    {
+      offChainTicker: offChainFundingTicker,
+      offChainFundingReceipt: fundingReceipt,
+      purchasePortfolio: investorPortfolio,
+      purchaseAmount: new BigNumber(10),
+      maxPrice: new BigNumber(11),
+    },
+    { signingAccount: investorAccount }
+  );
+
+  await offChainInvestTx.run();
+  assert(offChainInvestTx.isSuccess);
 };

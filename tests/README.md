@@ -43,3 +43,5 @@ yarn test:stop:evm   # stops and removes env started with --profile evm
 ## Notes
 
 - EVM tooling is only expected on chain v8+ presets.
+- The suite requires a **chain v8 preset** (`envs/8.0`, `envs/latest`). The Polymesh SDK dropped v7
+  support in v31 and throws on connecting to a v7 node, so `envs/7.2` can no longer be used here.

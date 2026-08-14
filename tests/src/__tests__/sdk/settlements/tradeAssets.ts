@@ -6,7 +6,6 @@ import { TestFactory } from '~/helpers';
 import { createAsset } from '~/sdk/assets/createAsset';
 import { tradeAssets } from '~/sdk/settlements/tradeAssets';
 import { tradeOffChainAssets } from '~/sdk/settlements/tradeOffChainAssets';
-import { isChainV7 } from '~/util';
 
 let factory: TestFactory;
 let counterPartyDid: string;
@@ -69,10 +68,6 @@ describe('tradeAssets', () => {
   });
 
   it('should transfer off chain assets', async () => {
-    if (!isChainV7(sdk)) {
-      return;
-    }
-
     const bid = {
       ticker: bidOffChainTicker,
       offChainAmount: new BigNumber(10),

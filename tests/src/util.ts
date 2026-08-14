@@ -143,12 +143,6 @@ export const awaitMiddlewareSyncedForRestApi = async (
 export const getDayInFuture = (days: number): Date =>
   new Date(Date.now() + 1000 * 60 * 60 * 24 * days);
 
-type PolymeshWithContext = Polymesh & {
-  context: { isV7: boolean };
-};
-
-export const isChainV7 = (sdk: Polymesh): boolean => (sdk as PolymeshWithContext).context.isV7;
-
 export const isRestError = (
   result: unknown
 ): result is { statusCode: number; message?: string | string[] } =>
@@ -231,7 +225,7 @@ export const createDirectInstruction = async (
 };
 
 /**
- * On chain v8, venue instructions without an end block can auto-execute and be purged
+ * Venue instructions without an end block can auto-execute and be purged
  * before the API returns. Tests that need a pending instruction should pass this.
  */
 export const withPendingInstructionBlock = async <T extends Record<string, unknown>>(
@@ -240,31 +234,23 @@ export const withPendingInstructionBlock = async <T extends Record<string, unkno
   params: T,
   blocksAhead = 50
 ): Promise<T & { endAfterBlock?: string }> => {
-  if (isChainV7(polymeshSdk)) {
-    return params;
-  }
-
-  const latestBlock = await restClient.network.getLatestBlock();
+  const endAfterBlock = await getPendingInstructionEndBlock(polymeshSdk, restClient, blocksAhead);
 
   return {
     ...params,
-    endAfterBlock: (Number(latestBlock.id) + blocksAhead).toString(),
+    endAfterBlock: endAfterBlock.toString(),
   };
 };
 
 /**
- * On v8, instructions without an end block can auto-settle immediately.
+ * Instructions without an end block can auto-settle immediately.
  * SDK settlement helpers should pass this as `endBlock` / `endAfterBlock`.
  */
 export const getPendingInstructionEndBlock = async (
   polymeshSdk: Polymesh,
   restClient?: RestClient,
   blocksAhead = 50
-): Promise<BigNumber | undefined> => {
-  if (isChainV7(polymeshSdk)) {
-    return undefined;
-  }
-
+): Promise<BigNumber> => {
   if (restClient) {
     const latestBlock = await restClient.network.getLatestBlock();
     return new BigNumber(Number(latestBlock.id) + blocksAhead);

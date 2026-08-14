@@ -7,7 +7,7 @@ import { RestClient } from '~/rest';
 import { ProcessMode } from '~/rest/common';
 import { Identity } from '~/rest/identities';
 import { RestErrorResult, ResultSet } from '~/rest/interfaces';
-import { alphabet, isChainV7, randomNonce } from '~/util';
+import { alphabet, randomNonce } from '~/util';
 import { VaultClient } from '~/vault';
 
 const nonceLength = 9;
@@ -109,29 +109,25 @@ export class TestFactory {
   }
 
   public async createIdentityForAddresses(addresses: string[]): Promise<ResultSet<Identity>> {
-    if (!isChainV7(this.polymeshSdk)) {
-      await this.prefundAddresses(addresses);
-      await this.selfRegisterAddresses(addresses);
-      await this.fundTestAccountsFromAdmin(addresses);
+    await this.prefundAddresses(addresses);
+    await this.selfRegisterAddresses(addresses);
+    await this.fundTestAccountsFromAdmin(addresses);
 
-      const results = await Promise.all(
-        addresses.map(async (address) => {
-          const { identity } = await this.restClient.get<{ identity: Identity }>(
-            `/accounts/${address}`
-          );
+    const results = await Promise.all(
+      addresses.map(async (address) => {
+        const { identity } = await this.restClient.get<{ identity: Identity }>(
+          `/accounts/${address}`
+        );
 
-          if (!identity) {
-            throw new Error(`Identity was not found for ${address} after registration`);
-          }
+        if (!identity) {
+          throw new Error(`Identity was not found for ${address} after registration`);
+        }
 
-          return identity;
-        })
-      );
+        return identity;
+      })
+    );
 
-      return { results, total: String(results.length) };
-    }
-
-    return this.fundTestAccounts(addresses);
+    return { results, total: String(results.length) };
   }
 
   private async prefundAddresses(addresses: string[]): Promise<void> {
@@ -242,11 +238,6 @@ export class TestFactory {
     await this.polymeshSdk.setSigningManager(this.signingManager);
 
     const addresses = await this.signingManager.getAccounts();
-
-    if (isChainV7(this.polymeshSdk)) {
-      await this.fundTestAccounts(addresses);
-      return;
-    }
 
     const [address] = addresses;
 

@@ -9,7 +9,6 @@ import {
   quitSubsidyParams,
   setSubsidyAllowanceParams,
 } from '~/rest/subsidy';
-import { isChainV7 } from '~/util';
 
 const handles = ['subsidizer', 'beneficiary'];
 let factory: TestFactory;
@@ -92,12 +91,8 @@ describe('Subsidy', () => {
       options: { processMode: ProcessMode.Submit, signer: beneficiary.signer },
     });
 
-    const quitTag = isChainV7(factory.polymeshSdk)
-      ? 'relayer.removePayingKey'
-      : 'relayer.removeSubsidy';
-
     const result = await restClient.subsidy.quitSubsidy(params);
 
-    expect(result).toEqual(assertTagPresent(expect, quitTag));
+    expect(result).toEqual(assertTagPresent(expect, 'relayer.removeSubsidy'));
   });
 });

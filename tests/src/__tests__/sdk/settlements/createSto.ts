@@ -5,7 +5,6 @@ import { FungibleAsset } from '@polymeshassociation/polymesh-sdk/types';
 import { TestFactory } from '~/helpers';
 import { createAsset } from '~/sdk/assets/createAsset';
 import { createSto } from '~/sdk/settlements/createSto';
-import { isChainV7 } from '~/util';
 
 let factory: TestFactory;
 
@@ -40,10 +39,6 @@ describe('createSto', () => {
   });
 
   it('should execute without errors', async () => {
-    if (!isChainV7(sdk)) {
-      return;
-    }
-
     await createSto(sdk, investorDid, offeringAsset, raisingAsset);
   });
 });
