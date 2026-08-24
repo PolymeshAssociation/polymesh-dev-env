@@ -20,6 +20,7 @@ import {
   setTransferRestrictionsParams,
   setTransferRestrictionStatsParams,
   transferAssetOwnershipParams,
+  transferFundsParams,
 } from '~/rest/assets/params';
 import { RestClient } from '~/rest/client';
 import { TxBase } from '~/rest/common';
@@ -36,6 +37,19 @@ export class Assets {
 
   public async createAsset(params: ReturnType<typeof createAssetParams>): Promise<PostResult> {
     return this.client.post('/assets/create', params);
+  }
+
+  public async transferFunds(
+    params: ReturnType<typeof transferFundsParams>
+  ): Promise<PostResult & { instruction?: string }> {
+    return this.client.post('/assets/transfer-funds', params);
+  }
+
+  public async getIssuedInFundingRound(
+    asset: string,
+    round: string
+  ): Promise<{ fundingRound: string; issued: string }> {
+    return this.client.get(`/assets/${asset}/funding-rounds/${encodeURIComponent(round)}/issued`);
   }
 
   public async getAsset(asset: string): Promise<unknown> {

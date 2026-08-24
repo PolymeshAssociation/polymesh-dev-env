@@ -265,25 +265,7 @@ describe('Settlements - REST API (Manual Settlement Flow)', () => {
     });
   });
 
-  // Affirmation withdraw is discontinued on chain v8
-  it.skip('should withdraw affirmation via receiver', async () => {
-    const withdrawAffirmationTx = await restClient.settlements.withdrawAffirmation(instructionId, {
-      options: { processMode: ProcessMode.Submit, signer: investor.signer },
-    });
-
-    await awaitMiddlewareSyncedForRestApi(withdrawAffirmationTx, restClient, new BigNumber(1));
-
-    const result = await restClient.settlements.getAffirmations(instructionId);
-    expect(result).toMatchObject({
-      results: expect.arrayContaining([
-        {
-          identity: issuer.did,
-          status: 'Affirmed',
-        },
-      ]),
-      total: '1',
-    });
-  });
+  // Affirmation withdraw is discontinued on chain v8; a party can only reject before affirming.
 
   it('should execute the instruction manually', async () => {
     const instructionDetails = await restClient.settlements.getInstruction(instructionId);

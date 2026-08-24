@@ -8,7 +8,7 @@ import {
   PendingAuthorizations,
   PendingInstructions,
 } from '~/rest/identities/interfaces';
-import { ResultSet } from '~/rest/interfaces';
+import { PostResult, ResultSet } from '~/rest/interfaces';
 
 export class Identities {
   constructor(private client: RestClient) {}
@@ -63,10 +63,6 @@ export class Identities {
     return this.client.get(`/identities/${did}/associated-claims`);
   }
 
-  public async getCddClaims(did: string): Promise<ResultSet<Record<string, unknown>>> {
-    return this.client.get(`/identities/${did}/cdd-claims`);
-  }
-
   public async findClaimScopesByDid(did: string): Promise<ResultSet<Record<string, unknown>>> {
     return this.client.get(`/identities/${did}/claim-scopes`);
   }
@@ -79,5 +75,33 @@ export class Identities {
     did: string
   ): Promise<ResultSet<Record<string, unknown>>> {
     return this.client.get(`/identities/${did}/pending-distributions`);
+  }
+
+  public async registerIdentity(
+    params: { targetAccount: string; createCdd?: boolean; expiry?: Date } & TxBase
+  ): Promise<PostResult & { identity?: { did: string } }> {
+    return this.client.post(
+      '/identities/register',
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async registerDid(params: { targetAccount: string } & TxBase): Promise<
+    PostResult & { identity?: { did: string } }
+  > {
+    return this.client.post(
+      '/identities/register-did',
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async setMandatoryReceiverAffirmation(
+    did: string,
+    params: { requirement: 'Automatic' | 'Required' } & TxBase
+  ): Promise<PostResult> {
+    return this.client.post(
+      `/identities/${did}/mandatory-receiver-affirmation`,
+      params as unknown as Record<string, unknown>
+    );
   }
 }

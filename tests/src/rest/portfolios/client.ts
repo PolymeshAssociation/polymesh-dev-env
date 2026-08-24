@@ -72,4 +72,43 @@ export class Portfolios {
   public async createdAt(did: string, portfolioId: string): Promise<Record<string, unknown>> {
     return this.client.get(`/identities/${did}/portfolios/${portfolioId}/created-at`);
   }
+
+  public async preApproveAsset(
+    did: string,
+    portfolioId: string,
+    params: { asset: string } & TxBase
+  ): Promise<PostResult> {
+    return this.client.post(
+      `/identities/${did}/portfolios/${portfolioId}/pre-approve-asset`,
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async removePreApproval(
+    did: string,
+    portfolioId: string,
+    params: { asset: string } & TxBase
+  ): Promise<PostResult> {
+    return this.client.post(
+      `/identities/${did}/portfolios/${portfolioId}/remove-pre-approval`,
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async getIsPreApproved(
+    did: string,
+    portfolioId: string,
+    asset: string
+  ): Promise<{ did: string; asset: string; isPreApproved: boolean }> {
+    return this.client.get(
+      `/identities/${did}/portfolios/${portfolioId}/is-pre-approved?asset=${asset}`
+    );
+  }
+
+  public async getPreApprovedAssets(
+    did: string,
+    portfolioId: string
+  ): Promise<ResultSet<{ did: string; asset: string; isPreApproved: boolean }>> {
+    return this.client.get(`/identities/${did}/portfolios/${portfolioId}/pre-approved-assets`);
+  }
 }

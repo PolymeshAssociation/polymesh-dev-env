@@ -87,6 +87,11 @@ export class Checkpoints {
     return this.client.get(`/assets/${asset}/checkpoints/schedules/${id}/complexity`);
   }
 
+  // GET /assets/{asset}/checkpoints/schedules/next
+  public async getNextCheckpoint(asset: string): Promise<unknown> {
+    return this.client.get(`/assets/${asset}/checkpoints/schedules/next`);
+  }
+
   // POST /assets/{asset}/corporate-actions/dividend-distributions/{id}/modify-checkpoint
   public async modifyDistributionCheckpoint(
     asset: string,

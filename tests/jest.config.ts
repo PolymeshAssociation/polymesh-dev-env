@@ -8,7 +8,10 @@ const config: Config.InitialOptions = {
     "/node_modules/(?![@polymeshassociation/src]).+\\.js$",
   ],
   testMatch: ["**/__tests__/**/*.(ts|tsx)"],
-  testPathIgnorePatterns: ["dist", ".history", "utils.ts"],
+  // testPathIgnorePatterns entries are unanchored regexes matched against the full path, so a
+  // bare "dist" also excludes any test whose name merely contains that substring (e.g. a
+  // "distributions" test) — anchor on the path separator to only exclude the actual dist/ dir.
+  testPathIgnorePatterns: ["/dist/", "/\\.history/", "/utils\\.ts$"],
   moduleNameMapper: {
     "~/(.*)": "<rootDir>/src/$1",
   },

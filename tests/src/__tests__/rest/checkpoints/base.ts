@@ -215,6 +215,15 @@ describe('Checkpoints Controller', () => {
   });
 
   describe('Checkpoint Schedule Management', () => {
+    it('should 404 when the asset has no active schedules', async () => {
+      const result = await restClient.checkpoints.getNextCheckpoint(assetId);
+
+      expect(result).toMatchObject({
+        statusCode: 404,
+        message: expect.any(String),
+      });
+    });
+
     it('should create a checkpoint schedule', async () => {
       // Create a checkpoint schedule
       const createScheduleTx = (await restClient.checkpoints.createSchedule(
@@ -344,6 +353,21 @@ describe('Checkpoints Controller', () => {
           complexity: '3',
         })
       );
+    });
+
+    it('should get the closest upcoming checkpoint across the asset schedules', async () => {
+      const nextCheckpoint = await restClient.checkpoints.getNextCheckpoint(assetId);
+
+      expect(nextCheckpoint).toMatchObject({
+        nextAt: expect.any(String),
+        totalPending: expect.any(String),
+        schedules: expect.arrayContaining([
+          expect.objectContaining({
+            id: scheduleId,
+            nextAt: expect.any(String),
+          }),
+        ]),
+      });
     });
 
     it('should delete a schedule', async () => {

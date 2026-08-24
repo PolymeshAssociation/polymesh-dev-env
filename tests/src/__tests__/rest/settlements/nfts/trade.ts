@@ -133,20 +133,7 @@ describe('Create and trading an NFT', () => {
     });
   });
 
-  // Affirmation withdraw is discontinued on chain v8
-  it.skip('should allow affirmation to be withdrawn', async () => {
-    const result = await restClient.settlements.withdrawAffirmation(instructionId, {
-      options: { processMode: ProcessMode.Submit, signer: issuer.signer },
-    });
-    expect(result).toMatchObject({
-      transactions: expect.arrayContaining([
-        expect.objectContaining({
-          ...expectBasicTxInfo,
-          transactionTag: 'settlement.withdrawAffirmationWithCount',
-        }),
-      ]),
-    });
-  });
+  // Affirmation withdraw is discontinued on chain v8; a party can only reject before affirming.
 
   it('should allow instruction to be affirmed by collector', async () => {
     const result = await restClient.settlements.affirmInstruction(instructionId, {

@@ -9,7 +9,7 @@ POLYMESH_REST_API_IMAGE=polymeshassociation/polymesh-rest-api:local
 POLYMESH_REST_API_LOCAL_SM_PORT=3004
 POLYMESH_REST_API_VAULT_SM_PORT=3005
 
-POLYMESH_SUBQUERY_IMAGE=polymeshassociation/polymesh-subquery:v19.6.0
+POLYMESH_SUBQUERY_IMAGE=polymeshassociation/polymesh-subquery:local
 
 POLYMESH_SUBQUERY_GRAPHQL_IMAGE=onfinality/subql-query:v2.25.0
 POLYMESH_SUBQUERY_GRAPHQL_PORT=3000

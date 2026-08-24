@@ -3,6 +3,7 @@ import {
   AffirmationStatus,
   FungibleAsset,
   Instruction,
+  InstructionStatus,
   InstructionType,
   LegStatusType,
   VenueType,
@@ -186,4 +187,26 @@ export const unlockInstruction = async (
 
   const isPending = await instruction.isPending();
   assert(isPending, 'the instruction should return to pending after being unlocked');
+
+  /*
+    Regresses a polymesh-subquery mapper bug: the indexer had no handler for
+    `settlement.InstructionUnlocked`, so the middleware-indexed Instruction status never left
+    `LockedForExecution` even though the on-chain status (checked above) correctly reverted to
+    `Pending`. Poll briefly to allow for normal indexing lag.
+  */
+  const deadline = Date.now() + 60_000;
+  let middlewareStatus: InstructionStatus | undefined;
+  do {
+    ({ status: middlewareStatus } = await instruction.details());
+    if (middlewareStatus === InstructionStatus.Pending) {
+      break;
+    }
+    await new Promise(resolve => setTimeout(resolve, 2_000));
+  } while (Date.now() < deadline);
+
+  assert.strictEqual(
+    middlewareStatus,
+    InstructionStatus.Pending,
+    `the middleware-indexed instruction status should revert to Pending after unlocking, got ${String(middlewareStatus)}`
+  );
 };

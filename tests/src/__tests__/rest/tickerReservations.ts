@@ -1,4 +1,5 @@
 import { assertTagPresent } from '~/assertions';
+import { env } from '~/environment';
 import { TestFactory } from '~/helpers';
 import { RestClient } from '~/rest';
 import { ProcessMode } from '~/rest/common';
@@ -150,5 +151,18 @@ describe('Ticker Reservations', () => {
     const result = (await restClient.tickerReservations.reserve(params)) as RestErrorResult;
 
     expect(result.statusCode).toEqual(422);
+  });
+});
+
+describe('Ticker Registration Config', () => {
+  it('should get the chain-wide ticker registration config', async () => {
+    const restClient = new RestClient(env.restApi);
+
+    const config = await restClient.tickerReservations.getConfig();
+
+    expect(config).toMatchObject({
+      maxTickerLength: expect.any(String),
+    });
+    expect(['string', 'object']).toContain(typeof config.registrationLength);
   });
 });

@@ -44,12 +44,6 @@ export class Settlements {
     });
   }
 
-  public async withdrawAsMediator(instructionId: string, txBase: TxBase): Promise<PostResult> {
-    return this.client.post(`/instructions/${instructionId}/withdraw-as-mediator`, {
-      ...txBase,
-    });
-  }
-
   public async rejectAsMediator(instructionId: string, txBase: TxBase): Promise<PostResult> {
     return this.client.post(`/instructions/${instructionId}/reject-as-mediator`, {
       ...txBase,
@@ -58,12 +52,6 @@ export class Settlements {
 
   public async getInstruction(instructionId: string): Promise<unknown> {
     return this.client.get(`/instructions/${instructionId}`);
-  }
-
-  public async withdrawAffirmation(instructionId: string, txBase: TxBase): Promise<PostResult> {
-    return this.client.post(`/instructions/${instructionId}/withdraw`, {
-      ...txBase,
-    });
   }
 
   public async rejectInstruction(instructionId: string, txBase: TxBase): Promise<PostResult> {
@@ -129,5 +117,67 @@ export class Settlements {
 
   public async getPendingInstructions(did: string): Promise<ResultSet<{ id: string }>> {
     return this.client.get(`/identities/${did}/pending-instructions`);
+  }
+
+  public async lockInstructionForExecution(
+    instructionId: string,
+    txBase: TxBase
+  ): Promise<PostResult> {
+    return this.client.post(`/instructions/${instructionId}/lock`, {
+      ...txBase,
+    });
+  }
+
+  public async unlockInstructionForExecution(
+    instructionId: string,
+    txBase: TxBase
+  ): Promise<PostResult> {
+    return this.client.post(`/instructions/${instructionId}/unlock`, {
+      ...txBase,
+    });
+  }
+
+  public async getRelockStatus(instructionId: string): Promise<{
+    unlockedAt: string | null;
+    relockCount: string;
+    maxRelockCount: string;
+    cooldownEndsAt: string | null;
+  }> {
+    return this.client.get(`/instructions/${instructionId}/relock-status`);
+  }
+
+  public async getLegStatus(
+    instructionId: string,
+    legId: string
+  ): Promise<{ type: string; signer?: string; uid?: string }> {
+    return this.client.get(`/instructions/${instructionId}/legs/${legId}/status`);
+  }
+
+  public async getVenueSigners(venueId: string): Promise<ResultSet<string>> {
+    return this.client.get(`/venues/${venueId}/signers`);
+  }
+
+  public async getVenueSignerCount(venueId: string): Promise<{ count: string }> {
+    return this.client.get(`/venues/${venueId}/signer-count`);
+  }
+
+  public async addVenueSigners(
+    venueId: string,
+    params: { signers: string[] } & TxBase
+  ): Promise<PostResult> {
+    return this.client.post(
+      `/venues/${venueId}/add-signers`,
+      params as unknown as Record<string, unknown>
+    );
+  }
+
+  public async removeVenueSigners(
+    venueId: string,
+    params: { signers: string[] } & TxBase
+  ): Promise<PostResult> {
+    return this.client.post(
+      `/venues/${venueId}/remove-signers`,
+      params as unknown as Record<string, unknown>
+    );
   }
 }

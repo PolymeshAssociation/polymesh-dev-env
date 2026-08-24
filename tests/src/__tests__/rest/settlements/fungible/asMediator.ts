@@ -111,21 +111,7 @@ describe('Create and trading an Asset with mediators', () => {
     });
   });
 
-  // Affirmation withdraw is discontinued on chain v8
-  it.skip('should allow the mediator to withdraw affirmation', async () => {
-    const withdrawResult = await restClient.settlements.withdrawAsMediator(instructionId, {
-      options: { processMode: ProcessMode.Submit, signer: mediator.signer },
-    });
-
-    expect(withdrawResult).toMatchObject({
-      transactions: expect.arrayContaining([
-        expect.objectContaining({
-          transactionTag: 'settlement.withdrawAffirmationAsMediator',
-          ...expectBasicTxInfo,
-        }),
-      ]),
-    });
-  });
+  // Affirmation withdraw is discontinued on chain v8; the mediator can only reject.
 
   it('should allow the mediator to reject the instruction', async () => {
     const affirmResult = await restClient.settlements.rejectAsMediator(instructionId, {

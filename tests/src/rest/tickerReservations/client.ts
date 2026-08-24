@@ -33,4 +33,11 @@ export class TickerReservations {
   public async getIdentityReservations(did: string): Promise<PostResult> {
     return this.client.get(`/identities/${did}/ticker-reservations`);
   }
+
+  public async getConfig(): Promise<{
+    maxTickerLength: string;
+    registrationLength: string | null;
+  }> {
+    return this.client.get('/ticker-reservations/config');
+  }
 }

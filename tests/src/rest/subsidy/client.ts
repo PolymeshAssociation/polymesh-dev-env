@@ -10,12 +10,6 @@ import {
 export class Subsidy {
   constructor(private client: RestClient) {}
 
-  public async createSubsidy(
-    params: ReturnType<typeof createSubsidyParams>
-  ): Promise<Record<string, unknown>> {
-    return this.client.post('/accounts/subsidy/create', params);
-  }
-
   public async approveSubsidy(params: ReturnType<typeof createSubsidyParams>): Promise<PostResult> {
     return this.client.post('/accounts/subsidy/approve', params);
   }

@@ -133,4 +133,11 @@ export class CorporateActions {
   ): Promise<PostResult> {
     return this.client.post(`assets/${asset}/corporate-actions/${id}/documents/link`, params);
   }
+
+  public async getDocuments(
+    asset: string,
+    id: BigNumber
+  ): Promise<ResultSet<Record<string, unknown>>> {
+    return this.client.get(`assets/${asset}/corporate-actions/${id}/documents`);
+  }
 }

@@ -198,6 +198,14 @@ export class TestFactory {
     }
   }
 
+  /**
+   * The signer name of this worker's admin Identity, which is funded with a large POLYX
+   * balance and (as of chain v8) granted DID Registrar status by `helpers/admin-setup.ts`
+   */
+  public getAdminSigner(): string {
+    return this.readAdminSigner();
+  }
+
   public getSignerIdentity(handle: string): Identity {
     const identity = this.handleToIdentity[handle];
     if (!identity) {

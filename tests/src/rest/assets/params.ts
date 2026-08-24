@@ -112,6 +112,23 @@ export const issueAssetParams = (amount: string | number, base: TxBase, extras: 
     ...base,
   } as const);
 
+export const transferFundsParams = (
+  asset: string,
+  from: { did: string; id: string },
+  to: { did: string; id: string },
+  amount: string | number,
+  base: TxBase,
+  extras: TxExtras = {}
+) =>
+  ({
+    asset,
+    from,
+    to,
+    amount: amount.toString(),
+    ...extras,
+    ...base,
+  } as const);
+
 export const controllerTransferParams = (
   origin: { did: string; id: string },
   amount: number,
