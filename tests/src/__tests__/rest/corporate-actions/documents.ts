@@ -39,16 +39,7 @@ describe('Corporate Action documents', () => {
       {
         options: { processMode: ProcessMode.Submit, signer },
       },
-      {
-        // the shared params default several placeholders that were never filled in: an empty
-        // DID/checkpoint id (neither validates), a literal "TICKER" currency (not a real Asset),
-        // and a paymentDate of "now" (the chain requires it in the future)
-        taxWithholdings: [],
-        checkpoint: new Date(Date.now() + 60_000),
-        currency: ticker,
-        paymentDate: new Date(Date.now() + 120_000),
-        expiryDate: new Date(Date.now() + 180_000),
-      }
+      { currency: ticker }
     );
     const distributionResult = await restClient.corporateActions.configureDividendDistribution(
       assetId,

@@ -3,27 +3,28 @@ import { TargetTreatment } from '@polymeshassociation/polymesh-sdk/types';
 
 import { TxBase, TxExtras } from '~/rest/common';
 
-// Shape is intentionally flexible to allow tests to pass specific values
+// Shape is intentionally flexible to allow tests to pass specific values.
+// `currency` has no sane default (it must be the ticker of a real, existing Asset), so callers
+// are expected to always override it via `extras`.
 export const createDividendDistributionParams = (base: TxBase, extras: TxExtras = {}) =>
   ({
     description: 'A sample distribution',
     declarationDate: new Date(),
+    // `Include: []` targets nobody; `Exclude: []` excludes nobody, i.e. everyone is included
     targets: {
-      treatment: TargetTreatment.Include,
+      treatment: TargetTreatment.Exclude,
       identities: [],
     },
     defaultTaxWithholding: new BigNumber(10),
-    taxWithholdings: [{ identity: '', percentage: new BigNumber(10) }],
-    checkpoint: {
-      type: 'Existing',
-      id: '',
-    },
+    taxWithholdings: [],
+    checkpoint: new Date(Date.now() + 60_000),
     originPortfolio: new BigNumber(0),
-    currency: 'TICKER',
-    perShare: new BigNumber(10),
+    // small enough that paying out any single holder's full balance (potentially most of the
+    // Asset's supply, when `currency` is the same Asset being distributed) stays under maxAmount
+    perShare: new BigNumber(0.01),
     maxAmount: new BigNumber(1000),
-    paymentDate: new Date(),
-    expiryDate: new Date(),
+    paymentDate: new Date(Date.now() + 120_000),
+    expiryDate: new Date(Date.now() + 180_000),
     ...extras,
     ...base,
   } as const);

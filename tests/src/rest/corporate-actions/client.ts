@@ -56,28 +56,22 @@ export class CorporateActions {
     );
   }
 
-  // POST /assets/{asset}/corporate-actions/dividend-distributions/{id}/claim
+  // POST /assets/{asset}/corporate-actions/{id}/payments/claim
   public async claimDividendDistribution(
     asset: string,
     id: string,
     params: ReturnType<typeof claimDividendDistributionParams>
   ): Promise<PostResult> {
-    return this.client.post(
-      `/assets/${asset}/corporate-actions/dividend-distributions/${id}/payments/claim`,
-      params
-    );
+    return this.client.post(`/assets/${asset}/corporate-actions/${id}/payments/claim`, params);
   }
 
-  // POST /assets/{asset}/corporate-actions/dividend-distributions/{id}/reclaim-funds
+  // POST /assets/{asset}/corporate-actions/{id}/reclaim-funds
   public async reclaimDividendDistributionFunds(
     asset: string,
     id: string,
     params: ReturnType<typeof reclaimDividendDistributionParams>
   ): Promise<PostResult> {
-    return this.client.post(
-      `/assets/${asset}/corporate-actions/dividend-distributions/${id}/reclaim-funds`,
-      params
-    );
+    return this.client.post(`/assets/${asset}/corporate-actions/${id}/reclaim-funds`, params);
   }
 
   public async modifyDistributionCheckpoint(

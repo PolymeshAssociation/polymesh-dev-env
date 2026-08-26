@@ -15,7 +15,8 @@ describe('Accounts Treasury Balance', () => {
       expect(treasuryBalance).toBeDefined();
       expect(treasuryBalance).toHaveProperty('balance');
       expect(typeof treasuryBalance.balance).toBe('string');
-      expect(treasuryBalance.balance).toMatch(/^\d+$/);
+      // chain v8 balances can carry sub-unit precision (e.g. "49999999.999999")
+      expect(treasuryBalance.balance).toMatch(/^\d+(\.\d+)?$/);
     });
   });
 });
