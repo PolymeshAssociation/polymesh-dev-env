@@ -4,6 +4,7 @@ import { createAssetParams } from '~/rest/assets/params';
 import { createCheckpointParams } from '~/rest/checkpoints/params';
 import { ProcessMode } from '~/rest/common';
 import {
+  claimDividendDistributionParams,
   createDividendDistributionParams,
   modifyDistributionCheckpointParams,
   payDividendDistributionParams,
@@ -213,18 +214,26 @@ describe('Dividend Distributions', () => {
     expect(distributions.results[0].id).toBe(distributionId);
   });
 
-  // NOTE: a "claimant self-claims via `capitalDistribution.claim`" step was removed here.
-  // It consistently rejects with "The signing Identity is not included in this Distribution"
-  // (the SDK's DividendDistribution.getParticipant() returns null), even though:
-  //   - claimant's checkpoint-time balance is confirmed correct (see the diagnostic assertion
-  //     in "should create a dividend distribution", which checks the same checkpoint directly)
-  //   - targets uses the default Exclude:[] (everyone included), so target-list membership
-  //     isn't the issue
-  //   - the equivalent push-based payment (to the holder, above) succeeds against the same
-  //     distribution/checkpoint
-  // This looks like a genuine discrepancy between getParticipant()'s internal checkpoint-balance
-  // resolution and the identical query made directly through the checkpoint-balances endpoint,
-  // rather than anything wrong with these params. Needs SDK-level investigation to pin down.
+  it('claimant should be able to claim the distribution', async () => {
+    const params = claimDividendDistributionParams({
+      options: { processMode: ProcessMode.Submit, signer: claimant.signer },
+    });
+
+    const result = await restClient.corporateActions.claimDividendDistribution(
+      assetId,
+      distributionId,
+      params
+    );
+    expect(result).toMatchObject({
+      transactions: expect.arrayContaining([
+        {
+          transactionTag: 'capitalDistribution.claim',
+          type: 'single',
+          ...expectBasicTxInfo,
+        },
+      ]),
+    });
+  });
 
   it('should reclaim the distribution', async () => {
     const remainingMs = expiryDate.getTime() - Date.now();
@@ -252,7 +261,7 @@ describe('Dividend Distributions', () => {
   });
 
   it('should be able to get payment history', async () => {
-    // only the holder was actually paid (pushed); the claimant's claim step above is skipped
+    // the holder was paid via a push; the claimant claimed their own share above
     const result = await restClient.corporateActions.paymentHistory(assetId, distributionId);
     expect(result).toMatchObject({
       results: expect.arrayContaining([
