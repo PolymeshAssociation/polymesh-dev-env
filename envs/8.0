@@ -44,6 +44,9 @@ POLYMESH_SUBQUERY_GRAPHQL_PORT=3000
 # Enables in-browser wallet interaction (contract Write tab, MetaMask, etc).
 # Get a free project ID from https://cloud.reown.com
 # POLYMESH_BLOCKSCOUT_WALLET_CONNECT_PROJECT_ID=
+# RPC URL the browser uses for Contract Read/Write and "Add to wallet".
+# Defaults to http://localhost:<POLYMESH_ETH_RPC_PORT> in compose.yaml.
+# POLYMESH_BLOCKSCOUT_NETWORK_RPC_URL=
 # Third-party ad slots are disabled by default. Set a provider name
 # (e.g. slise, coinzilla) to re-enable them.
 # POLYMESH_BLOCKSCOUT_AD_BANNER_PROVIDER=none

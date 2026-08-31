@@ -369,6 +369,10 @@ services:
       # Required to enable in-browser wallet interaction (contract Write tab,
       # MetaMask, etc). Get a free project ID from https://cloud.reown.com
       NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: ${POLYMESH_BLOCKSCOUT_WALLET_CONNECT_PROJECT_ID:-}
+      # RPC endpoint the browser (wagmi/viem) uses for Contract Read/Write
+      # calls and the "Add to wallet" network config. Must be reachable from
+      # the host, not the Docker network, so use the published eth-rpc port.
+      NEXT_PUBLIC_NETWORK_RPC_URL: ${POLYMESH_BLOCKSCOUT_NETWORK_RPC_URL:-http://localhost:${POLYMESH_ETH_RPC_PORT:-8545}}
       # The upstream frontend image enables third-party ad slots by default
       # (a banner on the home page and a text ad on token pages). They are
       # disabled here; set a provider name to re-enable.
