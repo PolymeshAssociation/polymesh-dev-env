@@ -164,6 +164,8 @@ Notes:
 
 - RPC/subscription coverage can vary by image tag. Keep `POLYMESH_ETH_RPC_IMAGE` configurable in env files and pin known-good tags.
 - Some paritypr image tags can be architecture-specific. Override `POLYMESH_ETH_RPC_PLATFORM` if needed.
+- `eth-rpc` surfaces some native Substrate extrinsics as pseudo-Ethereum transactions: SCALE-encoded `input`, a `modl*` pallet account as `to`, and zero gas. They are visible in Blockscout but cannot be traced — `debug_traceTransaction` returns `No Ethereum extrinsic found`. Blockscout's internal transaction fetcher is therefore disabled by default (`POLYMESH_BLOCKSCOUT_DISABLE_INTERNAL_TX_FETCHER`), since it would otherwise retry those blocks indefinitely and flood the logs.
+- Receipts from `eth-rpc` report the Substrate extrinsic index as `transactionIndex`, so it can disagree with the position of the hash in the block's `transactions` array.
 
 ## Additional Notes
 

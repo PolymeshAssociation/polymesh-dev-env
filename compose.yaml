@@ -323,6 +323,10 @@ services:
       NETWORK: ${POLYMESH_BLOCKSCOUT_NETWORK:-Polymesh}
       SUBNETWORK: ${POLYMESH_BLOCKSCOUT_SUBNETWORK:-Polymesh Dev}
       INDEXER_DISABLE_PENDING_TRANSACTIONS_FETCHER: ${POLYMESH_BLOCKSCOUT_DISABLE_PENDING_TX_FETCHER:-true}
+      # Native Substrate extrinsics appear as pseudo-Ethereum transactions with
+      # no EVM call frames, so tracing them fails and the fetcher retries those
+      # blocks forever. Nothing is lost: their traces are empty either way.
+      INDEXER_DISABLE_INTERNAL_TRANSACTIONS_FETCHER: ${POLYMESH_BLOCKSCOUT_DISABLE_INTERNAL_TX_FETCHER:-true}
       DISABLE_MARKET: 'true'
       ACCOUNT_ENABLED: 'false'
       DISABLE_WEBAPP: 'false'
