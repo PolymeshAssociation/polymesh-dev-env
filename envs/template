@@ -15,6 +15,13 @@ POLYMESH_SUBQUERY_IMAGE=polymeshassociation/polymesh-subquery:v19.6.0
 POLYMESH_SUBQUERY_GRAPHQL_IMAGE=onfinality/subql-query:v2.25.0
 POLYMESH_SUBQUERY_GRAPHQL_PORT=3000
 
+# The REST API and Vault services are opt-in (`--profile rest-api`). This makes
+# `environment-ready` wait for their account setup instead of reporting ready
+# once the core services are healthy; `start-env.sh` sets it to match the
+# profiles it was given, so it is only needed when running docker compose
+# directly.
+# POLYMESH_WAIT_FOR_REST_API=false
+
 # Optional EVM tooling (v8+ only, used with --profile evm)
 # POLYMESH_EVM_CHAIN_ID=1641818
 # POLYMESH_ETH_RPC_IMAGE=paritypr/eth-rpc:stable2606-73b734d9

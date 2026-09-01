@@ -36,8 +36,8 @@ jobs:
       - name: dump environment logs
         if: failure()
         run: |
-          docker compose --env-file envs/latest ps --all || true
-          docker compose --env-file envs/latest logs --no-color --timestamps || true
+          docker compose --env-file envs/latest --profile rest-api ps --all || true
+          docker compose --env-file envs/latest --profile rest-api logs --no-color --timestamps || true
       - name: stop environment
         if: always()
         run: yarn test:stop

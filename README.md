@@ -10,24 +10,44 @@ A Docker Compose file and auxiliary scripts for running a [Polymesh](https://pol
 ## Running
 
 1. **Configuration**: Copy an environment file (e.g., `envs/8.0`) to `.env` in the project root: `cp envs/8.0 .env`. This file specifies the Docker images to use. Alternatively, provide the path directly: `docker compose --env-file=envs/8.0 up`.
-2. **Start**: Run `docker compose up -d` to start the services in detached mode.
-3. **Stop**: Run `docker compose down` to stop the services. `docker compose down --volumes` will also remove associated volumes (chain data, database data, vault data), this will reset the environment.
+2. **Start**: Run `docker compose up -d` to start the services in detached mode. This brings up the core services only; see [Runtime Modes](#runtime-modes) for the optional `rest-api` and `evm` profiles.
+3. **Stop**: Run `docker compose down` to stop the services, repeating any `--profile` flags you started with — without them the profiled containers (Blockscout, eth-rpc, Vault, the REST APIs) are left running. `docker compose down --volumes` will also remove associated volumes (chain data, database data, vault data), this will reset the environment.
 4. **Restart**: To apply changes (e.g., updated `.env` file), run `docker compose down && docker compose up -d`.
+
+The `scripts/start-env.sh` and `scripts/stop-env.sh` helpers wrap these commands and manage the profile flags for you.
 
 Full variable reference is available in `envs/template` (also linked as `.env.example`).
 
-This setup will launch the following services:
+This setup will launch the following services by default:
 
 - `polymesh-node`: A single Polymesh node running in development mode (`--dev`).
 - `postgres`: PostgreSQL database, primarily for the Subquery indexer.
 - `subquery-node`: Polymesh Subquery indexer service.
 - `subquery-graphql`: GraphQL API server for querying indexed data.
+- `environment-ready`: Indicates when the core services and initial setup scripts have completed successfully.
+
+The REST API and Vault services are opt-in via the `rest-api` profile, since not
+every workflow signs through them and they add five containers:
+
 - `polymesh-rest-api-local-sm`: The Polymesh REST API service that uses local signers (Alice, Bob, Charlie, etc)
 - `polymesh-rest-api-vault-sm`: The Polymesh REST API service with HashiCorp Vault as the signing manager.
 - `polymesh-rest-api-vault-sm-init`: Creates test accounts and identities via the REST API.
 - `vault`: HashiCorp Vault for key management.
 - `vault-init`: Initializes and unseals Vault on first run, unseals on subsequent runs.
-- `environment-ready`: Indicates when the core services and initial setup scripts have completed successfully.
+
+```bash
+./scripts/start-env.sh --env-file envs/8.0 --profile rest-api
+# or, driving compose directly
+POLYMESH_WAIT_FOR_REST_API=true docker compose --env-file=envs/8.0 --profile rest-api up -d
+```
+
+`POLYMESH_WAIT_FOR_REST_API` tells `environment-ready` to wait for the REST API
+account setup rather than reporting ready as soon as the core services are
+healthy. `start-env.sh` sets it to match the profiles it was given, so it is
+only needed when invoking `docker compose` yourself.
+
+The integration test suite needs the REST API and Vault, so `yarn test` and
+`yarn test:start` enable the profile themselves.
 
 ## Checking Environment Status
 
@@ -37,7 +57,7 @@ The environment involves several services starting up and performing initial set
 docker compose logs environment-ready
 ```
 
-Wait for the message indicating completion:
+With the `rest-api` profile enabled, wait for the message indicating completion:
 
 ```text
 ************************************************************************************
@@ -46,6 +66,15 @@ Wait for the message indicating completion:
 ```
 
 If the environment was already initialized in a previous run, it will indicate readiness much faster.
+
+Without that profile there is no account setup to wait for, so readiness is
+reported as soon as the core services are healthy:
+
+```text
+************************************************************************************
+*** Polymesh Environment Ready! (core services healthy) ****************************
+************************************************************************************
+```
 
 ## Vault VS Local Signing Manager
 
@@ -58,21 +87,32 @@ To facilitate this choice, the environment runs two independent instances of the
 
 ## Runtime Modes
 
-This repository now has two runtime options:
+Optional services are grouped into profiles, so a run only pays for what it
+uses:
 
-1. Default mode (no EVM tooling)
-2. EVM tooling mode (`--profile evm`), which starts `polymesh-eth-rpc`, Blockscout backend/frontend, and dedicated Blockscout Postgres/Redis.
+| Profile    | Adds                                                                       | Containers |
+| ---------- | -------------------------------------------------------------------------- | ---------- |
+| _(none)_   | node, Postgres, Subquery indexer + GraphQL, readiness check                | 5          |
+| `rest-api` | both REST API instances, their init job, Vault, Vault init                 | +5         |
+| `evm`      | `polymesh-eth-rpc`, Blockscout backend/frontend, Blockscout Postgres/Redis | +5         |
+
+Profiles combine: `--profile rest-api,evm` starts everything, which is what
+earlier versions of this repository did on `--profile evm` alone. If you are
+only exercising smart contracts, `--profile evm` on its own leaves out Vault and
+the REST APIs entirely.
 
 Polymesh v8 includes Revive-based smart contract support, so optional EVM tooling follows Polkadot smart-contracts guidance:
 
 - [Get started with smart contracts](https://docs.polkadot.com/smart-contracts/get-started/)
 - [JSON-RPC APIs for Ethereum developers](https://docs.polkadot.com/smart-contracts/for-eth-devs/json-rpc-apis/)
 
-### Option 1: Default mode (without EVM tooling)
+### Option 1: Core mode (node and indexer only)
 
 ```bash
 ./scripts/start-env.sh --env-file envs/8.0
 ```
+
+Add `--profile rest-api` if you need the REST API or Vault.
 
 `--env-file` is optional; if omitted, both `start-env.sh` and `stop-env.sh`
 default to `envs/latest`. You can also override the default via the
@@ -103,8 +143,8 @@ for the next start, pass `--keep-volumes`:
 ./scripts/stop-env.sh --env-file envs/8.0 --keep-volumes
 ```
 
-`stop-env.sh` always tears down the EVM tooling as well, so you do not need to
-repeat `--profile evm` when stopping.
+`stop-env.sh` always tears down the profiled services as well, so you do not
+need to repeat `--profile evm` or `--profile rest-api` when stopping.
 
 ### Option 2: With EVM tooling
 
@@ -134,6 +174,7 @@ Explorer URLs:
 Notes:
 
 - EVM tooling remains opt-in and is not started by default.
+- `--profile evm` no longer pulls in Vault and the REST APIs. Blockscout and `eth-rpc` talk to the node directly, so this is the leanest way to work on contracts. Add `--profile rest-api,evm` if you want both.
 - `--allow-unprotected-txs` is enabled for local experimentation with legacy transaction flows.
 - Blockscout uses dedicated Postgres and Redis services, separate from Subquery services.
 - If you customize ports, keep frontend `NEXT_PUBLIC_API_PORT` aligned with `POLYMESH_BLOCKSCOUT_BACKEND_PORT`.
@@ -171,6 +212,7 @@ Notes:
 
 **Vault Automation:**
 
+- Vault, the REST APIs and the account setup below only run with `--profile rest-api`. `scripts/get-vault-token.sh` and anything reading ports 3004/3005/8200 need that profile enabled.
 - The `vault-init` service automatically initializes Vault (on the very first run with the profile) and unseals it every time the services start.
 - It creates one unseal key and a root token, storing them in the `vault-root-token` named volume (accessible within the `vault-init` container at `/vault-token/` as `.unseal_key` and `.token`).
 - It also automatically enables the `transit` secrets engine and creates ED25519 keys named `admin`, `signer1`, `signer2`, `signer3`, and `signer4`.

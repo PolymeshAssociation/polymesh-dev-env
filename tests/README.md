@@ -12,15 +12,16 @@ yarn
 
 ## Runtime options
 
-Two environment modes are supported:
+Optional services are grouped into compose profiles:
 
-1. Default mode (without EVM tooling)
-2. EVM tooling mode (`--profile evm`), which includes eth-rpc and Blockscout api and explorer
+- `rest-api` adds both REST API instances and Vault. The suite signs with Vault
+  and drives the REST API, so the test scripts enable this profile themselves.
+- `evm` adds eth-rpc and the Blockscout API and explorer.
 
 ## Default mode workflow
 
 ```sh
-yarn test:start      # starts environment with default profile set
+yarn test:start      # starts environment with --profile rest-api
 yarn test:run        # runs integration tests
 yarn test:stop       # stops and removes environment
 ```
@@ -34,10 +35,10 @@ yarn test
 ## EVM tooling workflow
 
 ```sh
-yarn test:start:evm  # starts environment with --profile evm
+yarn test:start:evm  # starts environment with --profile rest-api,evm
 yarn test:evm:smoke  # EVM RPC + Blockscout API smoke checks
 yarn test:run        # optional: run integration tests while env is up
-yarn test:stop:evm   # stops and removes env started with --profile evm
+yarn test:stop       # stops the environment, whichever profiles it used
 ```
 
 ## Notes

@@ -6,14 +6,19 @@ set -e
 # Get the directory where this script is located, regardless of where it's called from
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-START_STOP_ARGS=()
+ENV_FILE_ARGS=()
+PROFILES=""
 # Args that only apply to start-env.sh (stop-env.sh would reject them).
 START_ONLY_ARGS=()
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
-		--env-file|--profile)
-			START_STOP_ARGS+=("$1" "$2")
+		--env-file)
+			ENV_FILE_ARGS=("$1" "$2")
+			shift 2
+			;;
+		--profile)
+			PROFILES="$2"
 			shift 2
 			;;
 		--pull)
@@ -35,6 +40,15 @@ while [[ $# -gt 0 ]]; do
 			;;
 	esac
 done
+
+# The suite signs with Vault and drives the REST API, both of which live behind
+# the `rest-api` profile.
+case ",$PROFILES," in
+	*,rest-api,*) ;;
+	*) PROFILES="${PROFILES:+$PROFILES,}rest-api" ;;
+esac
+
+START_STOP_ARGS=("${ENV_FILE_ARGS[@]}" --profile "$PROFILES")
 
 echo "[ENV TEST] Starting environment..."
 "${SCRIPT_DIR}/start-env.sh" "${START_STOP_ARGS[@]}" "${START_ONLY_ARGS[@]}"

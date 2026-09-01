@@ -35,13 +35,15 @@ while [[ $# -gt 0 ]]; do
 	esac
 done
 
-# Always tear down with the `evm` profile enabled so profile-gated services
-# (eth-rpc, Blockscout, ...) are removed even when the caller omits --profile.
-# Without this, `down` leaves those containers running.
-case ",$COMPOSE_PROFILES," in
-	*,evm,*) ;;
-	*) COMPOSE_PROFILES="${COMPOSE_PROFILES:+$COMPOSE_PROFILES,}evm" ;;
-esac
+# Always tear down with the optional profiles enabled so profile-gated services
+# (eth-rpc, Blockscout, Vault, the REST APIs, ...) are removed even when the
+# caller omits --profile. Without this, `down` leaves those containers running.
+for required_profile in evm rest-api; do
+	case ",$COMPOSE_PROFILES," in
+		*",$required_profile,"*) ;;
+		*) COMPOSE_PROFILES="${COMPOSE_PROFILES:+$COMPOSE_PROFILES,}$required_profile" ;;
+	esac
+done
 
 if [[ "${COMPOSE_ENV}" != /* ]]; then
 	COMPOSE_ENV="${SCRIPT_DIR}/../${COMPOSE_ENV}"

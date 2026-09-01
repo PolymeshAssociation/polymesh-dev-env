@@ -59,6 +59,13 @@ if [[ -n "$COMPOSE_PROFILES" ]]; then
 	done
 fi
 
+# `environment-ready` waits on a marker written by the REST API account init,
+# which only runs with the `rest-api` profile. Tell it which of the two it is.
+case ",$COMPOSE_PROFILES," in
+	*,rest-api,*) export POLYMESH_WAIT_FOR_REST_API=true ;;
+	*) export POLYMESH_WAIT_FOR_REST_API=false ;;
+esac
+
 UP_ARGS=(--detach)
 if [[ -n "$COMPOSE_PULL_POLICY" ]]; then
 	UP_ARGS+=(--pull "$COMPOSE_PULL_POLICY")

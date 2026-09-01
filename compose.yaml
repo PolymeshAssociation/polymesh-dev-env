@@ -131,6 +131,8 @@ services:
   # https://github.com/PolymeshAssociation/polymesh-rest-api#signing-managers
   polymesh-rest-api-vault-sm:
     image: ${POLYMESH_REST_API_IMAGE}
+    profiles:
+      - rest-api
     depends_on:
       polymesh-node:
         condition: service_healthy
@@ -169,6 +171,8 @@ services:
 
   polymesh-rest-api-vault-sm-init:
     image: alpine:3.19
+    profiles:
+      - rest-api
     depends_on:
       polymesh-rest-api-vault-sm:
         condition: service_healthy
@@ -191,6 +195,8 @@ services:
   # https://github.com/PolymeshAssociation/polymesh-rest-api#signing-managers
   polymesh-rest-api-local-sm:
     image: ${POLYMESH_REST_API_IMAGE}
+    profiles:
+      - rest-api
     depends_on:
       polymesh-node:
         condition: service_healthy
@@ -387,6 +393,8 @@ services:
     # non-root and its binary carries no cap_ipc_lock file capability, so mlock
     # fails wherever the host's memlock rlimit is finite.
     image: hashicorp/vault:${VAULT_VERSION:-latest}
+    profiles:
+      - rest-api
     networks:
       - polymesh
     restart: unless-stopped
@@ -403,6 +411,8 @@ services:
   # This will make sure vault is initialized and unsealed on the first run and unsealed on subsequent runs
   vault-init:
     image: hashicorp/vault:${VAULT_VERSION:-latest}
+    profiles:
+      - rest-api
     user: '0:0'
     networks:
       - polymesh
@@ -435,9 +445,29 @@ services:
     image: alpine:latest
     volumes:
       - rest-api-accounts-init:/status:ro
+    depends_on:
+      polymesh-node:
+        condition: service_healthy
+      subquery-graphql:
+        condition: service_healthy
+    environment:
+      # The REST API and Vault services sit behind the `rest-api` profile, so
+      # the account-init marker they write is only produced when that profile
+      # is enabled. Without it, readiness is just the core services being
+      # healthy, which `depends_on` above already guarantees. `start-env.sh`
+      # sets this whenever it enables the profile.
+      WAIT_FOR_REST_API: ${POLYMESH_WAIT_FOR_REST_API:-false}
     command: >
       sh -c '
         start_time=$$(date +%s)
+
+        if [ "$$WAIT_FOR_REST_API" != "true" ]; then
+          echo "************************************************************************************"
+          echo "*** Polymesh Environment Ready! (core services healthy) ****************************"
+          echo "*** REST API and Vault are not running: start with --profile rest-api to add them **"
+          echo "************************************************************************************"
+          exit 0
+        fi
 
         if [ -f /status/.setup-complete ]; then
           echo "************************************************************************************"
