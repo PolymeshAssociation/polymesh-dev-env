@@ -135,13 +135,16 @@ file uses floating tags such as `latest`), add `--pull always`:
 `build`); a bare `--pull` is shorthand for `always`. The same behaviour can be
 set via the `COMPOSE_PULL_POLICY` environment variable.
 
-By default `stop-env.sh` removes the named volumes (chain data, Vault keys,
-Blockscout DB, ...) for a clean slate. To stop the containers but keep the data
-for the next start, pass `--keep-volumes`:
+`stop-env.sh` keeps the named volumes (chain data, Vault keys, Blockscout DB,
+...) so the next start resumes from the existing state. For a clean slate, pass
+`--volumes` (or `-v`):
 
 ```bash
-./scripts/stop-env.sh --env-file envs/8.0 --keep-volumes
+./scripts/stop-env.sh --env-file envs/8.0 --volumes
 ```
+
+`--keep-volumes` is still accepted, as a no-op, so older invocations keep
+working.
 
 `stop-env.sh` always tears down the profiled services as well, so you do not
 need to repeat `--profile evm` or `--profile rest-api` when stopping.

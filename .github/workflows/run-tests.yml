@@ -40,5 +40,5 @@ jobs:
           docker compose --env-file envs/latest --profile rest-api logs --no-color --timestamps || true
       - name: stop environment
         if: always()
-        run: yarn test:stop
+        run: yarn test:stop:clean
         working-directory: tests

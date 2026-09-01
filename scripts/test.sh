@@ -56,5 +56,8 @@ echo "[ENV TEST] Starting environment..."
 echo "[ENV TEST] Running tests..."
 "${SCRIPT_DIR}/run-tests.sh"
 
+# A full test cycle owns the environment it created, and the suite leaves
+# identities and assets on chain that a rerun would trip over, so this teardown
+# removes the volumes even though `stop-env.sh` keeps them by default.
 echo "[ENV TEST] Cleaning up environment..."
-"${SCRIPT_DIR}/stop-env.sh" "${START_STOP_ARGS[@]}"
+"${SCRIPT_DIR}/stop-env.sh" "${START_STOP_ARGS[@]}" --volumes

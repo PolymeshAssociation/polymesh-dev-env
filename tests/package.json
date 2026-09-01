@@ -9,6 +9,7 @@
     "test:start:evm": "../scripts/start-env.sh --profile rest-api,evm",
     "test:run": "../scripts/run-tests.sh",
     "test:stop": "../scripts/stop-env.sh",
+    "test:stop:clean": "../scripts/stop-env.sh --volumes",
     "test:vault-token": "../scripts/get-vault-token.sh",
     "test:evm:smoke": "../scripts/evm-smoke-test.sh && ../scripts/blockscout-smoke-test.sh",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",

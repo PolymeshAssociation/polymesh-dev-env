@@ -9,10 +9,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 COMPOSE_ENV_DEFAULT="${SCRIPT_DIR}/../envs/latest"
 COMPOSE_ENV="${COMPOSE_ENV:-$COMPOSE_ENV_DEFAULT}"
 COMPOSE_PROFILES="${COMPOSE_PROFILES:-}"
-# By default the teardown removes named volumes (chain data, Vault keys,
-# Blockscout DB, ...). Pass --keep-volumes to stop the containers but retain
-# the data so the next start resumes from the existing state.
-KEEP_VOLUMES=false
+# The teardown keeps named volumes (chain data, Vault keys, Blockscout DB, ...)
+# so the next start resumes from the existing state. Pass --volumes for a clean
+# slate.
+REMOVE_VOLUMES=false
 
 while [[ $# -gt 0 ]]; do
 	case "$1" in
@@ -24,8 +24,12 @@ while [[ $# -gt 0 ]]; do
 			COMPOSE_PROFILES="$2"
 			shift 2
 			;;
+		--volumes|-v)
+			REMOVE_VOLUMES=true
+			shift
+			;;
 		--keep-volumes)
-			KEEP_VOLUMES=true
+			# Now the default; still accepted so existing invocations work.
 			shift
 			;;
 		*)
@@ -64,11 +68,11 @@ if [[ -n "$COMPOSE_PROFILES" ]]; then
 fi
 
 DOWN_ARGS=(down)
-if [[ "$KEEP_VOLUMES" == true ]]; then
-	echo "[STOP ENV] Stopping the docker environment (named volumes preserved)..."
-else
+if [[ "$REMOVE_VOLUMES" == true ]]; then
 	DOWN_ARGS+=(--volumes)
 	echo "[STOP ENV] Cleaning up the docker environment (removing named volumes)..."
+else
+	echo "[STOP ENV] Stopping the docker environment (named volumes preserved)..."
 fi
 
 docker compose "${COMPOSE_ARGS[@]}" "${DOWN_ARGS[@]}"
