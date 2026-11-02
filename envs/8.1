@@ -1,0 +1,53 @@
+COMPOSE_PROJECT_NAME=polymesh
+
+POLYMESH_CHAIN_IMAGE=polymeshassociation/polymesh:8.1.3-testnet-debian
+POLYMESH_CHAIN_WS_PORT=9944
+POLYMESH_CHAIN_RPC_PORT=9933
+POLYMESH_CHAIN_P2P_PORT=30333
+
+POLYMESH_REST_API_IMAGE=polymeshassociation/polymesh-rest-api:v9.0.0
+POLYMESH_REST_API_LOCAL_SM_PORT=3004
+POLYMESH_REST_API_VAULT_SM_PORT=3005
+
+POLYMESH_SUBQUERY_IMAGE=polymeshassociation/polymesh-subquery:v19.7.0
+
+POLYMESH_SUBQUERY_GRAPHQL_IMAGE=onfinality/subql-query:v2.25.0
+POLYMESH_SUBQUERY_GRAPHQL_PORT=3000
+
+# Optional EVM tooling (v8+ only, used with --profile evm)
+# POLYMESH_EVM_CHAIN_ID=1641818
+# POLYMESH_ETH_RPC_IMAGE=paritypr/eth-rpc:stable2606-73b734d9
+# POLYMESH_ETH_RPC_PLATFORM=linux/amd64
+# POLYMESH_ETH_RPC_NODE_RPC_URL=ws://polymesh-node:9944
+# POLYMESH_ETH_RPC_PORT=8545
+
+# POLYMESH_BLOCKSCOUT_IMAGE=ghcr.io/blockscout/blockscout:latest
+# POLYMESH_BLOCKSCOUT_PORT=4000
+# POLYMESH_BLOCKSCOUT_BACKEND_PORT=4001
+# POLYMESH_BLOCKSCOUT_FRONTEND_IMAGE=ghcr.io/blockscout/frontend:latest
+# POLYMESH_BLOCKSCOUT_POSTGRES_IMAGE=postgres:17
+# POLYMESH_BLOCKSCOUT_POSTGRES_DB=blockscout
+# POLYMESH_BLOCKSCOUT_POSTGRES_USER=blockscout
+# POLYMESH_BLOCKSCOUT_POSTGRES_PASSWORD=blockscout
+# POLYMESH_BLOCKSCOUT_ECTO_USE_SSL=false
+# POLYMESH_BLOCKSCOUT_ECTO_SSL_MODE=disable
+# POLYMESH_BLOCKSCOUT_REDIS_IMAGE=redis:alpine
+# POLYMESH_BLOCKSCOUT_RPC_VARIANT=geth
+# POLYMESH_BLOCKSCOUT_DISABLE_PENDING_TX_FETCHER=true
+# Native Substrate extrinsics appear as pseudo-Ethereum transactions that
+# cannot be traced, so the fetcher would retry those blocks forever.
+# POLYMESH_BLOCKSCOUT_DISABLE_INTERNAL_TX_FETCHER=true
+# POLYMESH_BLOCKSCOUT_NETWORK=Polymesh
+# POLYMESH_BLOCKSCOUT_SUBNETWORK=Polymesh Dev
+# POLYMESH_BLOCKSCOUT_COIN=POLYX
+# POLYMESH_BLOCKSCOUT_COIN_NAME=POLYX
+# Enables in-browser wallet interaction (contract Write tab, MetaMask, etc).
+# Get a free project ID from https://cloud.reown.com
+# POLYMESH_BLOCKSCOUT_WALLET_CONNECT_PROJECT_ID=
+# RPC URL the browser uses for Contract Read/Write and "Add to wallet".
+# Defaults to http://localhost:<POLYMESH_ETH_RPC_PORT> in compose.yaml.
+# POLYMESH_BLOCKSCOUT_NETWORK_RPC_URL=
+# Third-party ad slots are disabled by default. Set a provider name
+# (e.g. slise, coinzilla) to re-enable them.
+# POLYMESH_BLOCKSCOUT_AD_BANNER_PROVIDER=none
+# POLYMESH_BLOCKSCOUT_AD_TEXT_PROVIDER=none

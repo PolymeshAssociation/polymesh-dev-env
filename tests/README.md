@@ -48,5 +48,5 @@ yarn test:stop       # stops the environment, whichever profiles it used
   the existing state; `test:stop:clean` removes them. Calling `stop-env.sh`
   directly, the flag is `--volumes` (or `-v`).
 - EVM tooling is only expected on chain v8+ presets.
-- The suite requires a **chain v8 preset** (`envs/8.0`, `envs/latest`). The Polymesh SDK dropped v7
+- The suite requires a **chain v8 preset** (`envs/8.0`, `envs/8.1`, `envs/latest`). The Polymesh SDK dropped v7
   support in v31 and throws on connecting to a v7 node, so `envs/7.2` can no longer be used here.
